@@ -10,6 +10,11 @@
       "StackName": "amplify-pranaaiv2-dev-dc940",
       "StackId": "arn:aws:cloudformation:us-east-1:654654424627:stack/amplify-pranaaiv2-dev-dc940/d5fdcdd0-104a-11f0-badf-0e0a5af16d8f",
       "AmplifyAppId": "d36d5kgrids8f0"
+    },
+    "categories": {
+      "auth": {
+        "pranaaiv26d578f94": {}
+      }
     }
   }
 }

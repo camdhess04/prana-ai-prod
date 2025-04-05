@@ -1,48 +1,24 @@
+// App.tsx
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ThemeProvider, useAppTheme } from './src/context/ThemeContext';
+import { ThemeProvider } from './src/context/ThemeContext';
+import { AuthProvider } from './src/context/AuthContext';
+import { Amplify } from 'aws-amplify';
+import awsconfig from './src/aws-exports';
+import RootNavigator from './src/navigation/RootNavigator';
 
-// Root component that uses the theme context
-function AppContent() {
-  const { theme, themeMode, toggleTheme } = useAppTheme();
+// --- Simple Amplify Configuration ---
+Amplify.configure(awsconfig);
+// --- No Debug Logging Settings Here ---
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.text, { color: theme.text }]}>
-         Prana.ai V2 - Let's Build!
-      </Text>
-      <Text style={[styles.text, { color: theme.secondaryText }]}>
-        Current Mode: {themeMode}
-      </Text>
-      <Button title="Toggle Theme" onPress={toggleTheme} color={theme.primary} />
-      <StatusBar style={themeMode === 'light' ? 'dark' : 'light'} />
-    </View>
-  );
-}
-
-// Main App component wrapping everything with the provider
 export default function App() {
   return (
     <SafeAreaProvider>
        <ThemeProvider>
-          <AppContent />
+          <AuthProvider>
+            <RootNavigator />
+          </AuthProvider>
        </ThemeProvider>
     </SafeAreaProvider>
   );
 }
-
-// Basic styles - we'll make these theme-aware later
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-});
