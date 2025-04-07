@@ -13,7 +13,7 @@ type SignupScreenProps = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
 const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const { theme } = useAppTheme();
   // Make sure to get confirmSignUp and resendSignUp if you keep related buttons
-  const { signUp, confirmSignUp, resendSignUp } = useAuth();
+  const { signUp, confirmSignUp, resendSignUp, fetchCurrentUserAttributes } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,111 +46,96 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
     setError(null);
 
     try {
-      console.log(`Attempting sign up for: ${email}`);
-      // Using modern signUp input structure
-      const result = await signUp({
-          username: email.trim(),
-          password: password,
-          options: {
-              userAttributes: { email: email.trim() },
-              // Ensure autoSignIn is NOT enabled if using this workaround
-              // autoSignIn: { enabled: true } // Keep this commented/removed
-          }
-       });
-
-      console.log('Sign up result:', result);
-      setIsLoading(false);
-      // Check if confirmation is required
-      if (result?.nextStep?.signUpStep === 'CONFIRM_SIGN_UP') {
-          setIsConfirming(true);
-          setError(null);
-          Alert.alert('Check Your Email', 'A confirmation code has been sent to your email address.');
-      } else if (result?.isSignUpComplete) { // Check if signup is complete without confirmation
-           console.log('Signup complete and maybe auto-signed in?');
-           // Navigation potentially handled by AuthContext listener if autoSignIn occurred
-           // If no autoSignIn, maybe navigate to Login? Or show success message.
-           // Let's assume confirmation is usually required with default settings.
-      } else {
-           setError('Signup status unclear. Please check your email or try logging in.');
-      }
-
+        console.log(`Attempting sign up for: ${email}`);
+        const result = await signUp(email.trim(), password, email.trim());
+        console.log('Sign up result:', result);
+        
+        if (result?.nextStep?.signUpStep === 'CONFIRM_SIGN_UP') {
+            setIsConfirming(true);
+            setError(null);
+            Alert.alert(
+                'Check Your Email',
+                'A confirmation code has been sent to your email address. Please enter it below.',
+                [{ text: 'OK' }]
+            );
+        } else {
+            setError('Signup status unclear. Please check your email or try logging in.');
+        }
     } catch (err: any) {
-      setIsLoading(false);
-      console.error('Sign up error:', err);
-      if (err.name === 'UsernameExistsException') {
-          setError('An account with this email already exists.');
-      } else if (err.name === 'InvalidPasswordException') {
-           setError('Password does not meet requirements (Min 8 chars recommended).');
-      } else {
-          setError('An unexpected error occurred during sign up.');
-      }
+        setIsLoading(false);
+        console.error('Sign up error:', err);
+        if (err.name === 'UsernameExistsException') {
+            setError('An account with this email already exists. Please try logging in.');
+        } else if (err.name === 'InvalidPasswordException') {
+            setError('Password does not meet requirements (Min 8 chars recommended).');
+        } else {
+            setError('An unexpected error occurred during sign up.');
+        }
+    } finally {
+        setIsLoading(false);
     }
   };
 
-  // --- Final Workaround Version of handleConfirmSignUp ---
   const handleConfirmSignUp = async () => {
-      if (!confirmationCode) {
-          setError('Please enter the confirmation code.');
-          return;
-      }
-      setIsLoading(true);
-      setError(null);
+    if (!confirmationCode) {
+        setError('Please enter the confirmation code.');
+        return;
+    }
+    setIsLoading(true);
+    setError(null);
 
-      try {
-          console.log(`Attempting confirmation for ${email} with code ${confirmationCode}`);
-          await confirmSignUp({ username: email.trim(), confirmationCode });
-          console.log('Confirmation successful');
+    try {
+        console.log(`Attempting confirmation for ${email} with code ${confirmationCode}`);
+        await confirmSignUp(email.trim(), confirmationCode);
+        console.log('Confirmation successful');
 
-          // --- Simple Workaround Implementation ---
-          setIsLoading(false); // Stop loading indicator
-
-          // Provide clear feedback and direct user to login via the Alert's OK button
-          Alert.alert(
-              'Account Confirmed!',
-              'Your account has been successfully confirmed. Please log in to continue.',
-              [
-                  { text: 'OK', onPress: () => navigation.navigate('Login') }
-              ],
-              { cancelable: false } // Prevent dismissing alert without pressing OK
-          );
-          // Navigation happens when OK is pressed
-
-      } catch (err: any) {
-          setIsLoading(false); // Stop loading on error
-          console.error('Error during confirmation:', err);
-          // Handle confirmation errors clearly
-           if (err.name === 'CodeMismatchException') {
-              setError('Invalid confirmation code. Please try again.');
-           } else if (err.name === 'ExpiredCodeException') {
-               setError('Confirmation code has expired. Please request a new one.');
-           } else if (err.name === 'UserNotFoundException') {
-               setError('User not found for confirmation. Please sign up again.');
-               setIsConfirming(false); // Go back to signup form
-           } else if (err.name === 'LimitExceededException') {
-               setError('Attempt limit exceeded, please try again later.');
-           }
-           else {
-               setError('An error occurred during confirmation. Please try again.');
-           }
-      }
-  };
-  // --- End of handleConfirmSignUp ---
-
-   const handleResendCode = async () => {
-        // Keep resend code functionality
-        setIsLoading(true);
-        setError(null);
+        // Attempt to fetch attributes after confirmation
+        console.log('Attempting to fetch user attributes post-confirmation...');
         try {
-            await resendSignUp({ username: email.trim() });
-            Alert.alert('Code Resent', 'A new confirmation code has been sent to your email.');
-        } catch (err: any) {
-            console.error('Resend code error:', err);
-            setError('Failed to resend code. Please try again shortly.');
-        } finally {
-            setIsLoading(false);
+            const attributes = await fetchCurrentUserAttributes();
+            if (attributes) {
+                console.log('Successfully fetched attributes post-confirmation:', attributes);
+            } else {
+                console.log('Fetched attributes returned null/empty post-confirmation.');
+            }
+        } catch (attrError) {
+            console.warn('Error fetching attributes post-confirmation (continuing...):', attrError);
         }
-   }
 
+        setIsLoading(false);
+        Alert.alert(
+            'Account Confirmed!',
+            'Your account has been successfully confirmed. Please log in to continue.',
+            [
+                { text: 'OK', onPress: () => navigation.navigate('Login') }
+            ],
+            { cancelable: false }
+        );
+
+    } catch (err: any) {
+        setIsLoading(false);
+        console.error('Error during confirmation:', err);
+        if (err.name === 'CodeMismatchException') { setError('Invalid confirmation code.'); }
+        else if (err.name === 'ExpiredCodeException') { setError('Confirmation code has expired.'); }
+        else if (err.name === 'UserNotFoundException') { setError('User not found.'); setIsConfirming(false); }
+        else if (err.name === 'LimitExceededException') { setError('Attempt limit exceeded.'); }
+        else { setError('An error occurred during confirmation.'); }
+    }
+  };
+
+  const handleResendCode = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+        await resendSignUp(email.trim());
+        Alert.alert('Code Resent', 'A new confirmation code has been sent to your email.');
+    } catch (err: any) {
+        console.error('Resend code error:', err);
+        setError('Failed to resend code. Please try again shortly.');
+    } finally {
+        setIsLoading(false);
+    }
+  };
 
   return (
      <KeyboardAvoidingView
@@ -180,7 +165,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
                     <Button
                         title="Confirm Sign Up"
-                        onPress={handleConfirmSignUp} // Uses the workaround version
+                        onPress={handleConfirmSignUp}
                         isLoading={isLoading}
                         disabled={isLoading}
                         style={styles.button}

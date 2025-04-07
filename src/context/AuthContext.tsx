@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-// *** MOCKED AUTHENTICATION CONTEXT FOR DEVELOPMENT ***
+// *** RESTORED REAL AUTHENTICATION CONTEXT ***
 
 import React, {
     createContext,
@@ -8,140 +8,184 @@ import React, {
     useContext,
     ReactNode,
 } from 'react';
-// Removed imports for Amplify Auth functions (signIn, signUp, Hub, etc.) as they are now mocked
-// We still might need a type for the user object
-// Define a simple mock user type or use a generic object
-// Or import AuthUser if you want to maintain the type structure for later
-import type { AuthUser } from 'aws-amplify/auth'; // Keep type for structure if desired
+// --- Use Modern Amplify Imports ---
+import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUp, fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
+import type { AuthUser, SignInInput, SignUpInput, ConfirmSignUpInput, ResendSignUpCodeInput } from 'aws-amplify/auth';
+// --- --- --- --- --- --- --- ---
 
-// Define a simpler mock user structure or use AuthUser interface partially
-interface MockUser {
-    username: string;
-    userId: string;
-    // Add any other user attributes your app might need later
-    attributes?: {
-        email?: string;
-        // etc.
-    };
-}
-
-// Define the shape of the context value (functions will be mocked)
 interface AuthContextType {
-    user: MockUser | null; // Using MockUser type now
+    user: AuthUser | null;
     isLoading: boolean;
-    signIn: (args?: any) => Promise<void>; // Mocked - takes optional args
-    signUp: (args?: any) => Promise<void>; // Mocked
-    confirmSignUp: (args?: any) => Promise<void>; // Mocked
-    resendSignUp: (args?: any) => Promise<void>; // Mocked
-    signOut: () => Promise<void>; // Mocked
-    fetchCurrentSession?: () => Promise<any>; // Optional: Mock or remove
+    signIn: (username: string, password: string) => Promise<void>;
+    signUp: (username: string, password: string, email: string) => Promise<any>;
+    confirmSignUp: (username: string, code: string) => Promise<void>;
+    resendSignUp: (username: string) => Promise<void>;
+    signOut: () => Promise<void>;
+    fetchCurrentSession: () => Promise<any>;
+    fetchCurrentUserAttributes: () => Promise<any>;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Define props for the provider component
 interface AuthProviderProps {
     children: ReactNode;
 }
 
-// --- Mock User Data ---
-const mockUser: MockUser = {
-    username: 'developer@prana.ai', // Use a consistent mock username
-    userId: 'mock-user-123',
-    attributes: {
-        email: 'developer@prana.ai',
-    },
-};
-// --- --- --- --- ---
-
-// Create the provider component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<MockUser | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // Start loading
+    const [user, setUser] = useState<AuthUser | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // --- Mocked checkCurrentUser ---
-    // Simulate loading and then set the mock user
+    const checkCurrentUser = async () => {
+        console.log('Attempting to check current user...');
+        try {
+            const authenticatedUser = await getCurrentUser();
+            console.log('Current user checked:', authenticatedUser.username);
+            setUser(authenticatedUser);
+        } catch (error) {
+            console.log('No authenticated user found (expected if not logged in):', error);
+            setUser(null);
+        } finally {
+            if (isLoading) setIsLoading(false);
+            console.log('Finished checking user, isLoading:', isLoading);
+        }
+    };
+
     useEffect(() => {
-        console.log('[Mock Auth] Simulating initial auth check...');
         setIsLoading(true);
-        const timer = setTimeout(() => {
-            console.log('[Mock Auth] Setting mock user:', mockUser.username);
-            setUser(mockUser);
-            setIsLoading(false);
-            console.log('[Mock Auth] Finished mock auth check.');
-        }, 1500); // Simulate 1.5 second loading time
+        checkCurrentUser().finally(() => setIsLoading(false));
 
-        return () => clearTimeout(timer); // Cleanup timer on unmount
+        const listener = (data: any) => {
+            console.log("Hub event received:", data.payload.event);
+            switch (data.payload.event) {
+                case 'signedIn':
+                case 'autoSignIn':
+                case 'signUp':
+                    console.log('Hub received signedIn/autoSignIn/signUp event');
+                    checkCurrentUser();
+                    break;
+                case 'signedOut':
+                    console.log('Hub received signedOut event');
+                    setUser(null);
+                    break;
+            }
+        };
+        const hubListenerCancelToken = Hub.listen('auth', listener);
+        console.log("Hub listener set up.");
+        return () => {
+            console.log("Cleaning up Hub listener.");
+            hubListenerCancelToken();
+        };
     }, []);
-    // --- --- --- --- --- --- --- ---
 
-    // --- Removed Hub Listener ---
-    // useEffect(() => { /* Hub listener code removed */ }, []);
-    // --- --- --- --- --- --- ---
-
-    // --- Mocked Authentication Functions ---
-
-    const mockSignIn = async (args?: any): Promise<void> => {
-        console.log('[Mock Auth] signIn called (mocked)', args);
-        setIsLoading(true);
-        // Simulate sign-in delay and set user
-        await new Promise(res => setTimeout(res, 500));
-        setUser(mockUser);
-        setIsLoading(false);
-        console.log('[Mock Auth] Mock user set via signIn');
+    const handleSignIn = async (username: string, password: string): Promise<void> => {
+        console.log('🔑 Attempting sign in with username:', username);
+        try {
+            const { isSignedIn, nextStep } = await signIn({
+                username,
+                password
+            });
+            console.log('✅ SignIn result - isSignedIn:', isSignedIn, 'nextStep:', nextStep);
+            if (!isSignedIn && nextStep) {
+                console.log("SignIn requires next step:", nextStep.signInStep);
+                throw new Error(`SignIn requires next step: ${nextStep.signInStep}`);
+            }
+        } catch (error: any) {
+            console.error('❌ Sign-in error (raw):', error);
+            console.log('❌ error.name:', error.name);
+            console.log('❌ error.message:', error.message);
+            console.log('❌ error.stack:', error.stack);
+            throw error;
+        }
     };
 
-    const mockSignUp = async (args?: any): Promise<void> => {
-        console.log('[Mock Auth] signUp called (mocked - does nothing)', args);
-        // In mock mode, we don't need to do anything here
-        // Maybe show an alert for feedback during development?
-        // Alert.alert("Mock Mode", "Sign up function called (no action taken).");
-        return Promise.resolve();
+    const handleSignUp = async (username: string, password: string, email: string): Promise<any> => {
+        console.log('Attempting sign up for:', username);
+        try {
+            const output = await signUp({
+                username,
+                password,
+                options: {
+                    userAttributes: {
+                        email
+                    }
+                }
+            });
+            console.log('Sign up result:', output);
+            return output;
+        } catch (error: any) {
+            console.error('Error signing up:', error);
+            throw error;
+        }
     };
 
-    const mockConfirmSignUp = async (args?: any): Promise<void> => {
-        console.log('[Mock Auth] confirmSignUp called (mocked - does nothing)', args);
-        return Promise.resolve();
+    const handleConfirmSignUp = async (username: string, code: string): Promise<void> => {
+        console.log(`Attempting confirmation for ${username} with code ${code}`);
+        try {
+            await confirmSignUp({ username, confirmationCode: code });
+            console.log('Sign up confirmed successfully');
+        } catch (error: any) {
+            console.error('Error confirming sign up:', error);
+            throw error;
+        }
     };
 
-    const mockResendSignUp = async (args?: any): Promise<void> => {
-        console.log('[Mock Auth] resendSignUp called (mocked - does nothing)', args);
-        return Promise.resolve();
+    const handleResendSignUp = async (username: string): Promise<void> => {
+        console.log(`Resending code for ${username}`);
+        try {
+            await resendSignUp({ username });
+            console.log('Confirmation code resent successfully');
+        } catch (error: any) {
+            console.error('Error resending confirmation code:', error);
+            throw error;
+        }
     };
 
-    const mockSignOut = async (): Promise<void> => {
-        console.log('[Mock Auth] signOut called (mocked)');
-        setIsLoading(true);
-        // Simulate sign-out delay and clear user
-        await new Promise(res => setTimeout(res, 500));
-        setUser(null);
-        setIsLoading(false);
-        console.log('[Mock Auth] User set to null via signOut');
+    const handleSignOut = async (): Promise<void> => {
+        console.log('Attempting sign out...');
+        try {
+            await signOut();
+            console.log('Sign out successful');
+        } catch (error) {
+            console.error('Error signing out: ', error);
+            throw error;
+        }
     };
 
-    const mockFetchCurrentSession = async (): Promise<any> => {
-         console.log('[Mock Auth] fetchCurrentSession called (mocked)');
-         // Return mock session data if needed by other parts of your app
-         return Promise.resolve({
-             user: mockUser,
-             credentials: { accessKeyId: 'mockAccessKey', secretAccessKey: 'mockSecret', sessionToken: 'mockSessionToken' },
-             identityId: 'mockIdentityId'
-         });
+    const handleFetchSession = async (): Promise<any> => {
+        console.log('Attempting to fetch session...');
+        try {
+            const session = await fetchAuthSession();
+            console.log('Fetched session:', session);
+            return session;
+        } catch (error) {
+            console.error('Error fetching session:', error);
+            throw error;
+        }
     };
 
-    // --- --- --- --- --- --- --- --- --- --- ---
+    const handleFetchUserAttributes = async (): Promise<any> => {
+        console.log('Attempting to fetch user attributes...');
+        try {
+            const attributes = await fetchUserAttributes();
+            console.log('Fetched attributes:', attributes);
+            return attributes;
+        } catch (error) {
+            console.error('Error fetching user attributes:', error);
+            return null;
+        }
+    };
 
-    // Provide state and mocked functions through the context
     const contextValue: AuthContextType = {
         user,
         isLoading,
-        signIn: mockSignIn,
-        signUp: mockSignUp,
-        confirmSignUp: mockConfirmSignUp,
-        resendSignUp: mockResendSignUp,
-        signOut: mockSignOut,
-        fetchCurrentSession: mockFetchCurrentSession,
+        signIn: handleSignIn,
+        signUp: handleSignUp,
+        confirmSignUp: handleConfirmSignUp,
+        resendSignUp: handleResendSignUp,
+        signOut: handleSignOut,
+        fetchCurrentSession: handleFetchSession,
+        fetchCurrentUserAttributes: handleFetchUserAttributes,
     };
 
     return (
@@ -151,7 +195,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     );
 };
 
-// Custom hook to easily consume the context (no changes needed)
 export const useAuth = (): AuthContextType => {
     const context = useContext(AuthContext);
     if (context === undefined) {
