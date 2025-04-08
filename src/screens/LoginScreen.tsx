@@ -7,18 +7,18 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '../navigation/AuthStackNavigator';
+import { signIn, fetchAuthSession, fetchUserAttributes } from '@aws-amplify/auth';
 
 type LoginScreenProps = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const { theme } = useAppTheme();
-  const { signIn } = useAuth();
+  const { signIn: contextSignIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // --- Final Workaround Version of handleSignIn ---
   const handleSignIn = async () => {
     if (!email || !password) {
       setError('Please enter both email and password.');
@@ -29,29 +29,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     setError(null);
 
     try {
-      console.log(`Attempting sign in for: ${email}`);
-      await signIn({ username: email.trim(), password });
-      console.log('Sign in successful (AuthContext will handle navigation)');
-      // Navigation handled by AuthContext/RootNavigator
-      // No need to set isLoading false on success
-
+      console.log("🔑 SCREEN: Attempting sign-in via context...");
+      await contextSignIn(email.trim(), password.trim());
+      // No need to do anything else here - the Hub listener in AuthContext
+      // will handle success by updating state and triggering navigation
     } catch (err: any) {
-      setIsLoading(false); // Set loading false on failure
-      console.error('Sign in error:', err);
-      // Provide user-friendly messages
-      if (err.name === 'UserNotFoundException' || err.name === 'NotAuthorizedException') {
-          setError('Incorrect email or password. Please try again.');
-      } else if (err.name === 'UserNotConfirmedException') {
-          setError('Your email is not confirmed yet. Please check your email or sign up again.');
-      } else if (err.message && err.message.includes('An unknown error has occurred')) {
-           // Specific guidance for the known issue
-           setError('Login failed. Please tap "Sign In" again.');
-      } else {
-          setError('An unexpected error occurred. Please try again.');
-      }
+      console.error("❌ SCREEN: Sign-in error caught:", err.message);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
-  // --- End of handleSignIn ---
 
   return (
     <KeyboardAvoidingView
@@ -86,7 +74,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
             <Button
                 title="Sign In"
-                onPress={handleSignIn} // Uses the simplified version
+                onPress={handleSignIn}
                 isLoading={isLoading}
                 disabled={isLoading}
                 style={styles.button}

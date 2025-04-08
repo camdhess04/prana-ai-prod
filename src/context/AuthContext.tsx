@@ -9,7 +9,7 @@ import React, {
     ReactNode,
 } from 'react';
 // --- Use Modern Amplify Imports ---
-import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUp, fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
+import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode, fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import type { AuthUser, SignInInput, SignUpInput, ConfirmSignUpInput, ResendSignUpCodeInput } from 'aws-amplify/auth';
 // --- --- --- --- --- --- --- ---
@@ -79,23 +79,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }, []);
 
     const handleSignIn = async (username: string, password: string): Promise<void> => {
-        console.log('🔑 Attempting sign in with username:', username);
+        console.log('🔑 CONTEXT: Attempting sign in via context for:', username);
         try {
-            const { isSignedIn, nextStep } = await signIn({
-                username,
-                password
+            const cleanUsername = username.trim();
+            const cleanPassword = password.trim();
+
+            // Call Amplify signIn - this initiates the process
+            // We await it primarily to allow catching errors from the attempt itself
+            const output = await signIn({
+                username: cleanUsername,
+                password: cleanPassword
             });
-            console.log('✅ SignIn result - isSignedIn:', isSignedIn, 'nextStep:', nextStep);
-            if (!isSignedIn && nextStep) {
-                console.log("SignIn requires next step:", nextStep.signInStep);
-                throw new Error(`SignIn requires next step: ${nextStep.signInStep}`);
-            }
+
+            console.log('✅ CONTEXT: Amplify signIn call completed. Raw output:', output);
+
+            // *** NO MORE CODE NEEDED HERE ON SUCCESS ***
+            // SUCCESS is handled async by the Hub listener ('signedIn')
+            // which calls checkCurrentUser -> updates state -> triggers navigation.
+
         } catch (error: any) {
-            console.error('❌ Sign-in error (raw):', error);
-            console.log('❌ error.name:', error.name);
-            console.log('❌ error.message:', error.message);
-            console.log('❌ error.stack:', error.stack);
-            throw error;
+            // Log details from the ACTUAL error thrown by Amplify signIn
+            console.error('❌ CONTEXT: Sign-in error caught:', error.name, error.message);
+
+            // Re-throw a user-friendly error message for the LoginScreen UI
+            if (error.name === 'UserNotConfirmedException') { throw new Error('Confirm email first.'); }
+            else if (error.name === 'NotAuthorizedException') { throw new Error('Incorrect username or password.'); }
+            else if (error.name === 'UserNotFoundException') { throw new Error('User not found.'); }
+            else if (error.name === 'UserAlreadyAuthenticatedException') {
+                 // This *shouldn't* normally be hit if LoginScreen only calls this when logged out,
+                 // but if it happens (e.g., fast double-tap), log it but don't crash UI.
+                 console.warn("CONTEXT: signIn called when user already authenticated.");
+                 return; // Exit gracefully without throwing to UI
+            }
+            else { throw new Error(error.message || 'Unknown auth error.'); }
         }
     };
 
@@ -130,12 +146,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const handleResendSignUp = async (username: string): Promise<void> => {
-        console.log(`Resending code for ${username}`);
+    const handleResendConfirmationCode = async (email: string): Promise<void> => {
         try {
-            await resendSignUp({ username });
-            console.log('Confirmation code resent successfully');
-        } catch (error: any) {
+            await resendSignUpCode({ username: email });
+        } catch (error) {
             console.error('Error resending confirmation code:', error);
             throw error;
         }
@@ -182,7 +196,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signIn: handleSignIn,
         signUp: handleSignUp,
         confirmSignUp: handleConfirmSignUp,
-        resendSignUp: handleResendSignUp,
+        resendSignUp: handleResendConfirmationCode,
         signOut: handleSignOut,
         fetchCurrentSession: handleFetchSession,
         fetchCurrentUserAttributes: handleFetchUserAttributes,
