@@ -1,0 +1,32 @@
+# Add near the top with type Exercise
+type PerformedSet { # Non-model type for logging individual sets
+  id: ID!         # Unique ID for the set entry itself
+  reps: String      # Reps performed
+  weight: String    # Weight used
+}
+
+# Update SessionExercise type (embedded in WorkoutSession)
+type SessionExercise {
+  id: ID!         # ID linking back to the Exercise definition in the Template/Exercise DB
+  name: String!     # Name of the exercise
+  note: String      # User's notes for this exercise during the session
+  restPeriod: Int   # Carry over maybe? Or log actual rest? Keep from template for now.
+  performedSets: [PerformedSet] # <-- ADD THIS ARRAY
+  # Removed sets, reps, weight from here - detail is in performedSets
+}
+
+# Ensure WorkoutSession uses the updated SessionExercise
+type WorkoutSession @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userId: ID!
+  templateId: ID
+  name: String!
+  exercises: [SessionExercise] # <-- Make sure this uses the updated type
+  duration: Int
+  completedAt: AWSDateTime
+  owner: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+# Keep Query, Exercise (non-model), WorkoutTemplate @model definitions as they were 

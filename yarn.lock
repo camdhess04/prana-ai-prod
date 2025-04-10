@@ -47,9 +47,20 @@
   dependencies:
     tslib "^2.5.0"
 
-"@aws-amplify/api@6.3.8", "@aws-amplify/api@^6.3.8":
+"@aws-amplify/api@6.3.8":
   version "6.3.8"
   resolved "https://registry.npmjs.org/@aws-amplify/api/-/api-6.3.8.tgz"
+  integrity sha512-AtYbdrniz6SHWTgz/v4H3FODHfq+0q5aNY5P9O9DVWQkqkIwwkMGVGt5e//nuiF10e80qTPesg4g6ygPNIUtwA==
+  dependencies:
+    "@aws-amplify/api-graphql" "4.7.12"
+    "@aws-amplify/api-rest" "4.1.1"
+    "@aws-amplify/data-schema" "^1.7.0"
+    rxjs "^7.8.1"
+    tslib "^2.5.0"
+
+"@aws-amplify/api@^6.3.8":
+  version "6.3.8"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/api/-/api-6.3.8.tgz#bebde64ee007041d6f6a4f9721ec112920a37178"
   integrity sha512-AtYbdrniz6SHWTgz/v4H3FODHfq+0q5aNY5P9O9DVWQkqkIwwkMGVGt5e//nuiF10e80qTPesg4g6ygPNIUtwA==
   dependencies:
     "@aws-amplify/api-graphql" "4.7.12"
@@ -100,9 +111,9 @@
     "@types/json-schema" "^7.0.15"
     rxjs "^7.8.1"
 
-"@aws-amplify/datastore@5.0.79":
+"@aws-amplify/datastore@5.0.79", "@aws-amplify/datastore@^5.0.79":
   version "5.0.79"
-  resolved "https://registry.npmjs.org/@aws-amplify/datastore/-/datastore-5.0.79.tgz"
+  resolved "https://registry.yarnpkg.com/@aws-amplify/datastore/-/datastore-5.0.79.tgz#f29ba6987f709d3b3af56503e67b1d45ac6f744c"
   integrity sha512-88LizSmytd6pZWqCf0mET0Qj5xMb6pRPjfDrJ0hjY4zE0V25UAxb0HPmLmSFYvW+G6SFzYYkEfehWyIDfIBHUw==
   dependencies:
     "@aws-amplify/api" "6.3.8"
@@ -2010,6 +2021,11 @@
   integrity sha512-Qd2kQ3yi6Y3+AcUlrHxSLlnBvpdCEMVGFlVBneVOjaFaPU61g1huc38g339ysXspwY1QZA2aNhrk/KlHGO+ewA==
   dependencies:
     merge-options "^3.0.4"
+
+"@react-native-community/netinfo@11.4.1":
+  version "11.4.1"
+  resolved "https://registry.yarnpkg.com/@react-native-community/netinfo/-/netinfo-11.4.1.tgz#a3c247aceab35f75dd0aa4bfa85d2be5a4508688"
+  integrity sha512-B0BYAkghz3Q2V09BF88RA601XursIEA111tnc2JOaN7axJWmNefmfjZqw/KdSxKZp7CZUuPpjBmz/WCR9uaHYg==
 
 "@react-native/assets-registry@0.76.8":
   version "0.76.8"

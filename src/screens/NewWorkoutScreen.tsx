@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import { Exercise } from '../types/workout';
+import { Exercise, WorkoutTemplate } from '../types/workout';
+import workoutService from '../services/workoutService';
 import uuid from 'react-native-uuid';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { WorkoutStackParamList } from '../navigation/WorkoutNavigator';
@@ -49,40 +50,41 @@ const NewWorkoutScreen: React.FC<NewWorkoutScreenProps> = ({ navigation }) => {
   };
 
   const saveWorkout = async () => {
-    if (!workoutName.trim()) {
-      Alert.alert('Missing Information', 'Please enter a name for your workout template.');
-      return;
-    }
+    // Get username and userId safely from useAuth hook
+    const currentUsername = user?.username;
+    const currentUserId = user?.userId;
 
-    const hasNamedExercise = exercises.some(exercise => exercise.name.trim() !== '');
-    if (!hasNamedExercise) {
-      Alert.alert('Missing Information', 'Please enter a name for at least one exercise.');
-      return;
-    }
-
+    if (!currentUserId || !currentUsername) {
+         Alert.alert('Error', 'User data not found. Cannot save.');
+         return;
+     }
+    if (!workoutName.trim()) { Alert.alert('Missing Info', 'Name required.'); return; }
     const exercisesToSave = exercises.filter(ex => ex.name.trim() !== '');
-    if(exercisesToSave.length === 0) {
-      Alert.alert('Missing Information', 'Please add details to at least one exercise.');
-      return;
-    }
+    if (exercisesToSave.length === 0) { Alert.alert('Missing Info', 'Add at least one exercise name.'); return; }
 
     setIsLoading(true);
     try {
-      console.log('Attempting to save workout template (mocked):');
-      console.log('UserId:', userId);
-      console.log('Workout Name:', workoutName);
-      console.log('Exercises:', JSON.stringify(exercisesToSave, null, 2));
+      // Prepare data matching the input type for workoutService.saveTemplate
+      const templateData = {
+        userId: currentUserId,
+        name: workoutName.trim(),
+        exercises: exercisesToSave,
+        owner: currentUsername // Pass username as owner explicitly
+      };
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Calling workoutService.saveTemplate with:', templateData);
+      await workoutService.saveTemplate(templateData);
 
       Alert.alert(
-        'Workout Saved (Mock)',
-        'Your workout template structure has been logged to the console.',
+        'Template Saved!',
+        `Your workout template "${templateData.name}" has been saved successfully.`,
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
-    } catch (error) {
-      console.error('Error saving workout (mock):', error);
-      Alert.alert('Error', 'Failed to save workout (mock). Please try again.');
+
+    } catch (error: any) {
+      console.error('Error saving workout template:', error);
+      // Add more specific error checks based on API errors if needed
+      Alert.alert('Error', `Failed to save template: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }

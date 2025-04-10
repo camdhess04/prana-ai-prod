@@ -17,20 +17,11 @@ import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 import { Amplify } from 'aws-amplify';
-import amplifyConfig from './amplifyconfiguration.json';
+import awsconfig from './src/aws-exports'; // Use aws-exports.js
 
-console.log('🔧 Initializing Amplify with config:', amplifyConfig);
-
-// Configure Amplify
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: amplifyConfig.Auth.userPoolId,
-      userPoolClientId: amplifyConfig.Auth.userPoolClientId,
-      identityPoolId: amplifyConfig.Auth.identityPoolId,
-    },
-  },
-});
+console.log('🔧 Initializing Amplify with config from aws-exports.js:', awsconfig);
+Amplify.configure(awsconfig); // Pass the whole object
+console.log('✅ Amplify configured attempt complete.');
 
 export default function App() {
   return (
