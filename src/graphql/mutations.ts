@@ -2,12 +2,96 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from "../API";
+import * as APITypes from "../API"; // Make sure API.ts exists and has the correct types
 type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationInput: InputType;
   __generatedMutationOutput: OutputType;
 };
 
+// Mutation for Exercise Model (Relational)
+export const createExercise = /* GraphQL */ `mutation CreateExercise(
+  $input: CreateExerciseInput!
+  $condition: ModelExerciseConditionInput
+) {
+  createExercise(input: $input, condition: $condition) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    # Add 'template' field here if you included @belongsTo in Exercise schema
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateExerciseMutationVariables,
+  APITypes.CreateExerciseMutation
+>;
+export const updateExercise = /* GraphQL */ `mutation UpdateExercise(
+  $input: UpdateExerciseInput!
+  $condition: ModelExerciseConditionInput
+) {
+  updateExercise(input: $input, condition: $condition) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    # Add 'template' field here if you included @belongsTo in Exercise schema
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExerciseMutationVariables,
+  APITypes.UpdateExerciseMutation
+>;
+export const deleteExercise = /* GraphQL */ `mutation DeleteExercise(
+  $input: DeleteExerciseInput!
+  $condition: ModelExerciseConditionInput
+) {
+  deleteExercise(input: $input, condition: $condition) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    # Add 'template' field here if you included @belongsTo in Exercise schema
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExerciseMutationVariables,
+  APITypes.DeleteExerciseMutation
+>;
+
+// Mutation for WorkoutTemplate Model (Relational - references Exercise Connection)
 export const createWorkoutTemplate = /* GraphQL */ `mutation CreateWorkoutTemplate(
   $input: CreateWorkoutTemplateInput!
   $condition: ModelWorkoutTemplateConditionInput
@@ -17,22 +101,24 @@ export const createWorkoutTemplate = /* GraphQL */ `mutation CreateWorkoutTempla
     userId
     name
     description
-    exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+    # The 'exercises' field here returns connection metadata, not the items themselves by default on create/update
+    exercises(limit: 10) { # Example limit, adjust if needed
+      items { # You might need to add sub-selection here if you need exercises returned immediately
+        id
+        name
+        # Add other exercise fields if needed in response
+        __typename
+      }
+      nextToken
+      startedAt # Used by DataStore
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -49,22 +135,22 @@ export const updateWorkoutTemplate = /* GraphQL */ `mutation UpdateWorkoutTempla
     userId
     name
     description
-    exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+    exercises(limit: 10) { # Example limit
+      items {
+        id
+        name
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -81,22 +167,22 @@ export const deleteWorkoutTemplate = /* GraphQL */ `mutation DeleteWorkoutTempla
     userId
     name
     description
-    exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+    exercises(limit: 10) { # Example limit
+      items {
+        id
+        name
+        __typename
+      }
+      nextToken
+      startedAt
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -104,6 +190,8 @@ export const deleteWorkoutTemplate = /* GraphQL */ `mutation DeleteWorkoutTempla
   APITypes.DeleteWorkoutTemplateMutationVariables,
   APITypes.DeleteWorkoutTemplateMutation
 >;
+
+// Mutation for WorkoutSession Model (Uses embedded SessionExercise)
 export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession(
   $input: CreateWorkoutSessionInput!
   $condition: ModelWorkoutSessionConditionInput
@@ -113,24 +201,27 @@ export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession
     userId
     templateId
     name
+    # Select embedded exercises and performedSets directly
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
+      performedSets {
+        id
+        reps
+        weight
+        __typename
+      }
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -150,21 +241,23 @@ export const updateWorkoutSession = /* GraphQL */ `mutation UpdateWorkoutSession
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
+      performedSets {
+        id
+        reps
+        weight
+        __typename
+      }
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -184,21 +277,23 @@ export const deleteWorkoutSession = /* GraphQL */ `mutation DeleteWorkoutSession
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
+      performedSets {
+        id
+        reps
+        weight
+        __typename
+      }
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }

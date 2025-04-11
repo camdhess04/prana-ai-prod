@@ -1,11 +1,12 @@
 {
-  "AppSyncApiName": "pranaaiv2",
+  "AppSyncApiName": "pranaaiprodv3",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false,
   "AuthCognitoUserPoolId": {
     "Fn::GetAtt": [
-      "authpranaaiv26d578f94",
+      "authpranaaiprodv30b0aaf29",
       "Outputs.UserPoolId"
     ]
-  }
+  },
+  "AuthModeLastUpdated": "2025-04-10T22:14:18.966Z"
 }

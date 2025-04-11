@@ -1,19 +1,34 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-pranaaiv2-dev-dc940-authRole",
-      "UnauthRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiv2-dev-dc940-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiv2-dev-dc940-authRole",
+      "AuthRoleName": "amplify-pranaaiprodv3-dev-3d0e9-authRole",
+      "UnauthRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiprodv3-dev-3d0e9-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiprodv3-dev-3d0e9-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-pranaaiv2-dev-dc940-deployment",
-      "UnauthRoleName": "amplify-pranaaiv2-dev-dc940-unauthRole",
-      "StackName": "amplify-pranaaiv2-dev-dc940",
-      "StackId": "arn:aws:cloudformation:us-east-1:654654424627:stack/amplify-pranaaiv2-dev-dc940/d5fdcdd0-104a-11f0-badf-0e0a5af16d8f",
-      "AmplifyAppId": "d36d5kgrids8f0"
+      "DeploymentBucketName": "amplify-pranaaiprodv3-dev-3d0e9-deployment",
+      "UnauthRoleName": "amplify-pranaaiprodv3-dev-3d0e9-unauthRole",
+      "StackName": "amplify-pranaaiprodv3-dev-3d0e9",
+      "StackId": "arn:aws:cloudformation:us-east-1:654654424627:stack/amplify-pranaaiprodv3-dev-3d0e9/be687480-1640-11f0-953c-0affe434114b",
+      "AmplifyAppId": "d2vwr6fqozr760"
     },
     "categories": {
       "auth": {
-        "pranaaiv26d578f94": {}
+        "pranaaiprodv30b0aaf29": {
+          "userPoolId": "us-east-1_eKXsGL89U",
+          "userPoolName": "pranaaiv26d578f94_userpool_6d578f94-dev",
+          "webClientId": "3c3crvf6nvtvtbr7m89jhbfcpe",
+          "nativeClientId": "3c3crvf6nvtvtbr7m89jhbfcpe",
+          "identityPoolId": "us-east-1:1ac8630c-e637-4672-aa7b-81bc3450c6a7",
+          "identityPoolName": "pranaaiv26d578f94_identitypool_6d578f94__dev",
+          "allowUnauthenticatedIdentities": false,
+          "authRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiv2-dev-dc940-authRole",
+          "authRoleName": "amplify-pranaaiv2-dev-dc940-authRole",
+          "unauthRoleArn": "arn:aws:iam::654654424627:role/amplify-pranaaiv2-dev-dc940-unauthRole",
+          "unauthRoleName": "amplify-pranaaiv2-dev-dc940-unauthRole"
+        }
+      },
+      "api": {
+        "pranaaiprodv3": {}
       }
     }
   }

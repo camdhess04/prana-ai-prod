@@ -1,13 +1,13 @@
 {
   "api": {
-    "pranaaiv2": {
+    "pranaaiprodv3": {
       "dependsOn": [
         {
           "attributes": [
             "UserPoolId"
           ],
           "category": "auth",
-          "resourceName": "pranaaiv26d578f94"
+          "resourceName": "pranaaiprodv30b0aaf29"
         }
       ],
       "output": {
@@ -16,7 +16,7 @@
           "defaultAuthentication": {
             "authenticationType": "AMAZON_COGNITO_USER_POOLS",
             "userPoolConfig": {
-              "userPoolId": "authpranaaiv26d578f94"
+              "userPoolId": "authpranaaiprodv30b0aaf29"
             }
           }
         }
@@ -26,31 +26,102 @@
     }
   },
   "auth": {
-    "pranaaiv26d578f94": {
+    "pranaaiprodv30b0aaf29": {
       "customAuth": false,
       "dependsOn": [],
-      "frontendAuthConfig": {
-        "mfaConfiguration": "OFF",
-        "mfaTypes": [
-          "SMS"
-        ],
-        "passwordProtectionSettings": {
-          "passwordPolicyCharacters": [],
-          "passwordPolicyMinLength": 8
-        },
-        "signupAttributes": [
-          "EMAIL"
-        ],
-        "socialProviders": [],
-        "usernameAttributes": [
-          "EMAIL"
-        ],
-        "verificationMechanisms": [
-          "EMAIL"
-        ]
-      },
       "providerPlugin": "awscloudformation",
-      "service": "Cognito"
+      "service": "Cognito",
+      "serviceType": "imported"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_allowUnauthenticatedIdentities": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_authRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_authRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_identityPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_identityPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_nativeClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_unauthRoleArn": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_unauthRoleName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_userPoolId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_userPoolName": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_auth_pranaaiprodv30b0aaf29_webClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
     }
   }
 }

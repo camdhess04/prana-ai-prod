@@ -1,0 +1,68 @@
+# GraphQL Schema for Prana AI v2 - FINAL - Includes Performed Sets in Session
+
+type Query {
+  _: String
+}
+
+# Exercise Model (Represents exercise definitions linked to templates)
+type Exercise @model @auth(rules: [
+  { allow: owner, ownerField: "owner", operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  workoutTemplateId: ID! @index(name: "byWorkoutTemplate", queryField: "exercisesByWorkoutTemplateId", sortKeyFields: ["createdAt"])
+  name: String!
+  sets: String         # Target sets
+  reps: String         # Target reps
+  weight: String       # Suggested weight (optional)
+  restPeriod: Int      # Suggested rest (optional)
+  note: String         # Note for the template exercise (optional)
+  owner: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+# Workout Template Model (Links to Exercise models)
+type WorkoutTemplate @model @auth(rules: [
+  { allow: owner, operations: [create, read, update, delete] }
+]) {
+  id: ID!
+  userId: ID! @index(name: "byUserId", queryField: "templatesByUserId")
+  name: String!
+  description: String
+  exercises: [Exercise] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Relationship
+  owner: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+# --- Workout Session Section ---
+
+# Non-model type for logging individual performed sets
+type PerformedSet {
+  id: ID!      # Unique ID for this specific set log entry
+  reps: String   # Reps actually performed
+  weight: String # Weight actually used
+}
+
+# Non-model type for exercises as logged within a WorkoutSession
+# Now includes the array of actual sets performed
+type SessionExercise {
+  id: ID!          # ID linking back to the original Exercise definition (or unique ID if custom exercise in session?) - Using Exercise ID for now
+  name: String!      # Name of the exercise (copied for history)
+  note: String       # User's notes for this exercise during the session (optional)
+  performedSets: [PerformedSet] # <-- Array of sets performed for this exercise in this session
+}
+
+# Workout Session Model (Stores completed workout logs)
+type WorkoutSession @model @auth(rules: [ { allow: owner } ]) {
+  id: ID!
+  userId: ID! @index(name: "byUserId", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"]) # Index + Sort Key
+  templateId: ID # Optional ID of the template used for this session
+  name: String!  # Name of the session (e.g., "Push Day 1" or "Morning Run")
+  exercises: [SessionExercise] # Embeds the detailed logged exercise data
+  duration: Int  # Optional duration in seconds
+  completedAt: AWSDateTime! # Timestamp when session was marked complete
+  owner: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}

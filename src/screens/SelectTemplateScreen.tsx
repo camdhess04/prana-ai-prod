@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import workoutService from '../services/workoutService';
-import { WorkoutTemplate, WorkoutSession } from '../types/workout';
+import { WorkoutTemplate, Exercise, WorkoutSession, LogExercise } from '../types/workout';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { WorkoutStackParamList } from '../navigation/WorkoutNavigator';
 import { Trash2 } from 'lucide-react-native';
@@ -48,56 +48,58 @@ const SelectTemplateScreen: React.FC<SelectTemplateScreenProps> = ({ navigation 
   };
 
    const handleDeleteTemplate = (templateId: string, templateName: string) => {
+     const currentUserId = user?.userId;
+     if (!currentUserId) {
+       Alert.alert("Error", "Cannot delete template: User not identified.");
+       return;
+     }
      Alert.alert(
-         "Delete Template",
-         `Are you sure you want to delete the template "${templateName}"? This cannot be undone.`,
-         [
-             { text: "Cancel", style: "cancel" },
-             {
-                 text: "Delete",
-                 style: "destructive",
-                 onPress: async () => {
-                     if (!userId) return;
-                     setIsDeleting(templateId);
-                     try {
-                         await workoutService.deleteTemplate(templateId);
-                         await loadTemplates();
-                     } catch (error: any) {
-                         console.error('Error deleting template:', error);
-                         Alert.alert('Error', `Failed to delete template: ${error.message}`);
-                     } finally {
-                         setIsDeleting(null);
-                     }
-                 },
-             },
-         ]
+       "Delete Template",
+       `Are you sure you want to delete "${templateName}"? This action cannot be undone.`,
+       [
+         { text: "Cancel", style: "cancel" },
+         {
+           text: "Delete",
+           style: "destructive",
+           onPress: async () => {
+             setIsDeleting(templateId);
+             try {
+               await workoutService.deleteTemplate(templateId, currentUserId);
+               await loadTemplates(); // Reload list
+             } catch (error: any) {
+               console.error('Error deleting template:', error);
+               Alert.alert("Error", `Failed to delete template: ${error.message || 'Unknown error'}`);
+             } finally {
+               setIsDeleting(null);
+             }
+           },
+         },
+       ]
      );
    };
 
 
   const startWorkout = (template: WorkoutTemplate) => {
     console.log("Selected template for session:", JSON.stringify(template, null, 2));
-
+    // Prepare session data matching the LogExercise structure needed by LogSessionScreen
     const sessionData = {
-      templateId: template.id,
-      userId: userId || 'unknown',
-      name: template.name,
-      exercises: template.exercises?.map(ex => ({
-        id: ex.id,
-        name: ex.name,
-        targetSets: ex.sets,
-        targetReps: ex.reps,
-        weight: ex.weight || '',
-        restPeriod: ex.restPeriod,
-        note: ex.note,
-        performedSets: [],
-        sets: '',
-        reps: '',
-      })) || [],
+        templateId: template.id,
+        userId: userId || 'unknown',
+        name: template.name,
+        exercises: template.exercises?.filter((ex): ex is Exercise => ex !== null).map((ex): LogExercise => ({
+            id: ex.id,
+            name: ex.name,
+            targetSets: ex.sets,
+            targetReps: ex.reps,
+            weight: ex.weight || '',
+            restPeriod: ex.restPeriod,
+            note: ex.note,
+            performedSets: [],
+            sets: ex.sets,
+            reps: ex.reps,
+        })) || [],
     };
-
     console.log("Navigating to LogSession with sessionData:", JSON.stringify(sessionData, null, 2));
-
     navigation.navigate('LogSession', { session: sessionData });
   };
 
@@ -124,49 +126,61 @@ const SelectTemplateScreen: React.FC<SelectTemplateScreenProps> = ({ navigation 
     );
   }
 
+  const renderTemplateItem = ({ item }: { item: WorkoutTemplate }) => (
+    <Card style={styles.templateCard}>
+       <View style={styles.cardHeader}>
+           <Text style={[styles.templateName, { color: theme.text }]}>{item.name}</Text>
+           <TouchableOpacity onPress={() => handleDeleteTemplate(item.id, item.name)} disabled={isDeleting === item.id}>
+                {isDeleting === item.id ? <ActivityIndicator size="small" color={theme.error} /> : <Trash2 color={theme.error} size={20} />}
+           </TouchableOpacity>
+       </View>
+
+       {item.exercises && item.exercises.length > 0 ? (
+            <View style={styles.exerciseList}>
+                {item.exercises.filter((ex): ex is Exercise => ex !== null).map((exercise) => (
+                <Text
+                    key={exercise.id}
+                    style={[styles.exerciseItem, { color: theme.secondaryText }]}
+                    numberOfLines={1}
+                >
+                    • {exercise.name} ({exercise.sets} x {exercise.reps})
+                </Text>
+                ))}
+            </View>
+        ) : (
+            <Text style={[styles.exerciseItem, { color: theme.secondaryText, fontStyle: 'italic' }]}>
+                No exercises in this template.
+            </Text>
+        )}
+
+      <Button
+        title="Start Workout"
+        onPress={() => startWorkout(item)}
+        style={styles.button}
+        variant="outline"
+      />
+    </Card>
+  );
+
   return (
     <FlatList
       style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
       data={templates}
+      renderItem={renderTemplateItem}
       keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <Card style={styles.templateCard}>
-           <View style={styles.cardHeader}>
-               <Text style={[styles.templateName, { color: theme.text }]}>{item.name}</Text>
-               <TouchableOpacity onPress={() => handleDeleteTemplate(item.id, item.name)} disabled={isDeleting === item.id}>
-                    {isDeleting === item.id
-                        ? <ActivityIndicator size="small" color={theme.error} />
-                        : <Trash2 color={theme.error} size={20} />
-                    }
-               </TouchableOpacity>
-           </View>
-
-          <View style={styles.exerciseList}>
-            {item.exercises?.slice(0, 3).map((exercise) => (
-              <Text
-                key={exercise.id}
-                style={[styles.exerciseItem, { color: theme.secondaryText }]}
-                numberOfLines={1}
-              >
-                • {exercise.name} ({exercise.sets} x {exercise.reps})
-              </Text>
-            ))}
-            {item.exercises && item.exercises.length > 3 && (
-                <Text style={[styles.exerciseItem, { color: theme.secondaryText }]}>...</Text>
-            )}
-          </View>
-
-          <Button
-            title="Start Workout"
-            onPress={() => startWorkout(item)}
-            style={styles.button}
-            variant="outline"
-          />
-        </Card>
-      )}
       refreshing={isLoading}
       onRefresh={loadTemplates}
+      ListEmptyComponent={
+         !isLoading ? (
+             <View style={styles.centered}>
+                <Text style={{ color: theme.text, marginBottom: 15, textAlign: 'center' }}>
+                    No workout templates found. Create one first!
+                </Text>
+                <Button title="Create New Workout" onPress={() => navigation.navigate('NewWorkout')} />
+             </View>
+         ) : null
+      }
     />
   );
 };
@@ -174,13 +188,13 @@ const SelectTemplateScreen: React.FC<SelectTemplateScreenProps> = ({ navigation 
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 16, paddingBottom: 30 },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, paddingTop: 50 },
   templateCard: { marginBottom: 16 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  templateName: { fontSize: 18, fontWeight: '600', marginBottom: 8, flexShrink: 1, paddingRight: 5 },
-  exerciseList: { marginBottom: 16, marginLeft: 5 },
+  templateName: { fontSize: 18, fontWeight: '600', flexShrink: 1, paddingRight: 5 },
+  exerciseList: { marginBottom: 16, marginLeft: 5, paddingTop: 5, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#eee' },
   exerciseItem: { fontSize: 14, marginBottom: 4 },
-  button: { alignSelf: 'flex-start' },
+  button: { alignSelf: 'flex-start', marginTop: 8 },
 });
 
 export default SelectTemplateScreen; 

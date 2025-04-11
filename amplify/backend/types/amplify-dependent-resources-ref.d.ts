@@ -1,19 +1,8 @@
 export type AmplifyDependentResourcesAttributes = {
   "api": {
-    "pranaaiv2": {
+    "pranaaiprodv3": {
       "GraphQLAPIEndpointOutput": "string",
       "GraphQLAPIIdOutput": "string"
-    }
-  },
-  "auth": {
-    "pranaaiv26d578f94": {
-      "AppClientID": "string",
-      "AppClientIDWeb": "string",
-      "IdentityPoolId": "string",
-      "IdentityPoolName": "string",
-      "UserPoolArn": "string",
-      "UserPoolId": "string",
-      "UserPoolName": "string"
     }
   }
 }

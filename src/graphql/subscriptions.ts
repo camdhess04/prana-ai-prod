@@ -2,12 +2,90 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from "../API";
+import * as APITypes from "../../amplify/backend/api/pranaaiprodv3/src/API";
 type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionInput: InputType;
   __generatedSubscriptionOutput: OutputType;
 };
 
+export const onCreateExercise = /* GraphQL */ `subscription OnCreateExercise(
+  $filter: ModelSubscriptionExerciseFilterInput
+  $owner: String
+) {
+  onCreateExercise(filter: $filter, owner: $owner) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateExerciseSubscriptionVariables,
+  APITypes.OnCreateExerciseSubscription
+>;
+export const onUpdateExercise = /* GraphQL */ `subscription OnUpdateExercise(
+  $filter: ModelSubscriptionExerciseFilterInput
+  $owner: String
+) {
+  onUpdateExercise(filter: $filter, owner: $owner) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateExerciseSubscriptionVariables,
+  APITypes.OnUpdateExerciseSubscription
+>;
+export const onDeleteExercise = /* GraphQL */ `subscription OnDeleteExercise(
+  $filter: ModelSubscriptionExerciseFilterInput
+  $owner: String
+) {
+  onDeleteExercise(filter: $filter, owner: $owner) {
+    id
+    workoutTemplateId
+    name
+    sets
+    reps
+    weight
+    restPeriod
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteExerciseSubscriptionVariables,
+  APITypes.OnDeleteExerciseSubscription
+>;
 export const onCreateWorkoutTemplate = /* GraphQL */ `subscription OnCreateWorkoutTemplate(
   $filter: ModelSubscriptionWorkoutTemplateFilterInput
   $owner: String
@@ -18,21 +96,16 @@ export const onCreateWorkoutTemplate = /* GraphQL */ `subscription OnCreateWorko
     name
     description
     exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+      nextToken
+      startedAt
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -50,21 +123,16 @@ export const onUpdateWorkoutTemplate = /* GraphQL */ `subscription OnUpdateWorko
     name
     description
     exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+      nextToken
+      startedAt
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -82,21 +150,16 @@ export const onDeleteWorkoutTemplate = /* GraphQL */ `subscription OnDeleteWorko
     name
     description
     exercises {
-      id
-      name
-      sets
-      reps
-      weight
-      restPeriod
-      note
+      nextToken
+      startedAt
       __typename
     }
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -116,21 +179,17 @@ export const onCreateWorkoutSession = /* GraphQL */ `subscription OnCreateWorkou
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -150,21 +209,17 @@ export const onUpdateWorkoutSession = /* GraphQL */ `subscription OnUpdateWorkou
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }
@@ -184,21 +239,17 @@ export const onDeleteWorkoutSession = /* GraphQL */ `subscription OnDeleteWorkou
     exercises {
       id
       name
-      sets
-      reps
-      weight
-      restPeriod
       note
       __typename
     }
     duration
     completedAt
+    owner
     createdAt
     updatedAt
     _version
     _deleted
     _lastChangedAt
-    owner
     __typename
   }
 }

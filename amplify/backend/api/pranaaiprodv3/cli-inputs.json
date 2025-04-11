@@ -1,16 +1,17 @@
 {
   "version": 1,
   "serviceConfiguration": {
-    "apiName": "pranaaiv2",
+    "apiName": "pranaaiprodv3",
     "serviceName": "AppSync",
     "defaultAuthType": {
       "mode": "AMAZON_COGNITO_USER_POOLS",
-      "cognitoUserPoolId": "authpranaaiv26d578f94"
+      "cognitoUserPoolId": "authpranaaiprodv30b0aaf29"
     },
     "conflictResolution": {
       "defaultResolutionStrategy": {
         "type": "AUTOMERGE"
       }
-    }
+    },
+    "additionalAuthTypes": []
   }
 }

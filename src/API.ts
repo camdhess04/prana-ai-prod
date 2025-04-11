@@ -2,36 +2,36 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreateWorkoutTemplateInput = {
+export type CreateExerciseInput = {
   id?: string | null,
-  userId: string,
-  name: string,
-  description?: string | null,
-  exercises?: Array< ExerciseInput | null > | null,
-  _version?: number | null,
-};
-
-export type ExerciseInput = {
-  id: string,
+  workoutTemplateId: string,
   name: string,
   sets?: string | null,
   reps?: string | null,
   weight?: string | null,
   restPeriod?: number | null,
   note?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
 };
 
-export type ModelWorkoutTemplateConditionInput = {
-  userId?: ModelIDInput | null,
+export type ModelExerciseConditionInput = {
+  workoutTemplateId?: ModelIDInput | null,
   name?: ModelStringInput | null,
-  description?: ModelStringInput | null,
-  and?: Array< ModelWorkoutTemplateConditionInput | null > | null,
-  or?: Array< ModelWorkoutTemplateConditionInput | null > | null,
-  not?: ModelWorkoutTemplateConditionInput | null,
-  _deleted?: ModelBooleanInput | null,
+  sets?: ModelStringInput | null,
+  reps?: ModelStringInput | null,
+  weight?: ModelStringInput | null,
+  restPeriod?: ModelIntInput | null,
+  note?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
-  owner?: ModelStringInput | null,
+  and?: Array< ModelExerciseConditionInput | null > | null,
+  or?: Array< ModelExerciseConditionInput | null > | null,
+  not?: ModelExerciseConditionInput | null,
+  _deleted?: ModelBooleanInput | null,
 };
 
 export type ModelIDInput = {
@@ -90,11 +90,85 @@ export type ModelStringInput = {
   size?: ModelSizeInput | null,
 };
 
+export type ModelIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
 export type ModelBooleanInput = {
   ne?: boolean | null,
   eq?: boolean | null,
   attributeExists?: boolean | null,
   attributeType?: ModelAttributeTypes | null,
+};
+
+export type Exercise = {
+  __typename: "Exercise",
+  id: string,
+  workoutTemplateId: string,
+  name: string,
+  sets?: string | null,
+  reps?: string | null,
+  weight?: string | null,
+  restPeriod?: number | null,
+  note?: string | null,
+  owner?: string | null,
+  createdAt: string,
+  updatedAt: string,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+};
+
+export type UpdateExerciseInput = {
+  id: string,
+  workoutTemplateId?: string | null,
+  name?: string | null,
+  sets?: string | null,
+  reps?: string | null,
+  weight?: string | null,
+  restPeriod?: number | null,
+  note?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type DeleteExerciseInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateWorkoutTemplateInput = {
+  id?: string | null,
+  userId: string,
+  name: string,
+  description?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type ModelWorkoutTemplateConditionInput = {
+  userId?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  description?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelWorkoutTemplateConditionInput | null > | null,
+  or?: Array< ModelWorkoutTemplateConditionInput | null > | null,
+  not?: ModelWorkoutTemplateConditionInput | null,
+  _deleted?: ModelBooleanInput | null,
 };
 
 export type WorkoutTemplate = {
@@ -103,24 +177,20 @@ export type WorkoutTemplate = {
   userId: string,
   name: string,
   description?: string | null,
-  exercises?:  Array<Exercise | null > | null,
+  exercises?: ModelExerciseConnection | null,
+  owner?: string | null,
   createdAt: string,
   updatedAt: string,
   _version: number,
   _deleted?: boolean | null,
   _lastChangedAt: number,
-  owner?: string | null,
 };
 
-export type Exercise = {
-  __typename: "Exercise",
-  id: string,
-  name: string,
-  sets?: string | null,
-  reps?: string | null,
-  weight?: string | null,
-  restPeriod?: number | null,
-  note?: string | null,
+export type ModelExerciseConnection = {
+  __typename: "ModelExerciseConnection",
+  items:  Array<Exercise | null >,
+  nextToken?: string | null,
+  startedAt?: number | null,
 };
 
 export type UpdateWorkoutTemplateInput = {
@@ -128,7 +198,9 @@ export type UpdateWorkoutTemplateInput = {
   userId?: string | null,
   name?: string | null,
   description?: string | null,
-  exercises?: Array< ExerciseInput | null > | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
   _version?: number | null,
 };
 
@@ -142,10 +214,26 @@ export type CreateWorkoutSessionInput = {
   userId: string,
   templateId?: string | null,
   name: string,
-  exercises?: Array< ExerciseInput | null > | null,
+  exercises?: Array< SessionExerciseInput | null > | null,
   duration?: number | null,
   completedAt: string,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
   _version?: number | null,
+};
+
+export type SessionExerciseInput = {
+  id: string,
+  name: string,
+  note?: string | null,
+  performedSets?: Array< PerformedSetInput | null > | null,
+};
+
+export type PerformedSetInput = {
+  id: string,
+  reps?: string | null,
+  weight?: string | null,
 };
 
 export type ModelWorkoutSessionConditionInput = {
@@ -154,25 +242,13 @@ export type ModelWorkoutSessionConditionInput = {
   name?: ModelStringInput | null,
   duration?: ModelIntInput | null,
   completedAt?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
   and?: Array< ModelWorkoutSessionConditionInput | null > | null,
   or?: Array< ModelWorkoutSessionConditionInput | null > | null,
   not?: ModelWorkoutSessionConditionInput | null,
   _deleted?: ModelBooleanInput | null,
-  createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-  owner?: ModelStringInput | null,
-};
-
-export type ModelIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
 };
 
 export type WorkoutSession = {
@@ -181,15 +257,30 @@ export type WorkoutSession = {
   userId: string,
   templateId?: string | null,
   name: string,
-  exercises?:  Array<Exercise | null > | null,
+  exercises?:  Array<SessionExercise | null > | null,
   duration?: number | null,
   completedAt: string,
+  owner?: string | null,
   createdAt: string,
   updatedAt: string,
   _version: number,
   _deleted?: boolean | null,
   _lastChangedAt: number,
-  owner?: string | null,
+};
+
+export type SessionExercise = {
+  __typename: "SessionExercise",
+  id: string,
+  name: string,
+  note?: string | null,
+  performedSets?:  Array<PerformedSet | null > | null,
+};
+
+export type PerformedSet = {
+  __typename: "PerformedSet",
+  id: string,
+  reps?: string | null,
+  weight?: string | null,
 };
 
 export type UpdateWorkoutSessionInput = {
@@ -197,9 +288,12 @@ export type UpdateWorkoutSessionInput = {
   userId?: string | null,
   templateId?: string | null,
   name?: string | null,
-  exercises?: Array< ExerciseInput | null > | null,
+  exercises?: Array< SessionExerciseInput | null > | null,
   duration?: number | null,
   completedAt?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
   _version?: number | null,
 };
 
@@ -208,18 +302,36 @@ export type DeleteWorkoutSessionInput = {
   _version?: number | null,
 };
 
+export type ModelExerciseFilterInput = {
+  id?: ModelIDInput | null,
+  workoutTemplateId?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  sets?: ModelStringInput | null,
+  reps?: ModelStringInput | null,
+  weight?: ModelStringInput | null,
+  restPeriod?: ModelIntInput | null,
+  note?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelExerciseFilterInput | null > | null,
+  or?: Array< ModelExerciseFilterInput | null > | null,
+  not?: ModelExerciseFilterInput | null,
+  _deleted?: ModelBooleanInput | null,
+};
+
 export type ModelWorkoutTemplateFilterInput = {
   id?: ModelIDInput | null,
   userId?: ModelIDInput | null,
   name?: ModelStringInput | null,
   description?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
   and?: Array< ModelWorkoutTemplateFilterInput | null > | null,
   or?: Array< ModelWorkoutTemplateFilterInput | null > | null,
   not?: ModelWorkoutTemplateFilterInput | null,
   _deleted?: ModelBooleanInput | null,
-  owner?: ModelStringInput | null,
 };
 
 export type ModelWorkoutTemplateConnection = {
@@ -236,13 +348,13 @@ export type ModelWorkoutSessionFilterInput = {
   name?: ModelStringInput | null,
   duration?: ModelIntInput | null,
   completedAt?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
   and?: Array< ModelWorkoutSessionFilterInput | null > | null,
   or?: Array< ModelWorkoutSessionFilterInput | null > | null,
   not?: ModelWorkoutSessionFilterInput | null,
   _deleted?: ModelBooleanInput | null,
-  owner?: ModelStringInput | null,
 };
 
 export type ModelWorkoutSessionConnection = {
@@ -252,21 +364,35 @@ export type ModelWorkoutSessionConnection = {
   startedAt?: number | null,
 };
 
+export type ModelStringKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+};
+
 export enum ModelSortDirection {
   ASC = "ASC",
   DESC = "DESC",
 }
 
 
-export type ModelSubscriptionWorkoutTemplateFilterInput = {
+export type ModelSubscriptionExerciseFilterInput = {
   id?: ModelSubscriptionIDInput | null,
-  userId?: ModelSubscriptionIDInput | null,
+  workoutTemplateId?: ModelSubscriptionIDInput | null,
   name?: ModelSubscriptionStringInput | null,
-  description?: ModelSubscriptionStringInput | null,
+  sets?: ModelSubscriptionStringInput | null,
+  reps?: ModelSubscriptionStringInput | null,
+  weight?: ModelSubscriptionStringInput | null,
+  restPeriod?: ModelSubscriptionIntInput | null,
+  note?: ModelSubscriptionStringInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
-  or?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
+  and?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
+  or?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
   _deleted?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
 };
@@ -301,6 +427,31 @@ export type ModelSubscriptionStringInput = {
   notIn?: Array< string | null > | null,
 };
 
+export type ModelSubscriptionIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
+export type ModelSubscriptionWorkoutTemplateFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  description?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
+  or?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
+  _deleted?: ModelBooleanInput | null,
+  owner?: ModelStringInput | null,
+};
+
 export type ModelSubscriptionWorkoutSessionFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   userId?: ModelSubscriptionIDInput | null,
@@ -316,16 +467,79 @@ export type ModelSubscriptionWorkoutSessionFilterInput = {
   owner?: ModelStringInput | null,
 };
 
-export type ModelSubscriptionIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  in?: Array< number | null > | null,
-  notIn?: Array< number | null > | null,
+export type CreateExerciseMutationVariables = {
+  input: CreateExerciseInput,
+  condition?: ModelExerciseConditionInput | null,
+};
+
+export type CreateExerciseMutation = {
+  createExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type UpdateExerciseMutationVariables = {
+  input: UpdateExerciseInput,
+  condition?: ModelExerciseConditionInput | null,
+};
+
+export type UpdateExerciseMutation = {
+  updateExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type DeleteExerciseMutationVariables = {
+  input: DeleteExerciseInput,
+  condition?: ModelExerciseConditionInput | null,
+};
+
+export type DeleteExerciseMutation = {
+  deleteExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
 };
 
 export type CreateWorkoutTemplateMutationVariables = {
@@ -340,22 +554,17 @@ export type CreateWorkoutTemplateMutation = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -371,22 +580,17 @@ export type UpdateWorkoutTemplateMutation = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -402,22 +606,17 @@ export type DeleteWorkoutTemplateMutation = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -434,23 +633,19 @@ export type CreateWorkoutSessionMutation = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -467,23 +662,19 @@ export type UpdateWorkoutSessionMutation = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -500,23 +691,19 @@ export type DeleteWorkoutSessionMutation = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -525,6 +712,93 @@ export type _QueryVariables = {
 
 export type _Query = {
   _?: string | null,
+};
+
+export type GetExerciseQueryVariables = {
+  id: string,
+};
+
+export type GetExerciseQuery = {
+  getExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type ListExercisesQueryVariables = {
+  filter?: ModelExerciseFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListExercisesQuery = {
+  listExercises?:  {
+    __typename: "ModelExerciseConnection",
+    items:  Array< {
+      __typename: "Exercise",
+      id: string,
+      workoutTemplateId: string,
+      name: string,
+      sets?: string | null,
+      reps?: string | null,
+      weight?: string | null,
+      restPeriod?: number | null,
+      note?: string | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncExercisesQueryVariables = {
+  filter?: ModelExerciseFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncExercisesQuery = {
+  syncExercises?:  {
+    __typename: "ModelExerciseConnection",
+    items:  Array< {
+      __typename: "Exercise",
+      id: string,
+      workoutTemplateId: string,
+      name: string,
+      sets?: string | null,
+      reps?: string | null,
+      weight?: string | null,
+      restPeriod?: number | null,
+      note?: string | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
 };
 
 export type GetWorkoutTemplateQueryVariables = {
@@ -538,22 +812,17 @@ export type GetWorkoutTemplateQuery = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -572,12 +841,12 @@ export type ListWorkoutTemplatesQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -600,12 +869,12 @@ export type SyncWorkoutTemplatesQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -624,23 +893,19 @@ export type GetWorkoutSessionQuery = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -661,12 +926,12 @@ export type ListWorkoutSessionsQuery = {
       name: string,
       duration?: number | null,
       completedAt: string,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -691,12 +956,46 @@ export type SyncWorkoutSessionsQuery = {
       name: string,
       duration?: number | null,
       completedAt: string,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type ExercisesByWorkoutTemplateIdQueryVariables = {
+  workoutTemplateId: string,
+  createdAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelExerciseFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ExercisesByWorkoutTemplateIdQuery = {
+  exercisesByWorkoutTemplateId?:  {
+    __typename: "ModelExerciseConnection",
+    items:  Array< {
+      __typename: "Exercise",
+      id: string,
+      workoutTemplateId: string,
+      name: string,
+      sets?: string | null,
+      reps?: string | null,
+      weight?: string | null,
+      restPeriod?: number | null,
+      note?: string | null,
       owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -720,12 +1019,12 @@ export type TemplatesByUserIdQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -734,6 +1033,7 @@ export type TemplatesByUserIdQuery = {
 
 export type SessionsByUserIdQueryVariables = {
   userId: string,
+  completedAt?: ModelStringKeyConditionInput | null,
   sortDirection?: ModelSortDirection | null,
   filter?: ModelWorkoutSessionFilterInput | null,
   limit?: number | null,
@@ -751,15 +1051,90 @@ export type SessionsByUserIdQuery = {
       name: string,
       duration?: number | null,
       completedAt: string,
+      owner?: string | null,
       createdAt: string,
       updatedAt: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
-      owner?: string | null,
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
+  } | null,
+};
+
+export type OnCreateExerciseSubscriptionVariables = {
+  filter?: ModelSubscriptionExerciseFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateExerciseSubscription = {
+  onCreateExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnUpdateExerciseSubscriptionVariables = {
+  filter?: ModelSubscriptionExerciseFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateExerciseSubscription = {
+  onUpdateExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnDeleteExerciseSubscriptionVariables = {
+  filter?: ModelSubscriptionExerciseFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteExerciseSubscription = {
+  onDeleteExercise?:  {
+    __typename: "Exercise",
+    id: string,
+    workoutTemplateId: string,
+    name: string,
+    sets?: string | null,
+    reps?: string | null,
+    weight?: string | null,
+    restPeriod?: number | null,
+    note?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
   } | null,
 };
 
@@ -775,22 +1150,17 @@ export type OnCreateWorkoutTemplateSubscription = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -806,22 +1176,17 @@ export type OnUpdateWorkoutTemplateSubscription = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -837,22 +1202,17 @@ export type OnDeleteWorkoutTemplateSubscription = {
     userId: string,
     name: string,
     description?: string | null,
-    exercises?:  Array< {
-      __typename: "Exercise",
-      id: string,
-      name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
-      note?: string | null,
-    } | null > | null,
+    exercises?:  {
+      __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -869,23 +1229,19 @@ export type OnCreateWorkoutSessionSubscription = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -902,23 +1258,19 @@ export type OnUpdateWorkoutSessionSubscription = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
 
@@ -935,22 +1287,18 @@ export type OnDeleteWorkoutSessionSubscription = {
     templateId?: string | null,
     name: string,
     exercises?:  Array< {
-      __typename: "Exercise",
+      __typename: "SessionExercise",
       id: string,
       name: string,
-      sets?: string | null,
-      reps?: string | null,
-      weight?: string | null,
-      restPeriod?: number | null,
       note?: string | null,
     } | null > | null,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
     createdAt: string,
     updatedAt: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
-    owner?: string | null,
   } | null,
 };
