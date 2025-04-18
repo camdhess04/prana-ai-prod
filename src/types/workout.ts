@@ -1,4 +1,39 @@
 // src/types/workout.ts
+// Common types used across the workout app
+
+export interface Message {
+    id: string;
+    text: string;
+    sender: 'user' | 'ai';
+    timestamp: Date;
+    isFinalData?: boolean; // Optional flag for final JSON data
+}
+
+export interface UserProfile {
+    id: string;
+    username: string;
+    name?: string;
+    email?: string;
+    onboardingLevel?: string;
+    heightCm?: number;
+    weightKg?: number;
+    age?: number;
+    gender?: string;
+    experienceLevel?: string;
+    primaryGoal?: string;
+    secondaryGoal?: string;
+    injuriesOrLimitations?: string;
+    performanceNotes?: string;
+    preferredSplit?: string;
+    likedExercises?: string[];
+    dislikedExercises?: string[];
+    availableDays?: string[];
+    timePerSessionMinutes?: number;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// Add other workout-related types as needed
 
 // Basic Exercise structure (used in WorkoutTemplate)
 export interface Exercise {

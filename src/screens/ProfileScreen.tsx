@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 
-const ProfileScreen = () => {
-  const { theme, toggleTheme } = useAppTheme();
+export default function ProfileScreen({ navigation }: { navigation: any }) {
   const { user, signOut } = useAuth();
+  const { theme, toggleTheme } = useAppTheme();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -17,7 +17,7 @@ const ProfileScreen = () => {
       console.log('Sign out successful (AuthContext should trigger navigation)');
     } catch (error) {
       console.error('Error signing out (mock):', error);
-      Alert.alert('Error', 'Could not log out.');
+      Alert.alert('Error', 'Failed to sign out');
       setIsLoggingOut(false);
     }
   };
@@ -26,34 +26,36 @@ const ProfileScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Text style={[styles.title, { color: theme.text }]}>Profile</Text>
-
-      <View style={styles.infoContainer}>
-        <Text style={[styles.label, { color: theme.secondaryText }]}>Logged In As:</Text>
-        <Text style={[styles.emailText, { color: theme.text }]}>{displayName}</Text>
+      <View style={[styles.header, { backgroundColor: theme.cardBackground }]}>
+        <Text style={[styles.title, { color: theme.text }]}>Profile</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.signOutButton}>
+          <Text style={[styles.signOutText, { color: theme.primary }]}>Sign Out</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Toggle Theme"
-          onPress={toggleTheme}
-          variant="secondary"
-          style={styles.button}
+      <View style={[styles.content, { backgroundColor: theme.background }]}>
+        <View style={[styles.profileCard, { backgroundColor: theme.cardBackground }]}>
+          <Text style={[styles.username, { color: theme.text }]}>{displayName}</Text>
+          <Text style={[styles.email, { color: theme.secondaryText }]}>{user?.attributes?.email || 'No email'}</Text>
+        </View>
+
+        <Button 
+          title="TEST AI CHAT" 
+          onPress={() => navigation.navigate('AISetupChat')}
         />
 
-        <Button
-          title="Log Out"
-          onPress={handleLogout}
-          isLoading={isLoggingOut}
-          disabled={isLoggingOut}
-          variant="primary"
-          style={styles.button}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Toggle Theme"
+            onPress={toggleTheme}
+            variant="secondary"
+            style={styles.button}
+          />
+        </View>
       </View>
-
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -87,6 +89,33 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 15,
   },
-});
-
-export default ProfileScreen; 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  signOutButton: {
+    padding: 10,
+  },
+  signOutText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+    width: '100%',
+  },
+  profileCard: {
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  email: {
+    fontSize: 16,
+  },
+}); 

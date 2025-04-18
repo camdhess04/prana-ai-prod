@@ -2,39 +2,60 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreateExerciseInput = {
+export type CreateUserProfileInput = {
   id?: string | null,
-  workoutTemplateId: string,
-  name: string,
-  sets?: string | null,
-  reps?: string | null,
-  weight?: string | null,
-  restPeriod?: number | null,
-  note?: string | null,
-  owner?: string | null,
+  username: string,
+  name?: string | null,
+  email?: string | null,
+  onboardingLevel?: string | null,
+  heightCm?: number | null,
+  weightKg?: number | null,
+  age?: number | null,
+  gender?: string | null,
+  experienceLevel?: string | null,
+  primaryGoal?: string | null,
+  secondaryGoal?: string | null,
+  injuriesOrLimitations?: string | null,
+  performanceNotes?: string | null,
+  preferredSplit?: string | null,
+  likedExercises?: Array< string | null > | null,
+  dislikedExercises?: Array< string | null > | null,
+  availableDays?: Array< string | null > | null,
+  timePerSessionMinutes?: number | null,
   createdAt?: string | null,
   updatedAt?: string | null,
   _version?: number | null,
 };
 
-export type ModelExerciseConditionInput = {
-  workoutTemplateId?: ModelIDInput | null,
+export type ModelUserProfileConditionInput = {
+  username?: ModelStringInput | null,
   name?: ModelStringInput | null,
-  sets?: ModelStringInput | null,
-  reps?: ModelStringInput | null,
-  weight?: ModelStringInput | null,
-  restPeriod?: ModelIntInput | null,
-  note?: ModelStringInput | null,
-  owner?: ModelStringInput | null,
+  email?: ModelStringInput | null,
+  onboardingLevel?: ModelStringInput | null,
+  heightCm?: ModelFloatInput | null,
+  weightKg?: ModelFloatInput | null,
+  age?: ModelIntInput | null,
+  gender?: ModelStringInput | null,
+  experienceLevel?: ModelStringInput | null,
+  primaryGoal?: ModelStringInput | null,
+  secondaryGoal?: ModelStringInput | null,
+  injuriesOrLimitations?: ModelStringInput | null,
+  performanceNotes?: ModelStringInput | null,
+  preferredSplit?: ModelStringInput | null,
+  likedExercises?: ModelStringInput | null,
+  dislikedExercises?: ModelStringInput | null,
+  availableDays?: ModelStringInput | null,
+  timePerSessionMinutes?: ModelIntInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
-  and?: Array< ModelExerciseConditionInput | null > | null,
-  or?: Array< ModelExerciseConditionInput | null > | null,
-  not?: ModelExerciseConditionInput | null,
+  and?: Array< ModelUserProfileConditionInput | null > | null,
+  or?: Array< ModelUserProfileConditionInput | null > | null,
+  not?: ModelUserProfileConditionInput | null,
   _deleted?: ModelBooleanInput | null,
+  id?: ModelStringInput | null,
 };
 
-export type ModelIDInput = {
+export type ModelStringInput = {
   ne?: string | null,
   eq?: string | null,
   le?: string | null,
@@ -74,20 +95,16 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
-export type ModelStringInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
+export type ModelFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
   attributeExists?: boolean | null,
   attributeType?: ModelAttributeTypes | null,
-  size?: ModelSizeInput | null,
 };
 
 export type ModelIntInput = {
@@ -107,6 +124,162 @@ export type ModelBooleanInput = {
   eq?: boolean | null,
   attributeExists?: boolean | null,
   attributeType?: ModelAttributeTypes | null,
+};
+
+export type UserProfile = {
+  __typename: "UserProfile",
+  id: string,
+  username: string,
+  name?: string | null,
+  email?: string | null,
+  onboardingLevel?: string | null,
+  heightCm?: number | null,
+  weightKg?: number | null,
+  age?: number | null,
+  gender?: string | null,
+  experienceLevel?: string | null,
+  primaryGoal?: string | null,
+  secondaryGoal?: string | null,
+  injuriesOrLimitations?: string | null,
+  performanceNotes?: string | null,
+  preferredSplit?: string | null,
+  likedExercises?: Array< string | null > | null,
+  dislikedExercises?: Array< string | null > | null,
+  availableDays?: Array< string | null > | null,
+  timePerSessionMinutes?: number | null,
+  createdAt: string,
+  updatedAt: string,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+};
+
+export type UpdateUserProfileInput = {
+  id: string,
+  username?: string | null,
+  name?: string | null,
+  email?: string | null,
+  onboardingLevel?: string | null,
+  heightCm?: number | null,
+  weightKg?: number | null,
+  age?: number | null,
+  gender?: string | null,
+  experienceLevel?: string | null,
+  primaryGoal?: string | null,
+  secondaryGoal?: string | null,
+  injuriesOrLimitations?: string | null,
+  performanceNotes?: string | null,
+  preferredSplit?: string | null,
+  likedExercises?: Array< string | null > | null,
+  dislikedExercises?: Array< string | null > | null,
+  availableDays?: Array< string | null > | null,
+  timePerSessionMinutes?: number | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type DeleteUserProfileInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateTrainerNoteInput = {
+  id?: string | null,
+  userId: string,
+  note: string,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type ModelTrainerNoteConditionInput = {
+  userId?: ModelIDInput | null,
+  note?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelTrainerNoteConditionInput | null > | null,
+  or?: Array< ModelTrainerNoteConditionInput | null > | null,
+  not?: ModelTrainerNoteConditionInput | null,
+  _deleted?: ModelBooleanInput | null,
+};
+
+export type ModelIDInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  size?: ModelSizeInput | null,
+};
+
+export type TrainerNote = {
+  __typename: "TrainerNote",
+  id: string,
+  userId: string,
+  note: string,
+  owner?: string | null,
+  createdAt: string,
+  updatedAt: string,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+};
+
+export type UpdateTrainerNoteInput = {
+  id: string,
+  userId?: string | null,
+  note?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type DeleteTrainerNoteInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateExerciseInput = {
+  id?: string | null,
+  workoutTemplateId: string,
+  name: string,
+  sets?: string | null,
+  reps?: string | null,
+  weight?: string | null,
+  restPeriod?: number | null,
+  note?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type ModelExerciseConditionInput = {
+  workoutTemplateId?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  sets?: ModelStringInput | null,
+  reps?: ModelStringInput | null,
+  weight?: ModelStringInput | null,
+  restPeriod?: ModelIntInput | null,
+  note?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelExerciseConditionInput | null > | null,
+  or?: Array< ModelExerciseConditionInput | null > | null,
+  not?: ModelExerciseConditionInput | null,
+  _deleted?: ModelBooleanInput | null,
 };
 
 export type Exercise = {
@@ -152,6 +325,7 @@ export type CreateWorkoutTemplateInput = {
   userId: string,
   name: string,
   description?: string | null,
+  isAIPlan?: boolean | null,
   owner?: string | null,
   createdAt?: string | null,
   updatedAt?: string | null,
@@ -162,6 +336,7 @@ export type ModelWorkoutTemplateConditionInput = {
   userId?: ModelIDInput | null,
   name?: ModelStringInput | null,
   description?: ModelStringInput | null,
+  isAIPlan?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
@@ -178,6 +353,7 @@ export type WorkoutTemplate = {
   name: string,
   description?: string | null,
   exercises?: ModelExerciseConnection | null,
+  isAIPlan?: boolean | null,
   owner?: string | null,
   createdAt: string,
   updatedAt: string,
@@ -198,6 +374,7 @@ export type UpdateWorkoutTemplateInput = {
   userId?: string | null,
   name?: string | null,
   description?: string | null,
+  isAIPlan?: boolean | null,
   owner?: string | null,
   createdAt?: string | null,
   updatedAt?: string | null,
@@ -302,6 +479,61 @@ export type DeleteWorkoutSessionInput = {
   _version?: number | null,
 };
 
+export type ModelUserProfileFilterInput = {
+  id?: ModelIDInput | null,
+  username?: ModelStringInput | null,
+  name?: ModelStringInput | null,
+  email?: ModelStringInput | null,
+  onboardingLevel?: ModelStringInput | null,
+  heightCm?: ModelFloatInput | null,
+  weightKg?: ModelFloatInput | null,
+  age?: ModelIntInput | null,
+  gender?: ModelStringInput | null,
+  experienceLevel?: ModelStringInput | null,
+  primaryGoal?: ModelStringInput | null,
+  secondaryGoal?: ModelStringInput | null,
+  injuriesOrLimitations?: ModelStringInput | null,
+  performanceNotes?: ModelStringInput | null,
+  preferredSplit?: ModelStringInput | null,
+  likedExercises?: ModelStringInput | null,
+  dislikedExercises?: ModelStringInput | null,
+  availableDays?: ModelStringInput | null,
+  timePerSessionMinutes?: ModelIntInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelUserProfileFilterInput | null > | null,
+  or?: Array< ModelUserProfileFilterInput | null > | null,
+  not?: ModelUserProfileFilterInput | null,
+  _deleted?: ModelBooleanInput | null,
+};
+
+export type ModelUserProfileConnection = {
+  __typename: "ModelUserProfileConnection",
+  items:  Array<UserProfile | null >,
+  nextToken?: string | null,
+  startedAt?: number | null,
+};
+
+export type ModelTrainerNoteFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  note?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelTrainerNoteFilterInput | null > | null,
+  or?: Array< ModelTrainerNoteFilterInput | null > | null,
+  not?: ModelTrainerNoteFilterInput | null,
+  _deleted?: ModelBooleanInput | null,
+};
+
+export type ModelTrainerNoteConnection = {
+  __typename: "ModelTrainerNoteConnection",
+  items:  Array<TrainerNote | null >,
+  nextToken?: string | null,
+  startedAt?: number | null,
+};
+
 export type ModelExerciseFilterInput = {
   id?: ModelIDInput | null,
   workoutTemplateId?: ModelIDInput | null,
@@ -325,6 +557,7 @@ export type ModelWorkoutTemplateFilterInput = {
   userId?: ModelIDInput | null,
   name?: ModelStringInput | null,
   description?: ModelStringInput | null,
+  isAIPlan?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
@@ -380,19 +613,80 @@ export enum ModelSortDirection {
 }
 
 
-export type ModelSubscriptionExerciseFilterInput = {
-  id?: ModelSubscriptionIDInput | null,
-  workoutTemplateId?: ModelSubscriptionIDInput | null,
+export type ModelSubscriptionUserProfileFilterInput = {
+  username?: ModelSubscriptionStringInput | null,
   name?: ModelSubscriptionStringInput | null,
-  sets?: ModelSubscriptionStringInput | null,
-  reps?: ModelSubscriptionStringInput | null,
-  weight?: ModelSubscriptionStringInput | null,
-  restPeriod?: ModelSubscriptionIntInput | null,
+  email?: ModelSubscriptionStringInput | null,
+  onboardingLevel?: ModelSubscriptionStringInput | null,
+  heightCm?: ModelSubscriptionFloatInput | null,
+  weightKg?: ModelSubscriptionFloatInput | null,
+  age?: ModelSubscriptionIntInput | null,
+  gender?: ModelSubscriptionStringInput | null,
+  experienceLevel?: ModelSubscriptionStringInput | null,
+  primaryGoal?: ModelSubscriptionStringInput | null,
+  secondaryGoal?: ModelSubscriptionStringInput | null,
+  injuriesOrLimitations?: ModelSubscriptionStringInput | null,
+  performanceNotes?: ModelSubscriptionStringInput | null,
+  preferredSplit?: ModelSubscriptionStringInput | null,
+  likedExercises?: ModelSubscriptionStringInput | null,
+  dislikedExercises?: ModelSubscriptionStringInput | null,
+  availableDays?: ModelSubscriptionStringInput | null,
+  timePerSessionMinutes?: ModelSubscriptionIntInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionUserProfileFilterInput | null > | null,
+  or?: Array< ModelSubscriptionUserProfileFilterInput | null > | null,
+  _deleted?: ModelBooleanInput | null,
+  id?: ModelStringInput | null,
+};
+
+export type ModelSubscriptionStringInput = {
+  ne?: string | null,
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  contains?: string | null,
+  notContains?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+  in?: Array< string | null > | null,
+  notIn?: Array< string | null > | null,
+};
+
+export type ModelSubscriptionFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
+export type ModelSubscriptionIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
+export type ModelSubscriptionTrainerNoteFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
   note?: ModelSubscriptionStringInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
-  or?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
+  and?: Array< ModelSubscriptionTrainerNoteFilterInput | null > | null,
+  or?: Array< ModelSubscriptionTrainerNoteFilterInput | null > | null,
   _deleted?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
 };
@@ -412,31 +706,21 @@ export type ModelSubscriptionIDInput = {
   notIn?: Array< string | null > | null,
 };
 
-export type ModelSubscriptionStringInput = {
-  ne?: string | null,
-  eq?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  contains?: string | null,
-  notContains?: string | null,
-  between?: Array< string | null > | null,
-  beginsWith?: string | null,
-  in?: Array< string | null > | null,
-  notIn?: Array< string | null > | null,
-};
-
-export type ModelSubscriptionIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  in?: Array< number | null > | null,
-  notIn?: Array< number | null > | null,
+export type ModelSubscriptionExerciseFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  workoutTemplateId?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  sets?: ModelSubscriptionStringInput | null,
+  reps?: ModelSubscriptionStringInput | null,
+  weight?: ModelSubscriptionStringInput | null,
+  restPeriod?: ModelSubscriptionIntInput | null,
+  note?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
+  or?: Array< ModelSubscriptionExerciseFilterInput | null > | null,
+  _deleted?: ModelBooleanInput | null,
+  owner?: ModelStringInput | null,
 };
 
 export type ModelSubscriptionWorkoutTemplateFilterInput = {
@@ -444,12 +728,18 @@ export type ModelSubscriptionWorkoutTemplateFilterInput = {
   userId?: ModelSubscriptionIDInput | null,
   name?: ModelSubscriptionStringInput | null,
   description?: ModelSubscriptionStringInput | null,
+  isAIPlan?: ModelSubscriptionBooleanInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
   or?: Array< ModelSubscriptionWorkoutTemplateFilterInput | null > | null,
   _deleted?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
+};
+
+export type ModelSubscriptionBooleanInput = {
+  ne?: boolean | null,
+  eq?: boolean | null,
 };
 
 export type ModelSubscriptionWorkoutSessionFilterInput = {
@@ -465,6 +755,171 @@ export type ModelSubscriptionWorkoutSessionFilterInput = {
   or?: Array< ModelSubscriptionWorkoutSessionFilterInput | null > | null,
   _deleted?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
+};
+
+export type CreateUserProfileMutationVariables = {
+  input: CreateUserProfileInput,
+  condition?: ModelUserProfileConditionInput | null,
+};
+
+export type CreateUserProfileMutation = {
+  createUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type UpdateUserProfileMutationVariables = {
+  input: UpdateUserProfileInput,
+  condition?: ModelUserProfileConditionInput | null,
+};
+
+export type UpdateUserProfileMutation = {
+  updateUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type DeleteUserProfileMutationVariables = {
+  input: DeleteUserProfileInput,
+  condition?: ModelUserProfileConditionInput | null,
+};
+
+export type DeleteUserProfileMutation = {
+  deleteUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type CreateTrainerNoteMutationVariables = {
+  input: CreateTrainerNoteInput,
+  condition?: ModelTrainerNoteConditionInput | null,
+};
+
+export type CreateTrainerNoteMutation = {
+  createTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type UpdateTrainerNoteMutationVariables = {
+  input: UpdateTrainerNoteInput,
+  condition?: ModelTrainerNoteConditionInput | null,
+};
+
+export type UpdateTrainerNoteMutation = {
+  updateTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type DeleteTrainerNoteMutationVariables = {
+  input: DeleteTrainerNoteInput,
+  condition?: ModelTrainerNoteConditionInput | null,
+};
+
+export type DeleteTrainerNoteMutation = {
+  deleteTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
 };
 
 export type CreateExerciseMutationVariables = {
@@ -559,6 +1014,7 @@ export type CreateWorkoutTemplateMutation = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -585,6 +1041,7 @@ export type UpdateWorkoutTemplateMutation = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -611,6 +1068,7 @@ export type DeleteWorkoutTemplateMutation = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -712,6 +1170,195 @@ export type _QueryVariables = {
 
 export type _Query = {
   _?: string | null,
+};
+
+export type GetUserProfileQueryVariables = {
+  id: string,
+};
+
+export type GetUserProfileQuery = {
+  getUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type ListUserProfilesQueryVariables = {
+  filter?: ModelUserProfileFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListUserProfilesQuery = {
+  listUserProfiles?:  {
+    __typename: "ModelUserProfileConnection",
+    items:  Array< {
+      __typename: "UserProfile",
+      id: string,
+      username: string,
+      name?: string | null,
+      email?: string | null,
+      onboardingLevel?: string | null,
+      heightCm?: number | null,
+      weightKg?: number | null,
+      age?: number | null,
+      gender?: string | null,
+      experienceLevel?: string | null,
+      primaryGoal?: string | null,
+      secondaryGoal?: string | null,
+      injuriesOrLimitations?: string | null,
+      performanceNotes?: string | null,
+      preferredSplit?: string | null,
+      likedExercises?: Array< string | null > | null,
+      dislikedExercises?: Array< string | null > | null,
+      availableDays?: Array< string | null > | null,
+      timePerSessionMinutes?: number | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncUserProfilesQueryVariables = {
+  filter?: ModelUserProfileFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncUserProfilesQuery = {
+  syncUserProfiles?:  {
+    __typename: "ModelUserProfileConnection",
+    items:  Array< {
+      __typename: "UserProfile",
+      id: string,
+      username: string,
+      name?: string | null,
+      email?: string | null,
+      onboardingLevel?: string | null,
+      heightCm?: number | null,
+      weightKg?: number | null,
+      age?: number | null,
+      gender?: string | null,
+      experienceLevel?: string | null,
+      primaryGoal?: string | null,
+      secondaryGoal?: string | null,
+      injuriesOrLimitations?: string | null,
+      performanceNotes?: string | null,
+      preferredSplit?: string | null,
+      likedExercises?: Array< string | null > | null,
+      dislikedExercises?: Array< string | null > | null,
+      availableDays?: Array< string | null > | null,
+      timePerSessionMinutes?: number | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type GetTrainerNoteQueryVariables = {
+  id: string,
+};
+
+export type GetTrainerNoteQuery = {
+  getTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type ListTrainerNotesQueryVariables = {
+  filter?: ModelTrainerNoteFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListTrainerNotesQuery = {
+  listTrainerNotes?:  {
+    __typename: "ModelTrainerNoteConnection",
+    items:  Array< {
+      __typename: "TrainerNote",
+      id: string,
+      userId: string,
+      note: string,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncTrainerNotesQueryVariables = {
+  filter?: ModelTrainerNoteFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncTrainerNotesQuery = {
+  syncTrainerNotes?:  {
+    __typename: "ModelTrainerNoteConnection",
+    items:  Array< {
+      __typename: "TrainerNote",
+      id: string,
+      userId: string,
+      note: string,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
 };
 
 export type GetExerciseQueryVariables = {
@@ -817,6 +1464,7 @@ export type GetWorkoutTemplateQuery = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -841,6 +1489,7 @@ export type ListWorkoutTemplatesQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      isAIPlan?: boolean | null,
       owner?: string | null,
       createdAt: string,
       updatedAt: string,
@@ -869,6 +1518,7 @@ export type SyncWorkoutTemplatesQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      isAIPlan?: boolean | null,
       owner?: string | null,
       createdAt: string,
       updatedAt: string,
@@ -968,6 +1618,35 @@ export type SyncWorkoutSessionsQuery = {
   } | null,
 };
 
+export type NotesByUserIdQueryVariables = {
+  userId: string,
+  createdAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelTrainerNoteFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type NotesByUserIdQuery = {
+  notesByUserId?:  {
+    __typename: "ModelTrainerNoteConnection",
+    items:  Array< {
+      __typename: "TrainerNote",
+      id: string,
+      userId: string,
+      note: string,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
 export type ExercisesByWorkoutTemplateIdQueryVariables = {
   workoutTemplateId: string,
   createdAt?: ModelStringKeyConditionInput | null,
@@ -1019,6 +1698,7 @@ export type TemplatesByUserIdQuery = {
       userId: string,
       name: string,
       description?: string | null,
+      isAIPlan?: boolean | null,
       owner?: string | null,
       createdAt: string,
       updatedAt: string,
@@ -1060,6 +1740,171 @@ export type SessionsByUserIdQuery = {
     } | null >,
     nextToken?: string | null,
     startedAt?: number | null,
+  } | null,
+};
+
+export type OnCreateUserProfileSubscriptionVariables = {
+  filter?: ModelSubscriptionUserProfileFilterInput | null,
+  id?: string | null,
+};
+
+export type OnCreateUserProfileSubscription = {
+  onCreateUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnUpdateUserProfileSubscriptionVariables = {
+  filter?: ModelSubscriptionUserProfileFilterInput | null,
+  id?: string | null,
+};
+
+export type OnUpdateUserProfileSubscription = {
+  onUpdateUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnDeleteUserProfileSubscriptionVariables = {
+  filter?: ModelSubscriptionUserProfileFilterInput | null,
+  id?: string | null,
+};
+
+export type OnDeleteUserProfileSubscription = {
+  onDeleteUserProfile?:  {
+    __typename: "UserProfile",
+    id: string,
+    username: string,
+    name?: string | null,
+    email?: string | null,
+    onboardingLevel?: string | null,
+    heightCm?: number | null,
+    weightKg?: number | null,
+    age?: number | null,
+    gender?: string | null,
+    experienceLevel?: string | null,
+    primaryGoal?: string | null,
+    secondaryGoal?: string | null,
+    injuriesOrLimitations?: string | null,
+    performanceNotes?: string | null,
+    preferredSplit?: string | null,
+    likedExercises?: Array< string | null > | null,
+    dislikedExercises?: Array< string | null > | null,
+    availableDays?: Array< string | null > | null,
+    timePerSessionMinutes?: number | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnCreateTrainerNoteSubscriptionVariables = {
+  filter?: ModelSubscriptionTrainerNoteFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateTrainerNoteSubscription = {
+  onCreateTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnUpdateTrainerNoteSubscriptionVariables = {
+  filter?: ModelSubscriptionTrainerNoteFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateTrainerNoteSubscription = {
+  onUpdateTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnDeleteTrainerNoteSubscriptionVariables = {
+  filter?: ModelSubscriptionTrainerNoteFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteTrainerNoteSubscription = {
+  onDeleteTrainerNote?:  {
+    __typename: "TrainerNote",
+    id: string,
+    userId: string,
+    note: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
   } | null,
 };
 
@@ -1155,6 +2000,7 @@ export type OnCreateWorkoutTemplateSubscription = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -1181,6 +2027,7 @@ export type OnUpdateWorkoutTemplateSubscription = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -1207,6 +2054,7 @@ export type OnDeleteWorkoutTemplateSubscription = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,

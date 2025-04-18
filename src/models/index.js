@@ -4,9 +4,11 @@ import { schema } from './schema';
 
 
 
-const { Exercise, WorkoutTemplate, WorkoutSession, PerformedSet, SessionExercise } = initSchema(schema);
+const { UserProfile, TrainerNote, Exercise, WorkoutTemplate, WorkoutSession, PerformedSet, SessionExercise } = initSchema(schema);
 
 export {
+  UserProfile,
+  TrainerNote,
   Exercise,
   WorkoutTemplate,
   WorkoutSession,

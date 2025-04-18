@@ -1,5 +1,272 @@
 export const schema = {
     "models": {
+        "UserProfile": {
+            "name": "UserProfile",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "username": {
+                    "name": "username",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "name": {
+                    "name": "name",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "email": {
+                    "name": "email",
+                    "isArray": false,
+                    "type": "AWSEmail",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "onboardingLevel": {
+                    "name": "onboardingLevel",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "heightCm": {
+                    "name": "heightCm",
+                    "isArray": false,
+                    "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "weightKg": {
+                    "name": "weightKg",
+                    "isArray": false,
+                    "type": "Float",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "age": {
+                    "name": "age",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "gender": {
+                    "name": "gender",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "experienceLevel": {
+                    "name": "experienceLevel",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "primaryGoal": {
+                    "name": "primaryGoal",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "secondaryGoal": {
+                    "name": "secondaryGoal",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "injuriesOrLimitations": {
+                    "name": "injuriesOrLimitations",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "performanceNotes": {
+                    "name": "performanceNotes",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "preferredSplit": {
+                    "name": "preferredSplit",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "likedExercises": {
+                    "name": "likedExercises",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "dislikedExercises": {
+                    "name": "dislikedExercises",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "availableDays": {
+                    "name": "availableDays",
+                    "isArray": true,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "timePerSessionMinutes": {
+                    "name": "timePerSessionMinutes",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                }
+            },
+            "syncable": true,
+            "pluralName": "UserProfiles",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "provider": "userPools",
+                                "ownerField": "id",
+                                "allow": "owner",
+                                "identityClaim": "sub",
+                                "operations": [
+                                    "create",
+                                    "read",
+                                    "update",
+                                    "delete"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "TrainerNote": {
+            "name": "TrainerNote",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "userId": {
+                    "name": "userId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "note": {
+                    "name": "note",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "owner": {
+                    "name": "owner",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                }
+            },
+            "syncable": true,
+            "pluralName": "TrainerNotes",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "key",
+                    "properties": {
+                        "name": "byUserNotes",
+                        "queryField": "notesByUserId",
+                        "fields": [
+                            "userId",
+                            "createdAt"
+                        ]
+                    }
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "provider": "userPools",
+                                "ownerField": "owner",
+                                "allow": "owner",
+                                "identityClaim": "cognito:username",
+                                "operations": [
+                                    "create",
+                                    "update",
+                                    "delete",
+                                    "read"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
         "Exercise": {
             "name": "Exercise",
             "fields": {
@@ -107,13 +374,13 @@ export const schema = {
                                 "provider": "userPools",
                                 "ownerField": "owner",
                                 "allow": "owner",
+                                "identityClaim": "cognito:username",
                                 "operations": [
                                     "create",
-                                    "read",
                                     "update",
-                                    "delete"
-                                ],
-                                "identityClaim": "cognito:username"
+                                    "delete",
+                                    "read"
+                                ]
                             }
                         ]
                     }
@@ -167,6 +434,13 @@ export const schema = {
                         ]
                     }
                 },
+                "isAIPlan": {
+                    "name": "isAIPlan",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "owner": {
                     "name": "owner",
                     "isArray": false,
@@ -214,13 +488,13 @@ export const schema = {
                                 "provider": "userPools",
                                 "ownerField": "owner",
                                 "allow": "owner",
+                                "identityClaim": "cognito:username",
                                 "operations": [
                                     "create",
-                                    "read",
                                     "update",
-                                    "delete"
-                                ],
-                                "identityClaim": "cognito:username"
+                                    "delete",
+                                    "read"
+                                ]
                             }
                         ]
                     }
@@ -410,5 +684,5 @@ export const schema = {
         }
     },
     "codegenVersion": "3.4.4",
-    "version": "f934e68e59a32e05e668775162189d30"
+    "version": "51df3cb4196668c7a7dc7eb029d47e6b"
 };

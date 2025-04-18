@@ -2,13 +2,183 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-import * as APITypes from "../API"; // Make sure API.ts exists and has the correct types
+import * as APITypes from "../API";
 type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationInput: InputType;
   __generatedMutationOutput: OutputType;
 };
 
-// Mutation for Exercise Model (Relational)
+export const createUserProfile = /* GraphQL */ `mutation CreateUserProfile(
+  $input: CreateUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  createUserProfile(input: $input, condition: $condition) {
+    id
+    username
+    name
+    email
+    onboardingLevel
+    heightCm
+    weightKg
+    age
+    gender
+    experienceLevel
+    primaryGoal
+    secondaryGoal
+    injuriesOrLimitations
+    performanceNotes
+    preferredSplit
+    likedExercises
+    dislikedExercises
+    availableDays
+    timePerSessionMinutes
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateUserProfileMutationVariables,
+  APITypes.CreateUserProfileMutation
+>;
+export const updateUserProfile = /* GraphQL */ `mutation UpdateUserProfile(
+  $input: UpdateUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  updateUserProfile(input: $input, condition: $condition) {
+    id
+    username
+    name
+    email
+    onboardingLevel
+    heightCm
+    weightKg
+    age
+    gender
+    experienceLevel
+    primaryGoal
+    secondaryGoal
+    injuriesOrLimitations
+    performanceNotes
+    preferredSplit
+    likedExercises
+    dislikedExercises
+    availableDays
+    timePerSessionMinutes
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateUserProfileMutationVariables,
+  APITypes.UpdateUserProfileMutation
+>;
+export const deleteUserProfile = /* GraphQL */ `mutation DeleteUserProfile(
+  $input: DeleteUserProfileInput!
+  $condition: ModelUserProfileConditionInput
+) {
+  deleteUserProfile(input: $input, condition: $condition) {
+    id
+    username
+    name
+    email
+    onboardingLevel
+    heightCm
+    weightKg
+    age
+    gender
+    experienceLevel
+    primaryGoal
+    secondaryGoal
+    injuriesOrLimitations
+    performanceNotes
+    preferredSplit
+    likedExercises
+    dislikedExercises
+    availableDays
+    timePerSessionMinutes
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteUserProfileMutationVariables,
+  APITypes.DeleteUserProfileMutation
+>;
+export const createTrainerNote = /* GraphQL */ `mutation CreateTrainerNote(
+  $input: CreateTrainerNoteInput!
+  $condition: ModelTrainerNoteConditionInput
+) {
+  createTrainerNote(input: $input, condition: $condition) {
+    id
+    userId
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateTrainerNoteMutationVariables,
+  APITypes.CreateTrainerNoteMutation
+>;
+export const updateTrainerNote = /* GraphQL */ `mutation UpdateTrainerNote(
+  $input: UpdateTrainerNoteInput!
+  $condition: ModelTrainerNoteConditionInput
+) {
+  updateTrainerNote(input: $input, condition: $condition) {
+    id
+    userId
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateTrainerNoteMutationVariables,
+  APITypes.UpdateTrainerNoteMutation
+>;
+export const deleteTrainerNote = /* GraphQL */ `mutation DeleteTrainerNote(
+  $input: DeleteTrainerNoteInput!
+  $condition: ModelTrainerNoteConditionInput
+) {
+  deleteTrainerNote(input: $input, condition: $condition) {
+    id
+    userId
+    note
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteTrainerNoteMutationVariables,
+  APITypes.DeleteTrainerNoteMutation
+>;
 export const createExercise = /* GraphQL */ `mutation CreateExercise(
   $input: CreateExerciseInput!
   $condition: ModelExerciseConditionInput
@@ -28,7 +198,6 @@ export const createExercise = /* GraphQL */ `mutation CreateExercise(
     _version
     _deleted
     _lastChangedAt
-    # Add 'template' field here if you included @belongsTo in Exercise schema
     __typename
   }
 }
@@ -55,7 +224,6 @@ export const updateExercise = /* GraphQL */ `mutation UpdateExercise(
     _version
     _deleted
     _lastChangedAt
-    # Add 'template' field here if you included @belongsTo in Exercise schema
     __typename
   }
 }
@@ -82,7 +250,6 @@ export const deleteExercise = /* GraphQL */ `mutation DeleteExercise(
     _version
     _deleted
     _lastChangedAt
-    # Add 'template' field here if you included @belongsTo in Exercise schema
     __typename
   }
 }
@@ -90,8 +257,6 @@ export const deleteExercise = /* GraphQL */ `mutation DeleteExercise(
   APITypes.DeleteExerciseMutationVariables,
   APITypes.DeleteExerciseMutation
 >;
-
-// Mutation for WorkoutTemplate Model (Relational - references Exercise Connection)
 export const createWorkoutTemplate = /* GraphQL */ `mutation CreateWorkoutTemplate(
   $input: CreateWorkoutTemplateInput!
   $condition: ModelWorkoutTemplateConditionInput
@@ -101,18 +266,12 @@ export const createWorkoutTemplate = /* GraphQL */ `mutation CreateWorkoutTempla
     userId
     name
     description
-    # The 'exercises' field here returns connection metadata, not the items themselves by default on create/update
-    exercises(limit: 10) { # Example limit, adjust if needed
-      items { # You might need to add sub-selection here if you need exercises returned immediately
-        id
-        name
-        # Add other exercise fields if needed in response
-        __typename
-      }
+    exercises {
       nextToken
-      startedAt # Used by DataStore
+      startedAt
       __typename
     }
+    isAIPlan
     owner
     createdAt
     updatedAt
@@ -135,16 +294,12 @@ export const updateWorkoutTemplate = /* GraphQL */ `mutation UpdateWorkoutTempla
     userId
     name
     description
-    exercises(limit: 10) { # Example limit
-      items {
-        id
-        name
-        __typename
-      }
+    exercises {
       nextToken
       startedAt
       __typename
     }
+    isAIPlan
     owner
     createdAt
     updatedAt
@@ -167,16 +322,12 @@ export const deleteWorkoutTemplate = /* GraphQL */ `mutation DeleteWorkoutTempla
     userId
     name
     description
-    exercises(limit: 10) { # Example limit
-      items {
-        id
-        name
-        __typename
-      }
+    exercises {
       nextToken
       startedAt
       __typename
     }
+    isAIPlan
     owner
     createdAt
     updatedAt
@@ -190,8 +341,6 @@ export const deleteWorkoutTemplate = /* GraphQL */ `mutation DeleteWorkoutTempla
   APITypes.DeleteWorkoutTemplateMutationVariables,
   APITypes.DeleteWorkoutTemplateMutation
 >;
-
-// Mutation for WorkoutSession Model (Uses embedded SessionExercise)
 export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession(
   $input: CreateWorkoutSessionInput!
   $condition: ModelWorkoutSessionConditionInput
@@ -201,17 +350,10 @@ export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession
     userId
     templateId
     name
-    # Select embedded exercises and performedSets directly
     exercises {
       id
       name
       note
-      performedSets {
-        id
-        reps
-        weight
-        __typename
-      }
       __typename
     }
     duration
@@ -242,12 +384,6 @@ export const updateWorkoutSession = /* GraphQL */ `mutation UpdateWorkoutSession
       id
       name
       note
-      performedSets {
-        id
-        reps
-        weight
-        __typename
-      }
       __typename
     }
     duration
@@ -278,12 +414,6 @@ export const deleteWorkoutSession = /* GraphQL */ `mutation DeleteWorkoutSession
       id
       name
       note
-      performedSets {
-        id
-        reps
-        weight
-        __typename
-      }
       __typename
     }
     duration

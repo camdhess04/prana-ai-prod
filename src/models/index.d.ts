@@ -38,6 +38,96 @@ export declare type SessionExercise = LazyLoading extends LazyLoadingDisabled ? 
 
 export declare const SessionExercise: (new (init: ModelInit<SessionExercise>) => SessionExercise)
 
+type EagerUserProfile = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<UserProfile, 'id'>;
+  };
+  readonly id: string;
+  readonly username: string;
+  readonly name?: string | null;
+  readonly email?: string | null;
+  readonly onboardingLevel?: string | null;
+  readonly heightCm?: number | null;
+  readonly weightKg?: number | null;
+  readonly age?: number | null;
+  readonly gender?: string | null;
+  readonly experienceLevel?: string | null;
+  readonly primaryGoal?: string | null;
+  readonly secondaryGoal?: string | null;
+  readonly injuriesOrLimitations?: string | null;
+  readonly performanceNotes?: string | null;
+  readonly preferredSplit?: string | null;
+  readonly likedExercises?: (string | null)[] | null;
+  readonly dislikedExercises?: (string | null)[] | null;
+  readonly availableDays?: (string | null)[] | null;
+  readonly timePerSessionMinutes?: number | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+type LazyUserProfile = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<UserProfile, 'id'>;
+  };
+  readonly id: string;
+  readonly username: string;
+  readonly name?: string | null;
+  readonly email?: string | null;
+  readonly onboardingLevel?: string | null;
+  readonly heightCm?: number | null;
+  readonly weightKg?: number | null;
+  readonly age?: number | null;
+  readonly gender?: string | null;
+  readonly experienceLevel?: string | null;
+  readonly primaryGoal?: string | null;
+  readonly secondaryGoal?: string | null;
+  readonly injuriesOrLimitations?: string | null;
+  readonly performanceNotes?: string | null;
+  readonly preferredSplit?: string | null;
+  readonly likedExercises?: (string | null)[] | null;
+  readonly dislikedExercises?: (string | null)[] | null;
+  readonly availableDays?: (string | null)[] | null;
+  readonly timePerSessionMinutes?: number | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export declare type UserProfile = LazyLoading extends LazyLoadingDisabled ? EagerUserProfile : LazyUserProfile
+
+export declare const UserProfile: (new (init: ModelInit<UserProfile>) => UserProfile) & {
+  copyOf(source: UserProfile, mutator: (draft: MutableModel<UserProfile>) => MutableModel<UserProfile> | void): UserProfile;
+}
+
+type EagerTrainerNote = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<TrainerNote, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly note: string;
+  readonly owner?: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+type LazyTrainerNote = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<TrainerNote, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly note: string;
+  readonly owner?: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export declare type TrainerNote = LazyLoading extends LazyLoadingDisabled ? EagerTrainerNote : LazyTrainerNote
+
+export declare const TrainerNote: (new (init: ModelInit<TrainerNote>) => TrainerNote) & {
+  copyOf(source: TrainerNote, mutator: (draft: MutableModel<TrainerNote>) => MutableModel<TrainerNote> | void): TrainerNote;
+}
+
 type EagerExercise = {
   readonly [__modelMeta__]: {
     identifier: ManagedIdentifier<Exercise, 'id'>;
@@ -87,6 +177,7 @@ type EagerWorkoutTemplate = {
   readonly name: string;
   readonly description?: string | null;
   readonly exercises?: (Exercise | null)[] | null;
+  readonly isAIPlan?: boolean | null;
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
@@ -101,6 +192,7 @@ type LazyWorkoutTemplate = {
   readonly name: string;
   readonly description?: string | null;
   readonly exercises: AsyncCollection<Exercise>;
+  readonly isAIPlan?: boolean | null;
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;

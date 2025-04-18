@@ -11,19 +11,25 @@ import React, {
 // --- Use Modern Amplify Imports ---
 import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCode, fetchAuthSession, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
-import type { AuthUser, SignInInput, SignUpInput, ConfirmSignUpInput, ResendSignUpCodeInput } from 'aws-amplify/auth';
+import type { AuthUser, SignInOutput, SignUpOutput, ConfirmSignUpOutput, ResendSignUpCodeOutput, FetchUserAttributesOutput } from 'aws-amplify/auth';
+import profileService from '../services/profileService';
 // --- --- --- --- --- --- --- ---
+
+// Define possible onboarding statuses
+type OnboardingStatus = 'checking' | 'needed' | 'complete';
 
 interface AuthContextType {
     user: AuthUser | null;
     isLoading: boolean;
+    onboardingStatus: OnboardingStatus;
     signIn: (username: string, password: string) => Promise<void>;
-    signUp: (username: string, password: string, email: string) => Promise<any>;
-    confirmSignUp: (username: string, code: string) => Promise<void>;
-    resendSignUp: (username: string) => Promise<void>;
+    signUp: (username: string, password: string, email: string) => Promise<SignUpOutput>;
+    confirmSignUp: (username: string, code: string) => Promise<ConfirmSignUpOutput>;
+    resendSignUp: (username: string) => Promise<ResendSignUpCodeOutput>;
     signOut: () => Promise<void>;
     fetchCurrentSession: () => Promise<any>;
-    fetchCurrentUserAttributes: () => Promise<any>;
+    fetchCurrentUserAttributes: () => Promise<FetchUserAttributesOutput>;
+    markOnboardingComplete: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,25 +41,42 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<AuthUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>('checking');
 
-    const checkCurrentUser = async () => {
-        console.log('Attempting to check current user...');
+    const checkUserAndProfile = async (isInitialLoad = false) => {
+        if (isInitialLoad) setIsLoading(true);
+        setOnboardingStatus('checking');
+        console.log('AUTH_CONTEXT: Checking current user...');
         try {
             const authenticatedUser = await getCurrentUser();
-            console.log('Current user checked:', authenticatedUser.username);
+            console.log('AUTH_CONTEXT: User found:', authenticatedUser.username);
             setUser(authenticatedUser);
+
+            console.log('AUTH_CONTEXT: Checking user profile...');
+            const profile = await profileService.getUserProfile(authenticatedUser.userId);
+            if (profile) {
+                console.log('AUTH_CONTEXT: Profile found. Onboarding complete.');
+                setOnboardingStatus('complete');
+            } else {
+                console.log('AUTH_CONTEXT: Profile NOT found. Onboarding needed.');
+                setOnboardingStatus('needed');
+            }
         } catch (error) {
-            console.log('No authenticated user found (expected if not logged in):', error);
+            console.log('AUTH_CONTEXT: No authenticated user found.');
             setUser(null);
+            setOnboardingStatus('needed');
         } finally {
-            if (isLoading) setIsLoading(false);
-            console.log('Finished checking user, isLoading:', isLoading);
+            // Only set loading to false on initial load
+            if (isInitialLoad) {
+                setIsLoading(false);
+                console.log('AUTH_CONTEXT: Initial load check complete, setting isLoading to false');
+            }
+            console.log('AUTH_CONTEXT: Finished checkUserAndProfile. Current state - isLoading:', isLoading, 'onboardingStatus:', onboardingStatus);
         }
     };
 
     useEffect(() => {
-        setIsLoading(true);
-        checkCurrentUser().finally(() => setIsLoading(false));
+        checkUserAndProfile(true);
 
         const listener = (data: any) => {
             console.log("Hub event received:", data.payload.event);
@@ -61,22 +84,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 case 'signedIn':
                 case 'autoSignIn':
                 case 'signUp':
-                    console.log('Hub received signedIn/autoSignIn/signUp event');
-                    checkCurrentUser();
+                    checkUserAndProfile();
                     break;
                 case 'signedOut':
-                    console.log('Hub received signedOut event');
                     setUser(null);
+                    setOnboardingStatus('needed');
                     break;
             }
         };
         const hubListenerCancelToken = Hub.listen('auth', listener);
         console.log("Hub listener set up.");
-        return () => {
-            console.log("Cleaning up Hub listener.");
-            hubListenerCancelToken();
-        };
+        return () => { hubListenerCancelToken(); };
     }, []);
+
+    const markOnboardingComplete = () => {
+        console.log("AUTH_CONTEXT: Marking onboarding as complete.");
+        setOnboardingStatus('complete');
+    };
 
     const handleSignIn = async (username: string, password: string): Promise<void> => {
         console.log('🔑 CONTEXT: Attempting sign in via context for:', username);
@@ -86,12 +110,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
             // Call Amplify signIn - this initiates the process
             // We await it primarily to allow catching errors from the attempt itself
-            const output = await signIn({
+            const signInOutput = await signIn({
                 username: cleanUsername,
                 password: cleanPassword
             });
 
-            console.log('✅ CONTEXT: Amplify signIn call completed. Raw output:', output);
+            console.log('✅ CONTEXT: Amplify signIn call completed. Raw output:', signInOutput);
 
             // *** NO MORE CODE NEEDED HERE ON SUCCESS ***
             // SUCCESS is handled async by the Hub listener ('signedIn')
@@ -115,10 +139,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const handleSignUp = async (username: string, password: string, email: string): Promise<any> => {
+    const handleSignUp = async (username: string, password: string, email: string): Promise<SignUpOutput> => {
         console.log('Attempting sign up for:', username);
         try {
-            const output = await signUp({
+            const signUpOutput = await signUp({
                 username,
                 password,
                 options: {
@@ -127,28 +151,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     }
                 }
             });
-            console.log('Sign up result:', output);
-            return output;
+            console.log('Sign up result:', signUpOutput);
+            return signUpOutput;
         } catch (error: any) {
             console.error('Error signing up:', error);
             throw error;
         }
     };
 
-    const handleConfirmSignUp = async (username: string, code: string): Promise<void> => {
+    const handleConfirmSignUp = async (username: string, code: string): Promise<ConfirmSignUpOutput> => {
         console.log(`Attempting confirmation for ${username} with code ${code}`);
         try {
-            await confirmSignUp({ username, confirmationCode: code });
+            const confirmSignUpOutput = await confirmSignUp({ username, confirmationCode: code });
             console.log('Sign up confirmed successfully');
+            return confirmSignUpOutput;
         } catch (error: any) {
             console.error('Error confirming sign up:', error);
             throw error;
         }
     };
 
-    const handleResendConfirmationCode = async (email: string): Promise<void> => {
+    const handleResendConfirmationCode = async (username: string): Promise<ResendSignUpCodeOutput> => {
         try {
-            await resendSignUpCode({ username: email });
+            const resendCodeOutput = await resendSignUpCode({ username });
+            console.log('Resend confirmation code successful:', resendCodeOutput);
+            return resendCodeOutput;
         } catch (error) {
             console.error('Error resending confirmation code:', error);
             throw error;
@@ -178,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const handleFetchUserAttributes = async (): Promise<any> => {
+    const handleFetchUserAttributes = async (): Promise<FetchUserAttributesOutput> => {
         console.log('Attempting to fetch user attributes...');
         try {
             const attributes = await fetchUserAttributes();
@@ -186,13 +213,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             return attributes;
         } catch (error) {
             console.error('Error fetching user attributes:', error);
-            return null;
+            throw error;
         }
     };
 
     const contextValue: AuthContextType = {
         user,
         isLoading,
+        onboardingStatus,
         signIn: handleSignIn,
         signUp: handleSignUp,
         confirmSignUp: handleConfirmSignUp,
@@ -200,6 +228,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signOut: handleSignOut,
         fetchCurrentSession: handleFetchSession,
         fetchCurrentUserAttributes: handleFetchUserAttributes,
+        markOnboardingComplete,
     };
 
     return (
