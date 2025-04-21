@@ -17,10 +17,10 @@ import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 import { Amplify } from 'aws-amplify';
-import awsconfig from './src/aws-exports.js'; // Use aws-exports.js
+import amplifyconfig from './src/amplifyconfiguration.json'; // Import the JSON config
 
-console.log('🔧 Initializing Amplify with config from aws-exports.js:', awsconfig);
-Amplify.configure(awsconfig); // Pass the whole object
+console.log('🔧 Initializing Amplify with config from amplifyconfiguration.json:', amplifyconfig);
+Amplify.configure(amplifyconfig); // Pass the imported JSON object directly
 console.log('✅ Amplify configured attempt complete.');
 
 export default function App() {
