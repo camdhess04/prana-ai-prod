@@ -17,7 +17,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 import { Amplify } from 'aws-amplify';
-import amplifyconfig from './src/amplifyconfiguration.json'; // Import the JSON config
+import amplifyconfig from './amplifyconfiguration.json'; // Import JSON from root
 
 console.log('🔧 Initializing Amplify with config from amplifyconfiguration.json:', amplifyconfig);
 Amplify.configure(amplifyconfig); // Pass the imported JSON object directly
