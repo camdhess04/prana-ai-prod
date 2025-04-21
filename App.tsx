@@ -17,7 +17,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 import { Amplify } from 'aws-amplify';
-import awsconfig from './src/aws-exports'; // Use aws-exports.js
+import awsconfig from './src/aws-exports.js'; // Use aws-exports.js
 
 console.log('🔧 Initializing Amplify with config from aws-exports.js:', awsconfig);
 Amplify.configure(awsconfig); // Pass the whole object
