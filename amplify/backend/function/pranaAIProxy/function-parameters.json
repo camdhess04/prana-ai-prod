@@ -1,0 +1,8 @@
+{
+  "handler": "index.handler",
+  "lambdaLayers": [],
+  "runtime": "nodejs18.x",
+  "secretNames": [
+    "ANTHROPIC_API_KEY"
+  ]
+}

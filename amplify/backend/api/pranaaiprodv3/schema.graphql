@@ -1,68 +1,104 @@
-# GraphQL Schema for Prana AI v2 - FINAL - Includes Performed Sets in Session
+# GraphQL Schema for Prana AI V3 - Includes UserProfile, TrainerNote
 
 type Query {
-  _: String
+  _: String # Required placeholder for schema validity
 }
 
-# Exercise Model (Represents exercise definitions linked to templates)
-type Exercise @model @auth(rules: [
-  { allow: owner, ownerField: "owner", operations: [create, read, update, delete] }
+# --- User Profile & Notes ---
+
+type UserProfile @model @auth(rules: [
+  # User's Cognito ID (sub) is the record ID and owner
+  { allow: owner, ownerField: "id", identityClaim: "sub", operations: [create, read, update, delete] }
 ]) {
+  id: ID!                # REQUIRED: Set to user's Cognito sub (userId)
+  username: String!        # REQUIRED: User's Cognito username (email)
+  name: String           # Optional display name
+  email: AWSEmail        # Optional email
+
+  onboardingLevel: String # Optional: "chill", "intermediate", "nerd"
+
+  # Metrics (Optional)
+  heightCm: Float
+  weightKg: Float
+  age: Int
+  gender: String
+
+  # Fitness Info (Optional)
+  experienceLevel: String    # e.g., "Beginner", "Intermediate", "Advanced"
+  primaryGoal: String
+  secondaryGoal: String
+  injuriesOrLimitations: String # Text description
+  performanceNotes: String   # Free text for PRs, current lifts etc.
+  preferredSplit: String     # Free text for desired split e.g. "PPL"
+
+  # Preferences (Optional)
+  likedExercises: [String]   # List of exercise names
+  dislikedExercises: [String] # List of exercise names
+  availableDays: [String]    # e.g., ["Monday", "Wednesday", "Friday"]
+  timePerSessionMinutes: Int
+
+  # Timestamps managed by @model automatically, but added explicitly for clarity/sort keys
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  # _version, _deleted, _lastChangedAt managed automatically by @model
+}
+
+# Persistent notes for the AI Trainer context
+type TrainerNote @model @auth(rules: [{ allow: owner }]) { # Uses implicit owner field linked to token
+  id: ID!
+  userId: ID! @index(name: "byUserNotes", queryField: "notesByUserId", sortKeyFields: ["createdAt"]) # Index to query notes by user
+  note: String!
+  owner: String # Explicit owner field populated by Amplify
+  createdAt: AWSDateTime! # Explicit timestamp
+  updatedAt: AWSDateTime! # Explicit timestamp
+  # _version, _deleted, _lastChangedAt managed automatically by @model
+}
+
+# --- Workout Template & Exercise (Relational) ---
+
+type Exercise @model @auth(rules: [ { allow: owner, ownerField: "owner" } ]) {
   id: ID!
   workoutTemplateId: ID! @index(name: "byWorkoutTemplate", queryField: "exercisesByWorkoutTemplateId", sortKeyFields: ["createdAt"])
   name: String!
-  sets: String         # Target sets
-  reps: String         # Target reps
-  weight: String       # Suggested weight (optional)
-  restPeriod: Int      # Suggested rest (optional)
-  note: String         # Note for the template exercise (optional)
+  sets: String
+  reps: String
+  weight: String
+  restPeriod: Int
+  note: String
   owner: String
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+  # _version, _deleted, _lastChangedAt managed automatically by @model
 }
 
-# Workout Template Model (Links to Exercise models)
-type WorkoutTemplate @model @auth(rules: [
-  { allow: owner, operations: [create, read, update, delete] }
-]) {
+type WorkoutTemplate @model @auth(rules: [ { allow: owner } ]) {
   id: ID!
   userId: ID! @index(name: "byUserId", queryField: "templatesByUserId")
   name: String!
   description: String
   exercises: [Exercise] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Relationship
+  isAIPlan: Boolean # Flag for AI generated plans
   owner: String
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+  # _version, _deleted, _lastChangedAt managed automatically by @model
 }
 
-# --- Workout Session Section ---
+# --- Workout Session (Embedding SessionExercise/PerformedSet) ---
 
-# Non-model type for logging individual performed sets
-type PerformedSet {
-  id: ID!      # Unique ID for this specific set log entry
-  reps: String   # Reps actually performed
-  weight: String # Weight actually used
-}
+type PerformedSet { id: ID! reps: String weight: String }
+type SessionExercise { id: ID! name: String! note: String performedSets: [PerformedSet] }
 
-# Non-model type for exercises as logged within a WorkoutSession
-# Now includes the array of actual sets performed
-type SessionExercise {
-  id: ID!          # ID linking back to the original Exercise definition (or unique ID if custom exercise in session?) - Using Exercise ID for now
-  name: String!      # Name of the exercise (copied for history)
-  note: String       # User's notes for this exercise during the session (optional)
-  performedSets: [PerformedSet] # <-- Array of sets performed for this exercise in this session
-}
-
-# Workout Session Model (Stores completed workout logs)
 type WorkoutSession @model @auth(rules: [ { allow: owner } ]) {
   id: ID!
-  userId: ID! @index(name: "byUserId", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"]) # Index + Sort Key
-  templateId: ID # Optional ID of the template used for this session
-  name: String!  # Name of the session (e.g., "Push Day 1" or "Morning Run")
-  exercises: [SessionExercise] # Embeds the detailed logged exercise data
-  duration: Int  # Optional duration in seconds
-  completedAt: AWSDateTime! # Timestamp when session was marked complete
+  userId: ID! @index(name: "byUserId", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"])
+  templateId: ID
+  name: String!
+  exercises: [SessionExercise] # Embedded list
+  duration: Int
+  completedAt: AWSDateTime!
   owner: String
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
+  # _version, _deleted, _lastChangedAt managed automatically by @model
 }

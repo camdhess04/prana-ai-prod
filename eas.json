@@ -1,28 +1,28 @@
 {
   "cli": {
     "version": ">= 9.0.0",
-     "appVersionSource": "remote"
+    "appVersionSource": "remote"
   },
   "build": {
-    "development": { 
+    "development": {
       "developmentClient": true,
       "distribution": "internal",
-       "ios": {
-         "enterpriseProvisioning": "universal"
-       }
-    },
-    "development-simulator": { 
-      "developmentClient": true,
-      "distribution": "internal", 
       "ios": {
-        "simulator": true 
+        "enterpriseProvisioning": "universal"
+      }
+    },
+    "development-simulator": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
       }
     },
     "preview": {
       "distribution": "internal"
     },
     "production": {
-       "autoIncrement": true
+      "autoIncrement": true
     }
   },
   "submit": {

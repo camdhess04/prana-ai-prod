@@ -111,8 +111,7 @@ const AISetupChatScreen: React.FC<AISetupChatScreenProps> = ({ navigation }) => 
                                   owner: user.username,
                                   name: day.name,
                                   description: day.description,
-                                  exercises: cleanedExercises,
-                                  isAIPlan: true
+                                  exercises: cleanedExercises
                                 });
                               });
 

@@ -1,17 +1,20 @@
 {
   "expo": {
-    "name": "PranaAIv2",
+    "name": "prana-ai-prod",
     "slug": "PranaAIv2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.camhess04.PranaAIv2",
@@ -23,7 +26,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.camhess04.pranaai_v2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +36,9 @@
       "eas": {
         "projectId": "bb7cdf81-96fa-46c7-9a3e-4163c1f7eb74"
       }
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

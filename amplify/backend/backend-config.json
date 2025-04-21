@@ -1,5 +1,19 @@
 {
   "api": {
+    "pranaAiApi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "pranaAIProxy"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    },
     "pranaaiprodv3": {
       "dependsOn": [
         {
@@ -32,6 +46,14 @@
       "providerPlugin": "awscloudformation",
       "service": "Cognito",
       "serviceType": "imported"
+    }
+  },
+  "function": {
+    "pranaAIProxy": {
+      "build": true,
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   },
   "parameters": {
@@ -120,6 +142,30 @@
         {
           "category": "auth",
           "resourceName": "pranaaiprodv30b0aaf29"
+        }
+      ]
+    },
+    "AMPLIFY_function_pranaAIProxy_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "pranaAIProxy"
+        }
+      ]
+    },
+    "AMPLIFY_function_pranaAIProxy_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "pranaAIProxy"
+        }
+      ]
+    },
+    "AMPLIFY_function_pranaAIProxy_secretsPathAmplifyAppId": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "pranaAIProxy"
         }
       ]
     }

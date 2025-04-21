@@ -3,11 +3,15 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 
 const LoadingScreen = () => {
-  const { theme } = useAppTheme();
+  const { theme } = useAppTheme(); // theme might be undefined for a split second
+
+  // Provide default colors if theme isn't ready yet
+  const backgroundColor = theme ? theme.background : '#FFFFFF'; // Default white
+  const indicatorColor = theme ? theme.primary : '#0000FF'; // Default blue
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ActivityIndicator size="large" color={theme.primary} />
+    <View style={[styles.container, { backgroundColor: backgroundColor }]}>
+      <ActivityIndicator size="large" color={indicatorColor} />
     </View>
   );
 };

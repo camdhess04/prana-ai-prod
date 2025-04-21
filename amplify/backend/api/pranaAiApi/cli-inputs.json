@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "paths": {
+    "/ai": {
+      "name": "/ai",
+      "lambdaFunction": "pranaAIProxy",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "create",
+          "read",
+          "update",
+          "delete"
+        ]
+      }
+    }
+  }
+}

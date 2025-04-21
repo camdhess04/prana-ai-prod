@@ -1,3 +1,6 @@
+// src/navigaeas credentialstion/RootNavigator.tsx
+// FINAL - Handles initial loading, onboarding check, and Auth/Main switching
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -7,13 +10,12 @@ import AuthStackNavigator from './AuthStackNavigator';
 import MainTabNavigator from './MainTabNavigator';
 import AISetupChatScreen from '../screens/AISetupChatScreen';
 
-// Define the param list for the root stack
+// Define the param list for this ROOT stack
 export type RootStackParamList = {
   Loading: undefined;
-  Auth: undefined; // Route for AuthStackNavigator
-  Main: undefined; // Route for MainTabNavigator
-  AISetupChat: undefined; // Route for the setup chat
-  // Add other top-level modal/full-screen routes here if needed
+  Auth: undefined;
+  Main: undefined;
+  AISetupChat: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,7 +29,12 @@ const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator 
+        screenOptions={{ 
+          headerShown: false,
+          animation: 'none'
+        }}
+      >
         {user ? (
           onboardingStatus === 'complete' ? (
             <Stack.Screen name="Main" component={MainTabNavigator} />
@@ -42,4 +49,4 @@ const RootNavigator = () => {
   );
 };
 
-export default RootNavigator; 
+export default RootNavigator;

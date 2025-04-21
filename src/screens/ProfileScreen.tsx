@@ -39,17 +39,19 @@ export default function ProfileScreen({ navigation }: { navigation: any }) {
           <Text style={[styles.email, { color: theme.secondaryText }]}>{user?.attributes?.email || 'No email'}</Text>
         </View>
 
-        <Button 
-          title="TEST AI CHAT" 
-          onPress={() => navigation.navigate('AISetupChat')}
-        />
-
         <View style={styles.buttonContainer}>
           <Button
             title="Toggle Theme"
             onPress={toggleTheme}
-            variant="secondary"
+            variant="outline"
             style={styles.button}
+          />
+          <Button
+            title="Sign Out"
+            onPress={handleLogout}
+            variant="ghost"
+            style={styles.button}
+            textStyle={{ color: theme.error }}
           />
         </View>
       </View>

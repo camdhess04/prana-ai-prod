@@ -27,6 +27,7 @@ const WorkoutNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        headerShown: false,
         headerStyle: { backgroundColor: theme.cardBackground },
         headerTintColor: theme.text,
         headerTitleStyle: { fontWeight: 'bold' },
@@ -36,14 +37,31 @@ const WorkoutNavigator = () => {
       <Stack.Screen
         name="WorkoutRoot"
         component={WorkoutStartScreen}
-        options={{ title: 'Workout Hub' }}
       />
-      <Stack.Screen name="NewWorkout" component={NewWorkoutScreen} options={{ title: 'Create Workout' }} />
-      <Stack.Screen name="SelectTemplate" component={SelectTemplateScreen} options={{ title: 'Select Template' }} />
-      <Stack.Screen name="LogSession" component={LogSessionScreen} options={{ title: 'Log Session' }} />
-      <Stack.Screen name="AIPlan" component={AIPlanScreen} options={{ title: 'AI Workout Plan' }} />
-      <Stack.Screen name="CoachNotebook" component={CoachNotebookScreen} options={{ title: 'Coach Notebook' }} />
-      <Stack.Screen name="WorkoutHistory" component={WorkoutHistoryScreen} options={{ title: 'Workout History' }} />
+      <Stack.Screen 
+        name="NewWorkout" 
+        component={NewWorkoutScreen} 
+      />
+      <Stack.Screen 
+        name="SelectTemplate" 
+        component={SelectTemplateScreen} 
+      />
+      <Stack.Screen 
+        name="LogSession" 
+        component={LogSessionScreen} 
+      />
+      <Stack.Screen 
+        name="AIPlan" 
+        component={AIPlanScreen} 
+      />
+      <Stack.Screen 
+        name="CoachNotebook" 
+        component={CoachNotebookScreen} 
+      />
+      <Stack.Screen 
+        name="WorkoutHistory" 
+        component={WorkoutHistoryScreen} 
+      />
     </Stack.Navigator>
   );
 };
