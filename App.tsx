@@ -15,19 +15,37 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { AuthProvider } from './src/context/AuthContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import { StatusBar } from 'expo-status-bar';
 
 import { Amplify } from 'aws-amplify';
-// import amplifyconfig from './amplifyconfiguration.json'; // Import JSON from root
+import amplifyconfig from './amplifyconfiguration.json'; // Import JSON from root
 
-// console.log('🔧 Initializing Amplify with config from amplifyconfiguration.json:', amplifyconfig);
-// Amplify.configure(amplifyconfig); // Pass the imported JSON object directly
+// Check if import worked at module level
+console.log('🔧 Config loaded at module level:', amplifyconfig ? 'Yes' : 'No');
 
 export default function App() {
+  // --- Configure Amplify inside the component ---
+  try {
+    // Check if config object is valid before configuring
+    if (!amplifyconfig || typeof amplifyconfig !== 'object') {
+      throw new Error("Amplify config object is invalid or missing.");
+    }
+    console.log('🔧 Calling Amplify.configure inside App component...');
+    Amplify.configure(amplifyconfig);
+    console.log('✅ Amplify configured successfully inside App component.');
+  } catch (err) {
+    // Log error but don't necessarily crash the whole app maybe?
+    // Or perhaps re-throw if Amplify config is critical? For now, just log.
+    console.error("❌ Error configuring Amplify inside App component:", err);
+  }
+  // ---------------------------------------------
+
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
           <RootNavigator />
+          <StatusBar style="auto" />
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
