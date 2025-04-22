@@ -18,10 +18,10 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { StatusBar } from 'expo-status-bar';
 
 import { Amplify } from 'aws-amplify';
-import amplifyconfig from './amplifyconfiguration.json'; // Import JSON from root
+const amplifyconfig = require('./amplifyconfiguration.json'); // Use require for JSON
 
-// Check if import worked at module level
-console.log('🔧 Config loaded at module level:', amplifyconfig ? 'Yes' : 'No');
+// Check if require worked at module level
+console.log('🔧 Config loaded via require at module level:', amplifyconfig ? 'Yes' : 'No');
 
 export default function App() {
   // --- Configure Amplify inside the component ---

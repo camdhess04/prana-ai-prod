@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
-      "**/*"
+      "**/*",
+      "*.json"
     ],
     "ios": {
       "supportsTablet": true,
