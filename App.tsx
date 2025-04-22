@@ -18,7 +18,7 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { StatusBar } from 'expo-status-bar';
 
 import { Amplify } from 'aws-amplify';
-const amplifyconfig = require('./amplifyconfiguration.json'); // Use require for JSON
+const amplifyconfig = require('amplifyconfiguration.json'); // Try require without ./
 
 // Check if require worked at module level
 console.log('🔧 Config loaded via require at module level:', amplifyconfig ? 'Yes' : 'No');
