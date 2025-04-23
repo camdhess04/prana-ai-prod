@@ -35,7 +35,7 @@
       "function": {
         "pranaAIProxy": {
           "deploymentBucketName": "amplify-pranaaiprodv3-dev-3d0e9-deployment",
-          "s3Key": "amplify-builds/pranaAIProxy-547571565a724e305867-build.zip",
+          "s3Key": "amplify-builds/pranaAIProxy-61715067763649596f7a-build.zip",
           "secretsPathAmplifyAppId": "d2vwr6fqozr760"
         }
       }

@@ -1,17 +1,16 @@
 /* amplify/backend/function/pranaAiProxy/src/index.js */
 /* eslint-disable @typescript-eslint/no-var-requires */
 // Uses Anthropic SDK - Fetches API Key from SSM - Includes Plan Generation Logic
-// Contains fixes for:
-// 1. Empty messages array error on initial call.
-// 2. Uses Sonnet 3.5 model for plan generation for better speed.
+// Personality: Friendly, Encouraging Coach with Humor
+// Fixes: Empty messages array error, Uses Sonnet 3.5 for plan gen, Increased plan tokens
 
 const Anthropic = require("@anthropic-ai/sdk");
 const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
 
-const MODEL_NAME = "claude-3-haiku-20240307";
-const PLAN_MODEL_NAME = "claude-3-5-sonnet-20240620"; // Use Sonnet 3.5 for faster plan generation
+const MODEL_NAME = "claude-3-haiku-20240307"; // Good for chat
+const PLAN_MODEL_NAME = "claude-3-5-sonnet-20240620"; // Faster plan generation
 const MAX_TOKENS_CHAT = 1500;
-const MAX_TOKENS_PLAN = 2048; // Allow more tokens for plan generation
+const MAX_TOKENS_PLAN = 4096; // Keep at 4096 for now, worked for Sonnet 3.5
 const API_KEY_PARAM_NAME = "/prana-ai/dev/anthropic-api-key";
 const AWS_REGION = "us-east-1"; // Make sure this matches your AWS region
 
@@ -33,7 +32,7 @@ async function getApiKey() {
         if (!key) throw new Error("API Key parameter found but value is empty.");
         const keyPrefix = key.substring(0, 7);
         const keySuffix = key.substring(key.length - 4);
-        console.log(`LAMBDA: Successfully fetched API key from SSM. Preview: ${keyPrefix}......${keySuffix} (Length: ${key.length})`);
+        console.log(`LAMBDA: Successfully fetched API key from SSM. Preview: ${keyPrefix}.........${keySuffix} (Length: ${key.length})`);
         apiKey = key;
         return apiKey;
     } catch (error) {
@@ -43,25 +42,27 @@ async function getApiKey() {
 }
 
 // --- Prompts ---
-const onboardingSystemPrompt = `You are Prana, an friendly, enthusiastic, empathetic, and highly knowledgeable personal trainer and strength coach for the Prana AI fitness app. Your personality is motivating and supportive. Your primary goal right now is to onboard a new user by getting to know them and gathering essential information to create their optimal, personalized workout plan.
 
-Start by greeting the user warmly, ask for their **first name** so you can address them personally in future messages, and sprinkle an emoji or two. Begin by asking the user "What should I call you?" so you can use their first name. You greet each new user by name if provided, sprinkle an emoji or two, and speak in an upbeat but not cringe tone. Engage the user in a natural, flowing conversation. Ask only 1-2 concise questions per turn. Use emojis occasionally to keep the tone light and encouraging! When asking for measurements like height and weight, please ask for the units they prefer (e.g., cm or ft/in, kg or lbs) - we can convert later if needed.
+// --- NEW Onboarding Prompt ---
+const onboardingSystemPrompt = `You are Prana, an AI personal trainer and strength coach for the Prana AI fitness app. Your personality is like a friendly, encouraging, and highly knowledgeable coach who also has a bit of a sense of humor (think supportive fitness buddy meets expert). You're enthusiastic, empathetic, motivating, and maybe occasionally crack a light, relevant joke or use a fun analogy. Your primary goal right now is to onboard a new user by getting to know them through a natural, flowing conversation, gathering the essential info needed to eventually create their *awesome*, personalized workout plan.
 
-Guide the user through the following topics:
+Start by greeting the user warmly! Introduce yourself and immediately ask for their **first name** so you can stop calling them 'user' (because that's boring!). Something like: "Hey there! I'm Prana, your AI sidekick in the Prana app, ready to help you crush your fitness goals! 💪 Super stoked to work with you. First things first, what name should I call you?". Use their name when appropriate in future messages. Sprinkle in relevant emojis (like 💪, 🔥, 🤔, ✅, 🎉) naturally throughout the chat, but don't overdo it. Keep the tone upbeat, supportive, and engaging. Ask only 1-2 concise questions per turn to keep the chat flowing.
 
-1.  **Welcome & Experience:** Start with a friendly welcome. Ask for their current fitness experience level (e.g., "Just starting out", "Been training consistently for a while", "Very experienced/Advanced"). Guide them toward "Beginner", "Intermediate", or "Advanced".
-2.  **Primary Goal:** Ask about their main fitness goal right now. Examples: Build Muscle (Hypertrophy), Get Stronger (Strength), Lose Fat/Weight, Improve Endurance, General Health & Fitness, Athletic Performance.
-3.  **Secondary Goals:** Ask if they have any other important fitness goals.
-4.  **Time Commitment:** Ask how many days per week they can realistically train, AND the average time (in minutes) they usually have for each workout session.
-5.  **Time Available Per Session (ask for **one average number in minutes**, e.g. 60)**
-6.  **Current Split/Preferences (Optional):** Ask if they are currently following a specific workout split (like PPL, Upper/Lower, Full Body etc.) and if they like it. Ask if there are any specific exercises they love doing or any they really dislike or want to avoid. Mention you can optimize their current split or create something new.
-7.  **Onboarding Depth (User Choice):** Briefly explain you can create a solid plan now, but more details allow for better personalization. Ask if they prefer a "Quick Setup" (using info gathered so far) or if they're happy to provide a few more "Detailed Stats" (like age, height, weight, injuries). Store their choice as "chill" (quick) or "intermediate" (detailed). Proceed based on choice.
-8.  **Metrics (If Detailed Chosen):** Ask for Age, Height (value+units), Weight (value+units). Also ask *if they're comfortable sharing* their Gender (optional).
-9.  **Health/History (If Detailed Chosen):** Ask about any current or past Injuries or physical Limitations you should be aware of.
-10. **Performance Notes (Optional, If Detailed Chosen):** Ask if they want to share any notes on their current performance, like recent personal records (PRs) or typical weights used on key exercises (e.g., squat, bench, deadlift).
+Guide the user through these topics like you're having a friendly consultation:
+
+1.  **Welcome & Name:** Greet them warmly, introduce yourself, get their first name.
+2.  **Experience Level:** Once you have their name, transition smoothly. Ask about their current fitness journey. Examples: "Awesome, nice to meet you, [User Name]! So, tell me a bit about your training background. Are you just kicking things off, have you been hitting it consistently for a while, or are you basically a seasoned pro at this point? (No judgment either way!)". Gently guide them towards "Beginner", "Intermediate", or "Advanced".
+3.  **Primary Goal:** Find out the *main mission*. "Alright, [User Name], focus time! What's the number one target we're aiming for right now? Building muscle like the Hulk? Chasing pure strength? Looking to lean down? Boost that endurance? Just aiming for awesome overall health and fitness? Or maybe training for a specific sport?" (Offer examples like Hypertrophy, Strength, Fat/Weight Loss, Endurance, General Health, Athletic Performance).
+4.  **Secondary Goals:** "Got it! Besides that main goal, is there anything else important on your fitness radar right now?"
+5.  **Time Commitment:** Frame this realistically. "Okay, let's talk logistics. Realistically, how many days per week can you dedicate to working out? And roughly how much time, in minutes, do you usually have per session? (Be honest! Even 30 minutes is great if that's what fits!)" Get **days per week** AND **average minutes per session**.
+6.  **Current Split/Preferences (Optional):** "Cool. Are you following a specific workout routine or split right now (like PPL, Upper/Lower, Full Body, etc.)? And how are you liking it? Also, super important – any exercises you absolutely LOVE doing, or any you'd rather avoid like burpees on a Monday morning? 😉 We can work with your current faves or build something fresh!"
+7.  **Onboarding Depth (User Choice):** Briefly explain the trade-off. "Alright, [User Name], I've got a good picture now and could definitely build you a solid starting plan. BUT, if you're cool sharing a few more details (like age, height, weight, any old injuries nagging you), I can make the plan even *more* laser-focused on you. What do you prefer? A 'Quick Start' based on what we have, or dive into a few 'Extra Details' for max personalization?" Store their choice as "chill" (quick) or "intermediate" (detailed). Proceed based on their choice.
+8.  **Metrics (If 'intermediate' Chosen):** "Awesome! Let's get those details. What's your age? And what's your current height and weight? (Let me know the units you prefer, like cm or ft/in, kg or lbs!). Also, if you're comfortable sharing, your gender can sometimes help fine-tune programming (totally optional though!)."
+9.  **Health/History (If 'intermediate' Chosen):** "Super important one: Any current or past injuries, aches, pains, or physical limitations I should definitely know about? (e.g., 'My left shoulder gets grumpy on overhead presses', 'Patella tendonitis flares up sometimes')."
+10. **Performance Notes (Optional, If 'intermediate' Chosen):** "Last one! Any notes on your current performance you wanna share? Like recent personal bests (PRs) you're proud of 🔥, or maybe the typical weights you use for key lifts like squats, bench, or deadlifts? No pressure if not!"
 
 **VERY IMPORTANT - FINAL OUTPUT:**
-Once you are confident you have gathered all the necessary information based on their chosen onboarding depth ("chill" or "intermediate"), your **ONLY** response must be a single, valid JSON object. Do not include *any* other text, greetings, summaries, or explanations before or after the JSON (e.g., no "Okay, here is the JSON:" or "Thanks!"). The JSON object must contain these exact keys, using the collected data or \`null\` if the information wasn't provided or applicable:
+Okay, deep breath! Once you are confident you have gathered all the necessary information based on their chosen onboarding depth ('chill' or 'intermediate'), your **ONLY** response must be a single, valid JSON object formatted exactly like this example. No extra chat before or after! No "Okay, here's your JSON profile:", just the raw JSON. Use \`null\` for any keys where info wasn't provided.
 
 \`\`\`json
 {
@@ -83,10 +84,11 @@ Once you are confident you have gathered all the necessary information based on 
 }
 \`\`\`
 
-Start the conversation now with your friendly welcome and ask for their fitness experience level.
-`; // End of prompt string
+Remember your persona: Friendly, encouraging, knowledgeable coach with a touch of humor. Keep the conversation flowing naturally. Start now by greeting the user and asking for their name!
+`; // End of revised onboarding prompt string
 
-// New prompt specifically for plan generation
+
+// Plan generation prompt (remains the same for now)
 const planGenerationSystemPrompt = `You are Prana, an expert personal trainer creating a workout plan based on user data. Your response MUST be ONLY a valid JSON array containing workout objects. Each workout object represents one day/template and must strictly follow this structure:
 {
   "name": "Descriptive Name (e.g., AI Push Day A, AI Full Body 1)",
@@ -130,7 +132,7 @@ exports.handler = async (event) => {
       const key = await getApiKey();
       const keyPrefix = key.substring(0, 7);
       const keySuffix = key.substring(key.length - 4);
-      console.log(`LAMBDA: Initializing Anthropic client with key: ${keyPrefix}......${keySuffix} (Length: ${key.length})`);
+      console.log(`LAMBDA: Initializing Anthropic client with key: ${keyPrefix}.........${keySuffix} (Length: ${key.length})`);
       anthropic = new Anthropic({ apiKey: key });
       console.log("LAMBDA: Anthropic client initialized successfully.");
     } catch (error) {
@@ -172,24 +174,21 @@ exports.handler = async (event) => {
 
       // Add the current user input as the latest message if it exists
       if (userInput && typeof userInput === 'string' && userInput.trim()) {
-         messagesForClaude.push({ role: 'user', content: userInput.trim() });
+          messagesForClaude.push({ role: 'user', content: userInput.trim() });
       }
 
-      // *** FIX for empty messages array: Anthropic requires ≥1 message ***
+      // Fix for empty messages array: Anthropic requires ≥1 message
       if (messagesForClaude.length === 0) {
           console.log("LAMBDA: History and userInput were empty. Sending placeholder message to Claude.")
-          // Sending an empty content user message, or a generic starter
-          // An empty content message might be sufficient and less likely to confuse the initial prompt.
-          messagesForClaude = [{ role: 'user', content: '[Start Conversation]' }];
+          messagesForClaude = [{ role: 'user', content: '[Start Conversation]' }]; // Use placeholder
       }
-      // *** END FIX ***
 
       console.log(`LAMBDA: Calling Claude (${MODEL_NAME}) for onboarding... Message count: ${messagesForClaude.length}`);
       const claudeResponse = await anthropic.messages.create({
         model: MODEL_NAME,
         max_tokens: MAX_TOKENS_CHAT,
-        system: onboardingSystemPrompt,
-        messages: messagesForClaude, // Pass the potentially fixed array
+        system: onboardingSystemPrompt, // Use the NEW revised prompt
+        messages: messagesForClaude,
       });
       console.log("LAMBDA: Raw Claude Response Content Type:", claudeResponse.content?.[0]?.type);
 
@@ -203,11 +202,12 @@ exports.handler = async (event) => {
         if (extractedJsonString) {
           try {
             parsedData = JSON.parse(extractedJsonString);
-            if (parsedData && typeof parsedData === 'object' && ('primaryGoal' in parsedData || 'age' in parsedData)) {
+            // Basic validation check
+            if (parsedData && typeof parsedData === 'object' && ('primaryGoal' in parsedData || 'age' in parsedData || 'experienceLevel' in parsedData)) {
               isFinalData = true;
               console.log("LAMBDA: Detected final PROFILE JSON data.");
-              // Important: Return the PARSED data, but keep the original text response (which might include intro text)
-              responseContent = extractedJsonString; // Send back just the JSON string in 'text' for easier client parsing? Or keep original? Let's keep original for now.
+              // Keep the original response text containing the JSON for the client
+              // responseContent = extractedJsonString; // Don't do this, client expects text response + parsedData
             } else {
               parsedData = null; // Parsed but didn't validate
               isFinalData = false;
@@ -230,38 +230,35 @@ exports.handler = async (event) => {
       const { profileData } = requestBody.payload;
       if (!profileData) throw new Error("Missing profileData for plan generation");
 
-      // Construct the prompt for plan generation
       const planUserPrompt = `Here is the user profile, please generate the workout plan JSON array: ${JSON.stringify(profileData, null, 2)}`;
 
-      // *** USE CORRECT MODEL FOR PLAN GENERATION ***
       console.log(`LAMBDA: Calling Claude (${PLAN_MODEL_NAME}) for plan generation...`);
       const claudeResponse = await anthropic.messages.create({
-        model: PLAN_MODEL_NAME, // Use the specified Sonnet model
-        max_tokens: MAX_TOKENS_PLAN,
+        model: PLAN_MODEL_NAME,
+        max_tokens: MAX_TOKENS_PLAN, // Use 4096 limit
         system: planGenerationSystemPrompt,
         messages: [{ role: 'user', content: planUserPrompt }]
       });
-      // *** END MODEL FIX ***
       console.log("LAMBDA: Raw Claude Plan Response Content Type:", claudeResponse.content?.[0]?.type);
 
       if (claudeResponse.content?.[0]?.type === 'text') {
         responseContent = claudeResponse.content[0].text;
-        // Attempt to parse the response directly as JSON Array
         try {
-          // Trim whitespace in case the model adds extra newlines
+          // Trim whitespace just in case
           parsedData = JSON.parse(responseContent.trim());
           // Validate it's an array and has the expected structure
           if (Array.isArray(parsedData) && parsedData.length > 0 && parsedData[0].name && parsedData[0].exercises) {
             console.log(`LAMBDA: Successfully parsed workout plan JSON with ${parsedData.length} workout days.`);
-            isFinalData = true; // Mark true to indicate successful plan generation
+            isFinalData = true;
           } else {
             console.error("LAMBDA ERROR: AI response did not contain valid plan JSON array structure.", parsedData);
             throw new Error("AI failed to generate a valid workout plan structure.");
           }
         } catch (e) {
           console.error("LAMBDA ERROR: Failed to parse plan JSON array from AI response:", e);
-          console.log("Raw response that failed parsing:", responseContent); // Log the raw response
-          throw new Error(`AI returned an invalid format for the workout plan.`);
+          console.log("Raw response that failed parsing:", responseContent);
+          // Throw specific error to distinguish parsing failure from other issues
+          throw new Error(`AI returned an invalid format for the workout plan. Parse Error: ${e.message}`);
         }
       } else {
         throw new Error("Unexpected response format from Claude during plan generation");
@@ -273,8 +270,6 @@ exports.handler = async (event) => {
     }
 
     // --- Format Success Response ---
-    // For plan generation, text might be just the JSON, parsedData is the JS array
-    // For onboarding, text is the AI chat message, parsedData is null until the final step where it holds the profile object
     const lambdaResponse = { text: responseContent, isFinalData, parsedData };
     console.log("LAMBDA: Sending success response back.");
     return { statusCode: 200, headers, body: JSON.stringify(lambdaResponse) };
@@ -282,19 +277,22 @@ exports.handler = async (event) => {
   } catch (error) {
     console.error("LAMBDA ERROR: Error processing AI request:", error);
     let errorMessage = error.message || 'Internal Server Error processing AI request';
-    // Check for specific Anthropic error types if the SDK provides them clearly
-    if (error.constructor && error.constructor.name === 'AuthenticationError') { // Example check
+    // Add more specific error checking based on potential error types/statuses
+    if (error.constructor && error.constructor.name === 'AuthenticationError') {
          console.error("Anthropic Authentication Error - Check API Key again!");
          errorMessage = "AI Authentication Error: Invalid API Key provided.";
-    } else if (error.constructor && error.constructor.name === 'APIError') { // Example check
+    } else if (error.constructor && error.constructor.name === 'APIError') {
          console.error(`Anthropic API Error (${error.status || 'unknown'}):`, error.message);
          errorMessage = `AI Service Error: ${error.message}`;
-     } else if (error.status === 400) { // Catching specific status codes if needed
+     } else if (error.status === 400) {
          console.error("Anthropic Bad Request Error (400):", error.message);
          errorMessage = `AI Service Bad Request: ${error.message}`;
      } else if (error.status === 404) {
          console.error("Anthropic Not Found Error (404):", error.message);
          errorMessage = `AI Service Not Found Error (Model incorrect?): ${error.message}`;
+     } else if (error.message?.includes("invalid format for the workout plan")) {
+        // Keep the specific parsing error message
+        errorMessage = error.message;
      }
     return { statusCode: 500, headers, body: JSON.stringify({ error: errorMessage }) };
   }

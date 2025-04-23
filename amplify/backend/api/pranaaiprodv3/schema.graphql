@@ -1,4 +1,6 @@
 # GraphQL Schema for Prana AI V3 - Includes UserProfile, TrainerNote
+# V1.5 Update: Added ScheduledWorkout model and RPE/Notes to PerformedSet
+# V1.5.1 Update: Added @hasMany relationship from WorkoutTemplate to ScheduledWorkout
 
 type Query {
   _: String # Required placeholder for schema validity
@@ -10,8 +12,8 @@ type UserProfile @model @auth(rules: [
   # User's Cognito ID (sub) is the record ID and owner
   { allow: owner, ownerField: "id", identityClaim: "sub", operations: [create, read, update, delete] }
 ]) {
-  id: ID!                # REQUIRED: Set to user's Cognito sub (userId)
-  username: String!        # REQUIRED: User's Cognito username (email)
+  id: ID!              # REQUIRED: Set to user's Cognito sub (userId)
+  username: String!      # REQUIRED: User's Cognito username (email)
   name: String           # Optional display name
   email: AWSEmail        # Optional email
 
@@ -28,16 +30,16 @@ type UserProfile @model @auth(rules: [
   primaryGoal: String
   secondaryGoal: String
   injuriesOrLimitations: String # Text description
-  performanceNotes: String   # Free text for PRs, current lifts etc.
-  preferredSplit: String     # Free text for desired split e.g. "PPL"
+  performanceNotes: String    # Free text for PRs, current lifts etc.
+  preferredSplit: String      # Free text for desired split e.g. "PPL"
 
   # Preferences (Optional)
-  likedExercises: [String]   # List of exercise names
+  likedExercises: [String]    # List of exercise names
   dislikedExercises: [String] # List of exercise names
-  availableDays: [String]    # e.g., ["Monday", "Wednesday", "Friday"]
+  availableDays: [String]     # e.g., ["Monday", "Wednesday", "Friday"]
   timePerSessionMinutes: Int
 
-  # Timestamps managed by @model automatically, but added explicitly for clarity/sort keys
+  # Timestamps managed by @model automatically
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   # _version, _deleted, _lastChangedAt managed automatically by @model
@@ -76,7 +78,8 @@ type WorkoutTemplate @model @auth(rules: [ { allow: owner } ]) {
   userId: ID! @index(name: "byUserId", queryField: "templatesByUserId")
   name: String!
   description: String
-  exercises: [Exercise] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Relationship
+  exercises: [Exercise] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Relationship to Exercises
+  scheduledInstances: [ScheduledWorkout] @hasMany(fields: ["workoutTemplateId"]) # Relationship to ScheduledWorkouts
   isAIPlan: Boolean # Flag for AI generated plans
   owner: String
   createdAt: AWSDateTime!
@@ -86,18 +89,50 @@ type WorkoutTemplate @model @auth(rules: [ { allow: owner } ]) {
 
 # --- Workout Session (Embedding SessionExercise/PerformedSet) ---
 
-type PerformedSet { id: ID! reps: String weight: String }
-type SessionExercise { id: ID! name: String! note: String performedSets: [PerformedSet] }
+# V1.5 UPDATE: Added optional rpe and notes fields
+type PerformedSet {
+  id: ID!
+  reps: String
+  weight: String
+  rpe: Int      # Optional: Rate of Perceived Exertion (1-10)
+  notes: String # Optional: User notes for this specific set
+}
+
+type SessionExercise {
+  id: ID!
+  name: String!
+  note: String # Note from the original template exercise (if any)
+  performedSets: [PerformedSet]! # Should be non-null list
+}
 
 type WorkoutSession @model @auth(rules: [ { allow: owner } ]) {
   id: ID!
-  userId: ID! @index(name: "byUserId", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"])
-  templateId: ID
+  userId: ID! @index(name: "byUser", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"])
+  templateId: ID # Optional link to the template used
+  scheduledWorkoutId: ID # Optional link to the scheduled item fulfilled
   name: String!
-  exercises: [SessionExercise] # Embedded list
-  duration: Int
-  completedAt: AWSDateTime!
+  exercises: [SessionExercise]! # Embedded list, should be non-null
+  duration: Int # In seconds, perhaps?
+  completedAt: AWSDateTime! # Timestamp when session was saved
   owner: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  # _version, _deleted, _lastChangedAt managed automatically by @model
+}
+
+
+# --- V1.5 NEW MODEL: Scheduled Workout ---
+
+# Represents a specific workout template scheduled for a specific date for a user
+type ScheduledWorkout @model @auth(rules: [{ allow: owner, ownerField: "userId", identityClaim: "sub" }]) {
+  id: ID!
+  userId: ID! @index(name: "byUserDate", queryField: "scheduledWorkoutsByUserIdAndDate", sortKeyFields: ["date"]) # GSI to query by user and date range
+  date: AWSDate! # The specific date this workout is scheduled for
+  status: String! # e.g., "Scheduled", "Completed", "Skipped"
+  workoutTemplateId: ID! # Link to the template scheduled
+  workoutTemplate: WorkoutTemplate @belongsTo(fields: ["workoutTemplateId"]) # Relationship to fetch template details
+  workoutSessionId: ID # Optional: Link to the WorkoutSession if completed
+  owner: String # Automatically populated by @auth rule using 'sub' claim
   createdAt: AWSDateTime!
   updatedAt: AWSDateTime!
   # _version, _deleted, _lastChangedAt managed automatically by @model
