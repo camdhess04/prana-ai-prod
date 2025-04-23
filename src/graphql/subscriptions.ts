@@ -271,6 +271,11 @@ export const onCreateWorkoutTemplate = /* GraphQL */ `subscription OnCreateWorko
       startedAt
       __typename
     }
+    scheduledInstances {
+      nextToken
+      startedAt
+      __typename
+    }
     isAIPlan
     owner
     createdAt
@@ -295,6 +300,11 @@ export const onUpdateWorkoutTemplate = /* GraphQL */ `subscription OnUpdateWorko
     name
     description
     exercises {
+      nextToken
+      startedAt
+      __typename
+    }
+    scheduledInstances {
       nextToken
       startedAt
       __typename
@@ -327,6 +337,11 @@ export const onDeleteWorkoutTemplate = /* GraphQL */ `subscription OnDeleteWorko
       startedAt
       __typename
     }
+    scheduledInstances {
+      nextToken
+      startedAt
+      __typename
+    }
     isAIPlan
     owner
     createdAt
@@ -349,6 +364,7 @@ export const onCreateWorkoutSession = /* GraphQL */ `subscription OnCreateWorkou
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -379,6 +395,7 @@ export const onUpdateWorkoutSession = /* GraphQL */ `subscription OnUpdateWorkou
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -409,6 +426,7 @@ export const onDeleteWorkoutSession = /* GraphQL */ `subscription OnDeleteWorkou
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -430,4 +448,118 @@ export const onDeleteWorkoutSession = /* GraphQL */ `subscription OnDeleteWorkou
 ` as GeneratedSubscription<
   APITypes.OnDeleteWorkoutSessionSubscriptionVariables,
   APITypes.OnDeleteWorkoutSessionSubscription
+>;
+export const onCreateScheduledWorkout = /* GraphQL */ `subscription OnCreateScheduledWorkout(
+  $filter: ModelSubscriptionScheduledWorkoutFilterInput
+  $userId: String
+) {
+  onCreateScheduledWorkout(filter: $filter, userId: $userId) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateScheduledWorkoutSubscriptionVariables,
+  APITypes.OnCreateScheduledWorkoutSubscription
+>;
+export const onUpdateScheduledWorkout = /* GraphQL */ `subscription OnUpdateScheduledWorkout(
+  $filter: ModelSubscriptionScheduledWorkoutFilterInput
+  $userId: String
+) {
+  onUpdateScheduledWorkout(filter: $filter, userId: $userId) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateScheduledWorkoutSubscriptionVariables,
+  APITypes.OnUpdateScheduledWorkoutSubscription
+>;
+export const onDeleteScheduledWorkout = /* GraphQL */ `subscription OnDeleteScheduledWorkout(
+  $filter: ModelSubscriptionScheduledWorkoutFilterInput
+  $userId: String
+) {
+  onDeleteScheduledWorkout(filter: $filter, userId: $userId) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteScheduledWorkoutSubscriptionVariables,
+  APITypes.OnDeleteScheduledWorkoutSubscription
 >;

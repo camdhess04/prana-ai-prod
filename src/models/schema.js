@@ -434,6 +434,22 @@ export const schema = {
                         ]
                     }
                 },
+                "scheduledInstances": {
+                    "name": "scheduledInstances",
+                    "isArray": true,
+                    "type": {
+                        "model": "ScheduledWorkout"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true,
+                    "association": {
+                        "connectionType": "HAS_MANY",
+                        "associatedWith": [
+                            "workoutTemplate"
+                        ]
+                    }
+                },
                 "isAIPlan": {
                     "name": "isAIPlan",
                     "isArray": false,
@@ -525,6 +541,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "scheduledWorkoutId": {
+                    "name": "scheduledWorkoutId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "name": {
                     "name": "name",
                     "isArray": false,
@@ -540,7 +563,7 @@ export const schema = {
                     },
                     "isRequired": false,
                     "attributes": [],
-                    "isArrayNullable": true
+                    "isArrayNullable": false
                 },
                 "duration": {
                     "name": "duration",
@@ -588,7 +611,7 @@ export const schema = {
                 {
                     "type": "key",
                     "properties": {
-                        "name": "byUserId",
+                        "name": "byUser",
                         "queryField": "sessionsByUserId",
                         "fields": [
                             "userId",
@@ -605,6 +628,138 @@ export const schema = {
                                 "ownerField": "owner",
                                 "allow": "owner",
                                 "identityClaim": "cognito:username",
+                                "operations": [
+                                    "create",
+                                    "update",
+                                    "delete",
+                                    "read"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "ScheduledWorkout": {
+            "name": "ScheduledWorkout",
+            "fields": {
+                "id": {
+                    "name": "id",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "userId": {
+                    "name": "userId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "date": {
+                    "name": "date",
+                    "isArray": false,
+                    "type": "AWSDate",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "status": {
+                    "name": "status",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "workoutTemplateId": {
+                    "name": "workoutTemplateId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "workoutTemplate": {
+                    "name": "workoutTemplate",
+                    "isArray": false,
+                    "type": {
+                        "model": "WorkoutTemplate"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "BELONGS_TO",
+                        "targetNames": [
+                            "workoutTemplateId"
+                        ]
+                    }
+                },
+                "workoutSessionId": {
+                    "name": "workoutSessionId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "owner": {
+                    "name": "owner",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "updatedAt": {
+                    "name": "updatedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": true,
+                    "attributes": []
+                }
+            },
+            "syncable": true,
+            "pluralName": "ScheduledWorkouts",
+            "attributes": [
+                {
+                    "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "key",
+                    "properties": {
+                        "name": "byUserDate",
+                        "queryField": "scheduledWorkoutsByUserIdAndDate",
+                        "fields": [
+                            "userId",
+                            "date"
+                        ]
+                    }
+                },
+                {
+                    "type": "key",
+                    "properties": {
+                        "name": "byWorkoutTemplate",
+                        "queryField": "scheduledWorkoutsByTemplateId",
+                        "fields": [
+                            "workoutTemplateId",
+                            "date"
+                        ]
+                    }
+                },
+                {
+                    "type": "auth",
+                    "properties": {
+                        "rules": [
+                            {
+                                "provider": "userPools",
+                                "ownerField": "userId",
+                                "allow": "owner",
+                                "identityClaim": "sub",
                                 "operations": [
                                     "create",
                                     "update",
@@ -639,6 +794,20 @@ export const schema = {
                 },
                 "weight": {
                     "name": "weight",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "rpe": {
+                    "name": "rpe",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "notes": {
+                    "name": "notes",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -678,11 +847,11 @@ export const schema = {
                     },
                     "isRequired": false,
                     "attributes": [],
-                    "isArrayNullable": true
+                    "isArrayNullable": false
                 }
             }
         }
     },
     "codegenVersion": "3.4.4",
-    "version": "51df3cb4196668c7a7dc7eb029d47e6b"
+    "version": "a8aeace30c3b695a1271a413ef5efce6"
 };

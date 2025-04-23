@@ -1,6 +1,6 @@
 import { ModelInit, MutableModel, __modelMeta__, ManagedIdentifier } from "@aws-amplify/datastore";
 // @ts-ignore
-import { LazyLoading, LazyLoadingDisabled, AsyncCollection } from "@aws-amplify/datastore";
+import { LazyLoading, LazyLoadingDisabled, AsyncCollection, AsyncItem } from "@aws-amplify/datastore";
 
 
 
@@ -8,12 +8,16 @@ type EagerPerformedSet = {
   readonly id: string;
   readonly reps?: string | null;
   readonly weight?: string | null;
+  readonly rpe?: number | null;
+  readonly notes?: string | null;
 }
 
 type LazyPerformedSet = {
   readonly id: string;
   readonly reps?: string | null;
   readonly weight?: string | null;
+  readonly rpe?: number | null;
+  readonly notes?: string | null;
 }
 
 export declare type PerformedSet = LazyLoading extends LazyLoadingDisabled ? EagerPerformedSet : LazyPerformedSet
@@ -24,14 +28,14 @@ type EagerSessionExercise = {
   readonly id: string;
   readonly name: string;
   readonly note?: string | null;
-  readonly performedSets?: (PerformedSet | null)[] | null;
+  readonly performedSets: (PerformedSet | null)[];
 }
 
 type LazySessionExercise = {
   readonly id: string;
   readonly name: string;
   readonly note?: string | null;
-  readonly performedSets?: (PerformedSet | null)[] | null;
+  readonly performedSets: (PerformedSet | null)[];
 }
 
 export declare type SessionExercise = LazyLoading extends LazyLoadingDisabled ? EagerSessionExercise : LazySessionExercise
@@ -177,6 +181,7 @@ type EagerWorkoutTemplate = {
   readonly name: string;
   readonly description?: string | null;
   readonly exercises?: (Exercise | null)[] | null;
+  readonly scheduledInstances?: (ScheduledWorkout | null)[] | null;
   readonly isAIPlan?: boolean | null;
   readonly owner?: string | null;
   readonly createdAt: string;
@@ -192,6 +197,7 @@ type LazyWorkoutTemplate = {
   readonly name: string;
   readonly description?: string | null;
   readonly exercises: AsyncCollection<Exercise>;
+  readonly scheduledInstances: AsyncCollection<ScheduledWorkout>;
   readonly isAIPlan?: boolean | null;
   readonly owner?: string | null;
   readonly createdAt: string;
@@ -211,8 +217,9 @@ type EagerWorkoutSession = {
   readonly id: string;
   readonly userId: string;
   readonly templateId?: string | null;
+  readonly scheduledWorkoutId?: string | null;
   readonly name: string;
-  readonly exercises?: (SessionExercise | null)[] | null;
+  readonly exercises: (SessionExercise | null)[];
   readonly duration?: number | null;
   readonly completedAt: string;
   readonly owner?: string | null;
@@ -227,8 +234,9 @@ type LazyWorkoutSession = {
   readonly id: string;
   readonly userId: string;
   readonly templateId?: string | null;
+  readonly scheduledWorkoutId?: string | null;
   readonly name: string;
-  readonly exercises?: (SessionExercise | null)[] | null;
+  readonly exercises: (SessionExercise | null)[];
   readonly duration?: number | null;
   readonly completedAt: string;
   readonly owner?: string | null;
@@ -240,4 +248,42 @@ export declare type WorkoutSession = LazyLoading extends LazyLoadingDisabled ? E
 
 export declare const WorkoutSession: (new (init: ModelInit<WorkoutSession>) => WorkoutSession) & {
   copyOf(source: WorkoutSession, mutator: (draft: MutableModel<WorkoutSession>) => MutableModel<WorkoutSession> | void): WorkoutSession;
+}
+
+type EagerScheduledWorkout = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<ScheduledWorkout, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly date: string;
+  readonly status: string;
+  readonly workoutTemplateId: string;
+  readonly workoutTemplate?: WorkoutTemplate | null;
+  readonly workoutSessionId?: string | null;
+  readonly owner?: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+type LazyScheduledWorkout = {
+  readonly [__modelMeta__]: {
+    identifier: ManagedIdentifier<ScheduledWorkout, 'id'>;
+  };
+  readonly id: string;
+  readonly userId: string;
+  readonly date: string;
+  readonly status: string;
+  readonly workoutTemplateId: string;
+  readonly workoutTemplate: AsyncItem<WorkoutTemplate | undefined>;
+  readonly workoutSessionId?: string | null;
+  readonly owner?: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export declare type ScheduledWorkout = LazyLoading extends LazyLoadingDisabled ? EagerScheduledWorkout : LazyScheduledWorkout
+
+export declare const ScheduledWorkout: (new (init: ModelInit<ScheduledWorkout>) => ScheduledWorkout) & {
+  copyOf(source: ScheduledWorkout, mutator: (draft: MutableModel<ScheduledWorkout>) => MutableModel<ScheduledWorkout> | void): ScheduledWorkout;
 }

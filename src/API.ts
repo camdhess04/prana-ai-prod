@@ -353,6 +353,7 @@ export type WorkoutTemplate = {
   name: string,
   description?: string | null,
   exercises?: ModelExerciseConnection | null,
+  scheduledInstances?: ModelScheduledWorkoutConnection | null,
   isAIPlan?: boolean | null,
   owner?: string | null,
   createdAt: string,
@@ -367,6 +368,30 @@ export type ModelExerciseConnection = {
   items:  Array<Exercise | null >,
   nextToken?: string | null,
   startedAt?: number | null,
+};
+
+export type ModelScheduledWorkoutConnection = {
+  __typename: "ModelScheduledWorkoutConnection",
+  items:  Array<ScheduledWorkout | null >,
+  nextToken?: string | null,
+  startedAt?: number | null,
+};
+
+export type ScheduledWorkout = {
+  __typename: "ScheduledWorkout",
+  id: string,
+  userId: string,
+  date: string,
+  status: string,
+  workoutTemplateId: string,
+  workoutTemplate?: WorkoutTemplate | null,
+  workoutSessionId?: string | null,
+  owner?: string | null,
+  createdAt: string,
+  updatedAt: string,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
 };
 
 export type UpdateWorkoutTemplateInput = {
@@ -390,8 +415,9 @@ export type CreateWorkoutSessionInput = {
   id?: string | null,
   userId: string,
   templateId?: string | null,
+  scheduledWorkoutId?: string | null,
   name: string,
-  exercises?: Array< SessionExerciseInput | null > | null,
+  exercises: Array< SessionExerciseInput | null >,
   duration?: number | null,
   completedAt: string,
   owner?: string | null,
@@ -404,18 +430,21 @@ export type SessionExerciseInput = {
   id: string,
   name: string,
   note?: string | null,
-  performedSets?: Array< PerformedSetInput | null > | null,
+  performedSets: Array< PerformedSetInput | null >,
 };
 
 export type PerformedSetInput = {
   id: string,
   reps?: string | null,
   weight?: string | null,
+  rpe?: number | null,
+  notes?: string | null,
 };
 
 export type ModelWorkoutSessionConditionInput = {
   userId?: ModelIDInput | null,
   templateId?: ModelIDInput | null,
+  scheduledWorkoutId?: ModelIDInput | null,
   name?: ModelStringInput | null,
   duration?: ModelIntInput | null,
   completedAt?: ModelStringInput | null,
@@ -433,8 +462,9 @@ export type WorkoutSession = {
   id: string,
   userId: string,
   templateId?: string | null,
+  scheduledWorkoutId?: string | null,
   name: string,
-  exercises?:  Array<SessionExercise | null > | null,
+  exercises:  Array<SessionExercise | null >,
   duration?: number | null,
   completedAt: string,
   owner?: string | null,
@@ -450,7 +480,7 @@ export type SessionExercise = {
   id: string,
   name: string,
   note?: string | null,
-  performedSets?:  Array<PerformedSet | null > | null,
+  performedSets:  Array<PerformedSet | null >,
 };
 
 export type PerformedSet = {
@@ -458,12 +488,15 @@ export type PerformedSet = {
   id: string,
   reps?: string | null,
   weight?: string | null,
+  rpe?: number | null,
+  notes?: string | null,
 };
 
 export type UpdateWorkoutSessionInput = {
   id: string,
   userId?: string | null,
   templateId?: string | null,
+  scheduledWorkoutId?: string | null,
   name?: string | null,
   exercises?: Array< SessionExerciseInput | null > | null,
   duration?: number | null,
@@ -475,6 +508,52 @@ export type UpdateWorkoutSessionInput = {
 };
 
 export type DeleteWorkoutSessionInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateScheduledWorkoutInput = {
+  id?: string | null,
+  userId: string,
+  date: string,
+  status: string,
+  workoutTemplateId: string,
+  workoutSessionId?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type ModelScheduledWorkoutConditionInput = {
+  userId?: ModelIDInput | null,
+  date?: ModelStringInput | null,
+  status?: ModelStringInput | null,
+  workoutTemplateId?: ModelIDInput | null,
+  workoutSessionId?: ModelIDInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelScheduledWorkoutConditionInput | null > | null,
+  or?: Array< ModelScheduledWorkoutConditionInput | null > | null,
+  not?: ModelScheduledWorkoutConditionInput | null,
+  _deleted?: ModelBooleanInput | null,
+};
+
+export type UpdateScheduledWorkoutInput = {
+  id: string,
+  userId?: string | null,
+  date?: string | null,
+  status?: string | null,
+  workoutTemplateId?: string | null,
+  workoutSessionId?: string | null,
+  owner?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+  _version?: number | null,
+};
+
+export type DeleteScheduledWorkoutInput = {
   id: string,
   _version?: number | null,
 };
@@ -578,6 +657,7 @@ export type ModelWorkoutSessionFilterInput = {
   id?: ModelIDInput | null,
   userId?: ModelIDInput | null,
   templateId?: ModelIDInput | null,
+  scheduledWorkoutId?: ModelIDInput | null,
   name?: ModelStringInput | null,
   duration?: ModelIntInput | null,
   completedAt?: ModelStringInput | null,
@@ -595,6 +675,22 @@ export type ModelWorkoutSessionConnection = {
   items:  Array<WorkoutSession | null >,
   nextToken?: string | null,
   startedAt?: number | null,
+};
+
+export type ModelScheduledWorkoutFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  date?: ModelStringInput | null,
+  status?: ModelStringInput | null,
+  workoutTemplateId?: ModelIDInput | null,
+  workoutSessionId?: ModelIDInput | null,
+  owner?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelScheduledWorkoutFilterInput | null > | null,
+  or?: Array< ModelScheduledWorkoutFilterInput | null > | null,
+  not?: ModelScheduledWorkoutFilterInput | null,
+  _deleted?: ModelBooleanInput | null,
 };
 
 export type ModelStringKeyConditionInput = {
@@ -746,6 +842,7 @@ export type ModelSubscriptionWorkoutSessionFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   userId?: ModelSubscriptionIDInput | null,
   templateId?: ModelSubscriptionIDInput | null,
+  scheduledWorkoutId?: ModelSubscriptionIDInput | null,
   name?: ModelSubscriptionStringInput | null,
   duration?: ModelSubscriptionIntInput | null,
   completedAt?: ModelSubscriptionStringInput | null,
@@ -755,6 +852,21 @@ export type ModelSubscriptionWorkoutSessionFilterInput = {
   or?: Array< ModelSubscriptionWorkoutSessionFilterInput | null > | null,
   _deleted?: ModelBooleanInput | null,
   owner?: ModelStringInput | null,
+};
+
+export type ModelSubscriptionScheduledWorkoutFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  date?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  workoutTemplateId?: ModelSubscriptionIDInput | null,
+  workoutSessionId?: ModelSubscriptionIDInput | null,
+  owner?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionScheduledWorkoutFilterInput | null > | null,
+  or?: Array< ModelSubscriptionScheduledWorkoutFilterInput | null > | null,
+  _deleted?: ModelBooleanInput | null,
+  userId?: ModelStringInput | null,
 };
 
 export type CreateUserProfileMutationVariables = {
@@ -1014,6 +1126,11 @@ export type CreateWorkoutTemplateMutation = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
     isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
@@ -1038,6 +1155,11 @@ export type UpdateWorkoutTemplateMutation = {
     description?: string | null,
     exercises?:  {
       __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
@@ -1068,6 +1190,11 @@ export type DeleteWorkoutTemplateMutation = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
     isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
@@ -1089,13 +1216,14 @@ export type CreateWorkoutSessionMutation = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
     owner?: string | null,
@@ -1118,13 +1246,14 @@ export type UpdateWorkoutSessionMutation = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
     owner?: string | null,
@@ -1147,15 +1276,127 @@ export type DeleteWorkoutSessionMutation = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type CreateScheduledWorkoutMutationVariables = {
+  input: CreateScheduledWorkoutInput,
+  condition?: ModelScheduledWorkoutConditionInput | null,
+};
+
+export type CreateScheduledWorkoutMutation = {
+  createScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type UpdateScheduledWorkoutMutationVariables = {
+  input: UpdateScheduledWorkoutInput,
+  condition?: ModelScheduledWorkoutConditionInput | null,
+};
+
+export type UpdateScheduledWorkoutMutation = {
+  updateScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type DeleteScheduledWorkoutMutationVariables = {
+  input: DeleteScheduledWorkoutInput,
+  condition?: ModelScheduledWorkoutConditionInput | null,
+};
+
+export type DeleteScheduledWorkoutMutation = {
+  deleteScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,
@@ -1464,6 +1705,11 @@ export type GetWorkoutTemplateQuery = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
     isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
@@ -1541,13 +1787,14 @@ export type GetWorkoutSessionQuery = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
     owner?: string | null,
@@ -1573,6 +1820,7 @@ export type ListWorkoutSessionsQuery = {
       id: string,
       userId: string,
       templateId?: string | null,
+      scheduledWorkoutId?: string | null,
       name: string,
       duration?: number | null,
       completedAt: string,
@@ -1603,9 +1851,105 @@ export type SyncWorkoutSessionsQuery = {
       id: string,
       userId: string,
       templateId?: string | null,
+      scheduledWorkoutId?: string | null,
       name: string,
       duration?: number | null,
       completedAt: string,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type GetScheduledWorkoutQueryVariables = {
+  id: string,
+};
+
+export type GetScheduledWorkoutQuery = {
+  getScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type ListScheduledWorkoutsQueryVariables = {
+  filter?: ModelScheduledWorkoutFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListScheduledWorkoutsQuery = {
+  listScheduledWorkouts?:  {
+    __typename: "ModelScheduledWorkoutConnection",
+    items:  Array< {
+      __typename: "ScheduledWorkout",
+      id: string,
+      userId: string,
+      date: string,
+      status: string,
+      workoutTemplateId: string,
+      workoutSessionId?: string | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncScheduledWorkoutsQueryVariables = {
+  filter?: ModelScheduledWorkoutFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncScheduledWorkoutsQuery = {
+  syncScheduledWorkouts?:  {
+    __typename: "ModelScheduledWorkoutConnection",
+    items:  Array< {
+      __typename: "ScheduledWorkout",
+      id: string,
+      userId: string,
+      date: string,
+      status: string,
+      workoutTemplateId: string,
+      workoutSessionId?: string | null,
       owner?: string | null,
       createdAt: string,
       updatedAt: string,
@@ -1728,9 +2072,74 @@ export type SessionsByUserIdQuery = {
       id: string,
       userId: string,
       templateId?: string | null,
+      scheduledWorkoutId?: string | null,
       name: string,
       duration?: number | null,
       completedAt: string,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type ScheduledWorkoutsByUserIdAndDateQueryVariables = {
+  userId: string,
+  date?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelScheduledWorkoutFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ScheduledWorkoutsByUserIdAndDateQuery = {
+  scheduledWorkoutsByUserIdAndDate?:  {
+    __typename: "ModelScheduledWorkoutConnection",
+    items:  Array< {
+      __typename: "ScheduledWorkout",
+      id: string,
+      userId: string,
+      date: string,
+      status: string,
+      workoutTemplateId: string,
+      workoutSessionId?: string | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null >,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type ScheduledWorkoutsByTemplateIdQueryVariables = {
+  workoutTemplateId: string,
+  date?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelScheduledWorkoutFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ScheduledWorkoutsByTemplateIdQuery = {
+  scheduledWorkoutsByTemplateId?:  {
+    __typename: "ModelScheduledWorkoutConnection",
+    items:  Array< {
+      __typename: "ScheduledWorkout",
+      id: string,
+      userId: string,
+      date: string,
+      status: string,
+      workoutTemplateId: string,
+      workoutSessionId?: string | null,
       owner?: string | null,
       createdAt: string,
       updatedAt: string,
@@ -2000,6 +2409,11 @@ export type OnCreateWorkoutTemplateSubscription = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
     isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
@@ -2024,6 +2438,11 @@ export type OnUpdateWorkoutTemplateSubscription = {
     description?: string | null,
     exercises?:  {
       __typename: "ModelExerciseConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
@@ -2054,6 +2473,11 @@ export type OnDeleteWorkoutTemplateSubscription = {
       nextToken?: string | null,
       startedAt?: number | null,
     } | null,
+    scheduledInstances?:  {
+      __typename: "ModelScheduledWorkoutConnection",
+      nextToken?: string | null,
+      startedAt?: number | null,
+    } | null,
     isAIPlan?: boolean | null,
     owner?: string | null,
     createdAt: string,
@@ -2075,13 +2499,14 @@ export type OnCreateWorkoutSessionSubscription = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
     owner?: string | null,
@@ -2104,13 +2529,14 @@ export type OnUpdateWorkoutSessionSubscription = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
     owner?: string | null,
@@ -2133,15 +2559,127 @@ export type OnDeleteWorkoutSessionSubscription = {
     id: string,
     userId: string,
     templateId?: string | null,
+    scheduledWorkoutId?: string | null,
     name: string,
-    exercises?:  Array< {
+    exercises:  Array< {
       __typename: "SessionExercise",
       id: string,
       name: string,
       note?: string | null,
-    } | null > | null,
+    } | null >,
     duration?: number | null,
     completedAt: string,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnCreateScheduledWorkoutSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduledWorkoutFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnCreateScheduledWorkoutSubscription = {
+  onCreateScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnUpdateScheduledWorkoutSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduledWorkoutFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnUpdateScheduledWorkoutSubscription = {
+  onUpdateScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
+    owner?: string | null,
+    createdAt: string,
+    updatedAt: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+  } | null,
+};
+
+export type OnDeleteScheduledWorkoutSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduledWorkoutFilterInput | null,
+  userId?: string | null,
+};
+
+export type OnDeleteScheduledWorkoutSubscription = {
+  onDeleteScheduledWorkout?:  {
+    __typename: "ScheduledWorkout",
+    id: string,
+    userId: string,
+    date: string,
+    status: string,
+    workoutTemplateId: string,
+    workoutTemplate?:  {
+      __typename: "WorkoutTemplate",
+      id: string,
+      userId: string,
+      name: string,
+      description?: string | null,
+      isAIPlan?: boolean | null,
+      owner?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+    } | null,
+    workoutSessionId?: string | null,
     owner?: string | null,
     createdAt: string,
     updatedAt: string,

@@ -1,6 +1,6 @@
 # GraphQL Schema for Prana AI V3 - Includes UserProfile, TrainerNote
 # V1.5 Update: Added ScheduledWorkout model and RPE/Notes to PerformedSet
-# V1.5.1 Update: Added @hasMany relationship from WorkoutTemplate to ScheduledWorkout
+# V1.5.2 Update: Defined relationship using explicit index 'byWorkoutTemplate'
 
 type Query {
   _: String # Required placeholder for schema validity
@@ -79,7 +79,7 @@ type WorkoutTemplate @model @auth(rules: [ { allow: owner } ]) {
   name: String!
   description: String
   exercises: [Exercise] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Relationship to Exercises
-  scheduledInstances: [ScheduledWorkout] @hasMany(fields: ["workoutTemplateId"]) # Relationship to ScheduledWorkouts
+  scheduledInstances: [ScheduledWorkout] @hasMany(indexName: "byWorkoutTemplate", fields: ["id"]) # Use indexName
   isAIPlan: Boolean # Flag for AI generated plans
   owner: String
   createdAt: AWSDateTime!
@@ -129,7 +129,7 @@ type ScheduledWorkout @model @auth(rules: [{ allow: owner, ownerField: "userId",
   userId: ID! @index(name: "byUserDate", queryField: "scheduledWorkoutsByUserIdAndDate", sortKeyFields: ["date"]) # GSI to query by user and date range
   date: AWSDate! # The specific date this workout is scheduled for
   status: String! # e.g., "Scheduled", "Completed", "Skipped"
-  workoutTemplateId: ID! # Link to the template scheduled
+  workoutTemplateId: ID! @index(name: "byWorkoutTemplate", queryField: "scheduledWorkoutsByTemplateId", sortKeyFields: ["date"]) # Link to template with GSI
   workoutTemplate: WorkoutTemplate @belongsTo(fields: ["workoutTemplateId"]) # Relationship to fetch template details
   workoutSessionId: ID # Optional: Link to the WorkoutSession if completed
   owner: String # Automatically populated by @auth rule using 'sub' claim

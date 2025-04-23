@@ -271,6 +271,11 @@ export const createWorkoutTemplate = /* GraphQL */ `mutation CreateWorkoutTempla
       startedAt
       __typename
     }
+    scheduledInstances {
+      nextToken
+      startedAt
+      __typename
+    }
     isAIPlan
     owner
     createdAt
@@ -295,6 +300,11 @@ export const updateWorkoutTemplate = /* GraphQL */ `mutation UpdateWorkoutTempla
     name
     description
     exercises {
+      nextToken
+      startedAt
+      __typename
+    }
+    scheduledInstances {
       nextToken
       startedAt
       __typename
@@ -327,6 +337,11 @@ export const deleteWorkoutTemplate = /* GraphQL */ `mutation DeleteWorkoutTempla
       startedAt
       __typename
     }
+    scheduledInstances {
+      nextToken
+      startedAt
+      __typename
+    }
     isAIPlan
     owner
     createdAt
@@ -349,6 +364,7 @@ export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -379,6 +395,7 @@ export const updateWorkoutSession = /* GraphQL */ `mutation UpdateWorkoutSession
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -409,6 +426,7 @@ export const deleteWorkoutSession = /* GraphQL */ `mutation DeleteWorkoutSession
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -430,4 +448,118 @@ export const deleteWorkoutSession = /* GraphQL */ `mutation DeleteWorkoutSession
 ` as GeneratedMutation<
   APITypes.DeleteWorkoutSessionMutationVariables,
   APITypes.DeleteWorkoutSessionMutation
+>;
+export const createScheduledWorkout = /* GraphQL */ `mutation CreateScheduledWorkout(
+  $input: CreateScheduledWorkoutInput!
+  $condition: ModelScheduledWorkoutConditionInput
+) {
+  createScheduledWorkout(input: $input, condition: $condition) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateScheduledWorkoutMutationVariables,
+  APITypes.CreateScheduledWorkoutMutation
+>;
+export const updateScheduledWorkout = /* GraphQL */ `mutation UpdateScheduledWorkout(
+  $input: UpdateScheduledWorkoutInput!
+  $condition: ModelScheduledWorkoutConditionInput
+) {
+  updateScheduledWorkout(input: $input, condition: $condition) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateScheduledWorkoutMutationVariables,
+  APITypes.UpdateScheduledWorkoutMutation
+>;
+export const deleteScheduledWorkout = /* GraphQL */ `mutation DeleteScheduledWorkout(
+  $input: DeleteScheduledWorkoutInput!
+  $condition: ModelScheduledWorkoutConditionInput
+) {
+  deleteScheduledWorkout(input: $input, condition: $condition) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteScheduledWorkoutMutationVariables,
+  APITypes.DeleteScheduledWorkoutMutation
 >;

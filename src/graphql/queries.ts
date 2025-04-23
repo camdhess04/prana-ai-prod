@@ -317,6 +317,11 @@ export const getWorkoutTemplate = /* GraphQL */ `query GetWorkoutTemplate($id: I
       startedAt
       __typename
     }
+    scheduledInstances {
+      nextToken
+      startedAt
+      __typename
+    }
     isAIPlan
     owner
     createdAt
@@ -400,6 +405,7 @@ export const getWorkoutSession = /* GraphQL */ `query GetWorkoutSession($id: ID!
     id
     userId
     templateId
+    scheduledWorkoutId
     name
     exercises {
       id
@@ -432,6 +438,7 @@ export const listWorkoutSessions = /* GraphQL */ `query ListWorkoutSessions(
       id
       userId
       templateId
+      scheduledWorkoutId
       name
       duration
       completedAt
@@ -468,6 +475,7 @@ export const syncWorkoutSessions = /* GraphQL */ `query SyncWorkoutSessions(
       id
       userId
       templateId
+      scheduledWorkoutId
       name
       duration
       completedAt
@@ -487,6 +495,107 @@ export const syncWorkoutSessions = /* GraphQL */ `query SyncWorkoutSessions(
 ` as GeneratedQuery<
   APITypes.SyncWorkoutSessionsQueryVariables,
   APITypes.SyncWorkoutSessionsQuery
+>;
+export const getScheduledWorkout = /* GraphQL */ `query GetScheduledWorkout($id: ID!) {
+  getScheduledWorkout(id: $id) {
+    id
+    userId
+    date
+    status
+    workoutTemplateId
+    workoutTemplate {
+      id
+      userId
+      name
+      description
+      isAIPlan
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    workoutSessionId
+    owner
+    createdAt
+    updatedAt
+    _version
+    _deleted
+    _lastChangedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetScheduledWorkoutQueryVariables,
+  APITypes.GetScheduledWorkoutQuery
+>;
+export const listScheduledWorkouts = /* GraphQL */ `query ListScheduledWorkouts(
+  $filter: ModelScheduledWorkoutFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listScheduledWorkouts(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      date
+      status
+      workoutTemplateId
+      workoutSessionId
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    nextToken
+    startedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListScheduledWorkoutsQueryVariables,
+  APITypes.ListScheduledWorkoutsQuery
+>;
+export const syncScheduledWorkouts = /* GraphQL */ `query SyncScheduledWorkouts(
+  $filter: ModelScheduledWorkoutFilterInput
+  $limit: Int
+  $nextToken: String
+  $lastSync: AWSTimestamp
+) {
+  syncScheduledWorkouts(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    lastSync: $lastSync
+  ) {
+    items {
+      id
+      userId
+      date
+      status
+      workoutTemplateId
+      workoutSessionId
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    nextToken
+    startedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.SyncScheduledWorkoutsQueryVariables,
+  APITypes.SyncScheduledWorkoutsQuery
 >;
 export const notesByUserId = /* GraphQL */ `query NotesByUserId(
   $userId: ID!
@@ -587,23 +696,6 @@ export const templatesByUserId = /* GraphQL */ `query TemplatesByUserId(
       name
       description
       isAIPlan
-      exercises(limit: 100) {
-        items {
-          id
-          workoutTemplateId
-          name
-          sets
-          reps
-          weight
-          restPeriod
-          note
-          owner
-          createdAt
-          __typename
-        }
-        nextToken
-        __typename
-      }
       owner
       createdAt
       updatedAt
@@ -641,6 +733,7 @@ export const sessionsByUserId = /* GraphQL */ `query SessionsByUserId(
       id
       userId
       templateId
+      scheduledWorkoutId
       name
       duration
       completedAt
@@ -660,4 +753,84 @@ export const sessionsByUserId = /* GraphQL */ `query SessionsByUserId(
 ` as GeneratedQuery<
   APITypes.SessionsByUserIdQueryVariables,
   APITypes.SessionsByUserIdQuery
+>;
+export const scheduledWorkoutsByUserIdAndDate = /* GraphQL */ `query ScheduledWorkoutsByUserIdAndDate(
+  $userId: ID!
+  $date: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelScheduledWorkoutFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  scheduledWorkoutsByUserIdAndDate(
+    userId: $userId
+    date: $date
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      date
+      status
+      workoutTemplateId
+      workoutSessionId
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    nextToken
+    startedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ScheduledWorkoutsByUserIdAndDateQueryVariables,
+  APITypes.ScheduledWorkoutsByUserIdAndDateQuery
+>;
+export const scheduledWorkoutsByTemplateId = /* GraphQL */ `query ScheduledWorkoutsByTemplateId(
+  $workoutTemplateId: ID!
+  $date: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelScheduledWorkoutFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  scheduledWorkoutsByTemplateId(
+    workoutTemplateId: $workoutTemplateId
+    date: $date
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      date
+      status
+      workoutTemplateId
+      workoutSessionId
+      owner
+      createdAt
+      updatedAt
+      _version
+      _deleted
+      _lastChangedAt
+      __typename
+    }
+    nextToken
+    startedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ScheduledWorkoutsByTemplateIdQueryVariables,
+  APITypes.ScheduledWorkoutsByTemplateIdQuery
 >;
