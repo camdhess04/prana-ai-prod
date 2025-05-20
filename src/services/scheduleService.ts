@@ -3,7 +3,7 @@
 
 import { generateClient, type GraphQLResult } from 'aws-amplify/api';
 import { ScheduledWorkout as APIScheduledWorkout, WorkoutTemplate as APIWorkoutTemplate, Exercise as APIExercise } from '../API'; // Import generated API types
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 
 // --- Define Custom Query ---
 // This query uses the 'scheduledWorkoutsByUserIdAndDate' GSI but explicitly asks for nested data
@@ -102,8 +102,7 @@ const getTodaysWorkout = async (userId: string): Promise<APIScheduledWorkout | n
         return null;
     }
 
-    const todayDate = format(new Date(), 'yyyy-MM-dd');
-    console.log(`SCHEDULE_SERVICE: Fetching scheduled workout for user ${userId} on date ${todayDate} using CUSTOM query...`);
+    const todayDate = format(new Date(), 'yyyy-MM-dd'); // Format date for AWSDate! type
 
     try {
         const variables = {

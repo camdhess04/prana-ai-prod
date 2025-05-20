@@ -1,13 +1,17 @@
 // src/screens/HomeScreen.tsx
 // V1.5 Update: Fetches and displays Today's Scheduled Workout
+// V1.5.1 Update: Added SafeAreaView for proper screen fitting
+// V1.5.2 Update: Added Completed status handling
 
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'; // <-- UPDATED IMPORT
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 import { useAppTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { CheckCircle2 } from 'lucide-react-native'; // Add CheckCircle2 import
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { MainTabParamList } from '../navigation/MainTabNavigator'; // Assuming navigation prop comes from here
 import scheduleService from '../services/scheduleService'; // Import the new service
@@ -22,13 +26,16 @@ type HomeScreenProps = BottomTabScreenProps<MainTabParamList, 'Home'>;
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const { theme } = useAppTheme();
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
+    const insets = useSafeAreaInsets();
+    console.log('HomeScreen Insets:', JSON.stringify(insets)); // Log all insets
 
     // State for today's workout: 'loading', 'rest', 'error', or the workout object
     const [todaysWorkout, setTodaysWorkout] = useState<APIScheduledWorkout | 'loading' | 'rest' | 'error'>('loading');
     const [isLoading, setIsLoading] = useState<boolean>(true); // Separate loading state
 
-    const displayName = user?.username || user?.attributes?.email || 'User';
+    // Use nickname from userProfile if available, then username, then email, then fallback
+    const displayName = userProfile?.nickname || user?.username || (user && 'attributes' in user ? (user as any).attributes?.email : null) || 'User';
 
     // Fetch data when screen comes into focus
     useFocusEffect(
@@ -45,23 +52,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
                 console.log("HomeScreen: Fetching today's workout...");
                 setIsLoading(true); // Use separate loading state
-                // setTodaysWorkout('loading'); // Set specific state if preferred
 
                 try {
                     const workout = await scheduleService.getTodaysWorkout(user.userId);
-                    console.log("HomeScreen: Fetched workout:", workout?.id, workout?.status, workout?.workoutTemplate?.name);
+                    console.log("HS: Raw workout object from scheduleService:", JSON.stringify(workout, null, 2));
 
                     if (isActive) {
-                        if (workout && workout.status === 'Scheduled') {
-                             // Ensure workoutTemplate is included - adjust based on actual service return
+                        if (workout) {
+                            console.log(`HS: Workout object received. ID: ${workout.id}, Status: ${workout.status}, Deleted: ${workout._deleted}, Template exists: ${!!workout.workoutTemplate}`);
+
                             if (!workout.workoutTemplate) {
-                                console.error("HomeScreen: ScheduledWorkout found, but missing nested workoutTemplate data!");
+                                console.error("HS: CRITICAL - Missing nested workoutTemplate data! Setting to 'error'.");
                                 setTodaysWorkout('error');
+                            } else if (workout._deleted) {
+                                console.log("HS: Workout is marked deleted. Setting to 'rest'.");
+                                setTodaysWorkout('rest');
                             } else {
-                                setTodaysWorkout(workout as APIScheduledWorkout); // Cast needed if service returns union/null
+                                console.log("HS: Valid workout object found. Setting todaysWorkout STATE to this OBJECT.");
+                                setTodaysWorkout(workout);
                             }
                         } else {
-                            // Treat null result, non-Scheduled status, or missing template as Rest/Nothing scheduled
+                            console.log("HS: scheduleService returned null. Setting todaysWorkout STATE to 'rest'.");
                             setTodaysWorkout('rest');
                         }
                     }
@@ -124,6 +135,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     // Helper function to render the main action card content
     const renderTodaysWorkoutCard = () => {
+        console.log(
+            "HS Render: isLoading:", isLoading,
+            "todaysWorkout is string?:", typeof todaysWorkout === 'string',
+            "todaysWorkout string value:", typeof todaysWorkout === 'string' ? todaysWorkout : 'N/A',
+            "todaysWorkout object status:", typeof todaysWorkout === 'object' && todaysWorkout !== null ? todaysWorkout.status : 'N/A'
+        );
+
         if (isLoading) {
             return <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />;
         }
@@ -132,93 +150,122 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             case 'rest':
                 return (
                     <>
-                        <Text style={[styles.cardTitle, { color: theme.text }]}>Rest Day</Text>
-                        <Text style={[styles.cardDescription, { color: theme.secondaryText }]}>
+                        <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>Rest Day</Text>
+                        <Text style={[styles.cardDescription, { color: theme.secondaryText, fontFamily: theme.fontFamilyRegular }]}>
                             Time to recover and grow stronger! Enjoy your rest.
                         </Text>
-                        {/* Optionally add a button to view schedule or log activity */}
                     </>
                 );
             case 'error':
                 return (
                     <>
-                        <Text style={[styles.cardTitle, { color: theme.text }]}>Error</Text>
-                        <Text style={[styles.cardDescription, { color: theme.text }]}>
+                        <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>Error</Text>
+                        <Text style={[styles.cardDescription, { color: theme.text, fontFamily: theme.fontFamilyRegular }]}>
                             Could not load today's workout. Please try again later.
                         </Text>
-                        {/* Optionally add a refresh button */}
                     </>
                 );
-            // Check if it's a valid workout object
-            case 'loading': // Should be handled by isLoading state, but included for completeness
-                 return <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />;
-            default: // Assumes it's an APIScheduledWorkout object here
-                const workoutName = todaysWorkout.workoutTemplate?.name ?? 'Unnamed Workout';
-                const workoutDescription = todaysWorkout.workoutTemplate?.description ?? 'No description available.';
-                return (
-                    <>
-                        <Text style={[styles.cardTitle, { color: theme.text }]}>
-                            Today: {workoutName}
-                        </Text>
-                        <Text style={[styles.cardDescription, { color: theme.secondaryText }]}>
-                            {workoutDescription}
-                        </Text>
-                        <Button
-                            title="Start Workout"
-                            onPress={handleStartWorkout}
-                            style={styles.cardButton}
-                        />
-                    </>
-                );
+            case 'loading':
+                return <ActivityIndicator size="large" color={theme.primary} style={styles.loader} />;
+            default:
+                if (typeof todaysWorkout === 'object' && todaysWorkout?.id && todaysWorkout?.workoutTemplate) {
+                    const workoutName = todaysWorkout.workoutTemplate.name ?? 'Unnamed Workout';
+                    const workoutDescription = todaysWorkout.workoutTemplate.description ?? 'No description available.';
+
+                    // Check for 'Completed' status
+                    if (todaysWorkout.status === 'Completed') {
+                        return (
+                            <>
+                                <View style={styles.completedHeader}>
+                                    <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>
+                                        Today: {workoutName}
+                                    </Text>
+                                    <CheckCircle2 size={24} color={theme.success} />
+                                </View>
+                                <Text style={[styles.cardDescription, { color: theme.success, fontWeight: '500', fontFamily: theme.fontFamilyRegular }]}>
+                                    Workout Completed! Great job! ✅
+                                </Text>
+                            </>
+                        );
+                    }
+
+                    // Default case: Workout is Scheduled
+                    return (
+                        <>
+                            <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>
+                                Today: {workoutName}
+                            </Text>
+                            <Text style={[styles.cardDescription, { color: theme.secondaryText, fontFamily: theme.fontFamilyRegular }]}>
+                                {workoutDescription}
+                            </Text>
+                            <Button
+                                title="Start Workout"
+                                onPress={handleStartWorkout}
+                                style={styles.cardButton}
+                                variant="primary"
+                            />
+                        </>
+                    );
+                }
+                return null;
         }
     };
 
     return (
-        <ScrollView
-            style={[styles.container, { backgroundColor: theme.background }]}
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false} // Hide scrollbar if desired
-        >
-            <View style={styles.header}>
-                <Text style={[styles.greeting, { color: theme.text }]}>
-                    Hello, {displayName}
-                </Text>
-                <Text style={[styles.subtitle, { color: theme.secondaryText }]}>
-                    Ready to make progress today?
-                </Text>
-            </View>
+        <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.header}>
+                    <Text style={[styles.greeting, { color: theme.text, fontFamily: theme.fontFamilyBold }]}>
+                        Hello, {displayName}
+                    </Text>
+                    <Text style={[styles.subtitle, { color: theme.secondaryText, fontFamily: theme.fontFamilyRegular }]}>
+                        Ready to make progress today?
+                    </Text>
+                </View>
 
-            {/* Today's Workout Card - Now Dynamic */}
-            <Card style={styles.actionCard}>
-                {renderTodaysWorkoutCard()}
-            </Card>
+                {/* Today's Workout Card - Now Dynamic */}
+                <Card style={styles.actionCard}>
+                    <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>Today's Workout</Text>
+                    {renderTodaysWorkoutCard()}
+                </Card>
 
-            {/* Removed placeholder stats - Add back later if desired */}
-            {/* <View style={styles.statsContainer}> ... </View> */}
+                {/* Removed placeholder stats - Add back later if desired */}
+                {/* <View style={styles.statsContainer}> ... </View> */}
 
-            {/* Keep Progress Placeholder for now */}
-            <Card style={styles.progressCard}>
-                <Text style={[styles.cardTitle, { color: theme.text }]}>
-                    Recent Progress
-                </Text>
-                <Text style={[styles.progressPlaceholder, { color: theme.secondaryText }]}>
-                    Progress charts will appear here soon!
-                </Text>
-            </Card>
+                {/* Keep Progress Placeholder for now */}
+                <Card style={[styles.progressCard, { backgroundColor: theme.cardBackground }]}>
+                    <Text style={[styles.cardTitle, { color: theme.text, fontFamily: theme.fontFamilyMedium }]}>Recent Progress</Text>
+                    <Text style={[styles.cardDescription, { color: theme.secondaryText, fontFamily: theme.fontFamilyRegular }]}>
+                        View your recent achievements
+                    </Text>
+                    <Button 
+                        title="View Progress" 
+                        onPress={() => navigation.navigate('Progress')}
+                        style={styles.cardButton}
+                        variant="primary"
+                    />
+                </Card>
 
-            {/* Keep AI Coach card - maybe update navigation later if Trainer tab removed permanently */}
-            {/* <Card style={styles.coachCard}> ... </Card> */}
-
-        </ScrollView>
+                {/* Keep AI Coach card - maybe update navigation later if Trainer tab removed permanently */}
+                {/* <Card style={styles.coachCard}> ... </Card> */}
+            </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+    },
     container: {
         flex: 1,
     },
     content: {
-        paddingVertical: 40, // Adjust as needed, consider safe area
+        paddingBottom: 40,
         paddingHorizontal: 16,
     },
     header: {
@@ -226,19 +273,19 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 28,
-        fontWeight: 'bold', // Consider '700' or '800' for more weight
+        fontWeight: 'bold',
     },
     subtitle: {
         fontSize: 16,
-        marginTop: 4, // Add some space
+        marginTop: 4,
     },
     actionCard: {
-        marginBottom: 24, // Increased spacing
-        padding: 16, // Consistent padding
-    },
-    progressCard: { // Style for progress card
         marginBottom: 24,
-         padding: 16,
+        padding: 16,
+    },
+    progressCard: {
+        marginBottom: 24,
+        padding: 16,
     },
     cardTitle: {
         fontSize: 18,
@@ -254,15 +301,20 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     loader: {
-        paddingVertical: 30, // Give loader some space
+        paddingVertical: 30,
     },
-    // Removed statsContainer and statCard styles as they are commented out
     progressPlaceholder: {
         textAlign: 'center',
         paddingVertical: 30,
         paddingHorizontal: 10,
         fontStyle: 'italic',
         fontSize: 14,
+    },
+    completedHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
     },
     // coachCard style can be added if needed
 });

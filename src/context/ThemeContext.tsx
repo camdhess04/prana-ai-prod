@@ -1,77 +1,107 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightTheme, darkTheme, AppTheme } from '../theme/colors';
+// src/context/ThemeContext.tsx
+// Corrected imports and initial context value
 
-type ThemeMode = 'light' | 'dark';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { useColorScheme, Appearance } from 'react-native'; // Added Appearance for initial sync
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// Import the `themes` object and the AppTheme type
+import { themes, type AppTheme } from '../theme/colors';
+
+// Define the names of available themes based on the keys of the themes object
+export type ThemeName = keyof typeof themes;
 
 interface ThemeContextType {
-  themeMode: ThemeMode;
-  theme: AppTheme;
-  toggleTheme: () => void;
-  setThemeMode: (mode: ThemeMode) => void;
+  currentThemeName: ThemeName;
+  theme: AppTheme; // This will be the actual theme object like themes.classyLight, themes.greenDark etc.
+  setTheme: (name: ThemeName) => void;
+  availableThemes: typeof themes; // Expose all theme definitions
+  isLoadingTheme: boolean;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+// Determine a sensible initial default theme name
+const systemPreferredMode = Appearance.getColorScheme() || 'light';
+const initialDefaultThemeName: ThemeName = systemPreferredMode === 'dark' ? 'classyDark' : 'classyLight';
+
+const defaultThemeContextValue: ThemeContextType = {
+  currentThemeName: initialDefaultThemeName,
+  theme: themes[initialDefaultThemeName], 
+  setTheme: () => console.warn('setTheme called on default ThemeContext value'),
+  availableThemes: themes,
+  isLoadingTheme: true,
+};
+
+const ThemeContext = createContext<ThemeContextType>(defaultThemeContextValue);
 
 interface ThemeProviderProps {
   children: ReactNode;
 }
 
-const THEME_STORAGE_KEY = '@prana_theme_mode';
+const SELECTED_THEME_NAME_STORAGE_KEY = '@prana_selected_theme_name_v1';
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const systemColorScheme = useColorScheme(); // 'light', 'dark', or null
-  const [themeMode, setThemeModeState] = useState<ThemeMode>(systemColorScheme || 'light');
+  const systemColorScheme = useColorScheme(); // For potential future use or initial intelligent default beyond classy
+  const [currentThemeNameState, setCurrentThemeNameState] = useState<ThemeName>(initialDefaultThemeName);
   const [isLoadingTheme, setIsLoadingTheme] = useState(true);
 
-  // Load theme preference from storage on mount
   useEffect(() => {
-    const loadThemePreference = async () => {
+    let isActive = true;
+    const loadSelectedThemeName = async () => {
       try {
-        const storedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
-        if (storedTheme) {
-          setThemeModeState(storedTheme);
-        } else {
-          // If no stored theme, use system preference
-          setThemeModeState(systemColorScheme || 'light');
+        const storedThemeName = await AsyncStorage.getItem(SELECTED_THEME_NAME_STORAGE_KEY) as ThemeName | null;
+        if (isActive) {
+            if (storedThemeName && themes[storedThemeName]) { // Check if stored name is a valid key
+                setCurrentThemeNameState(storedThemeName);
+            } else {
+                // Fallback to classyLight/Dark based on system if no valid stored theme
+                const fallbackThemeName: ThemeName = (systemColorScheme === 'dark') ? 'classyDark' : 'classyLight';
+                setCurrentThemeNameState(fallbackThemeName);
+                // Optionally, save this fallback choice to storage if nothing was there
+                // await AsyncStorage.setItem(SELECTED_THEME_NAME_STORAGE_KEY, fallbackThemeName);
+            }
         }
       } catch (error) {
-        console.error("Failed to load theme preference:", error);
-        // Fallback to system or default if loading fails
-        setThemeModeState(systemColorScheme || 'light');
+        console.error("Failed to load selected theme name:", error);
+        if (isActive) {
+            // Fallback on error
+            const fallbackThemeName: ThemeName = (systemColorScheme === 'dark') ? 'classyDark' : 'classyLight';
+            setCurrentThemeNameState(fallbackThemeName);
+        }
       } finally {
-        setIsLoadingTheme(false);
+        if (isActive) {
+            setIsLoadingTheme(false);
+        }
       }
     };
 
-    loadThemePreference();
-  }, [systemColorScheme]); // Rerun if system theme changes while app is running
+    loadSelectedThemeName();
+    return () => { isActive = false; };
+  }, [systemColorScheme]); 
 
-  // Function to update state and save preference
-  const setThemeMode = async (mode: ThemeMode) => {
+  const setThemeByName = async (name: ThemeName) => {
+    if (!themes[name]) {
+        console.warn(`Attempted to set invalid theme name: ${name}`);
+        return;
+    }
     try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-      setThemeModeState(mode);
+      await AsyncStorage.setItem(SELECTED_THEME_NAME_STORAGE_KEY, name);
+      setCurrentThemeNameState(name);
     } catch (error) {
-      console.error("Failed to save theme preference:", error);
+      console.error("Failed to save selected theme name:", error);
     }
   };
 
-  const toggleTheme = () => {
-    const newThemeMode = themeMode === 'light' ? 'dark' : 'light';
-    setThemeMode(newThemeMode);
+  const currentThemeObject = themes[currentThemeNameState] || themes[initialDefaultThemeName]; // Fallback just in case
+
+  const providerValue: ThemeContextType = {
+    currentThemeName: currentThemeNameState,
+    theme: currentThemeObject,
+    setTheme: setThemeByName,
+    availableThemes: themes,
+    isLoadingTheme
   };
 
-  const currentTheme = themeMode === 'light' ? lightTheme : darkTheme;
-
-  // Don't render children until theme is loaded to prevent flash of wrong theme
-  if (isLoadingTheme) {
-    return null; // Or return a loading indicator component
-  }
-
   return (
-    <ThemeContext.Provider value={{ themeMode, theme: currentTheme, toggleTheme, setThemeMode }}>
+    <ThemeContext.Provider value={providerValue}>
       {children}
     </ThemeContext.Provider>
   );
@@ -80,8 +110,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 // Custom hook to use the theme context easily
 export const useAppTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useAppTheme must be used within a ThemeProvider');
+  if (!context) { // Should not happen if used within provider
+    console.error("useAppTheme must be used within a ThemeProvider - returning emergency default");
+    return defaultThemeContextValue; // Emergency fallback
   }
   return context;
-}; 
+};

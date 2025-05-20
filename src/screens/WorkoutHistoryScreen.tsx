@@ -2,7 +2,8 @@
 // FINAL IMPLEMENTATION - Based on user snippet + API Service
 
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, LayoutAnimation, Platform, UIManager, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, LayoutAnimation, Platform, UIManager, RefreshControl, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAppTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -79,6 +80,26 @@ const WorkoutHistoryScreen: React.FC<WorkoutHistoryScreenProps> = ({ navigation 
     return `${mins}m ${secs.toString().padStart(2, '0')}s`;
   };
 
+  // Define styles inside the component or pass theme to a style factory function
+  const styles = StyleSheet.create({
+    safeArea: { flex: 1 },
+    container: { flex: 1 },
+    content: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 30, flexGrow: 1 },
+    centered: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 },
+    sessionCard: { marginBottom: 16, padding: 0 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16 },
+    headerTextContainer: { flex: 1, marginRight: 10 },
+    sessionName: { fontSize: 18, fontFamily: theme.fontFamilyMonoMedium, marginBottom: 5 }, // Adjusted size
+    sessionDate: { fontSize: 13, fontFamily: theme.fontFamilyMonoRegular, marginBottom: 4 },
+    sessionStats: { fontSize: 13, fontFamily: theme.fontFamilyMonoRegular },
+    exerciseList: { marginTop: 8, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 12, marginHorizontal: 16, paddingBottom: 16 },
+    exerciseItem: { marginBottom: 12 }, // More spacing
+    exerciseName: { fontSize: 16, fontFamily: theme.fontFamilyMonoMedium, marginBottom: 6 }, // Adjusted size
+    exerciseDetails: { fontSize: 14, fontFamily: theme.fontFamilyMonoRegular, marginBottom: 3, marginLeft: 8, lineHeight: 20 }, // Line height for readability
+    exerciseNote: { fontSize: 13, fontFamily: theme.fontFamilyMonoRegular, fontStyle: 'italic', marginLeft: 8, marginTop: 3, opacity: 0.85 },
+    noHistoryText: { fontFamily: theme.fontFamilyMonoRegular, fontSize: 16, textAlign: 'center'},
+  });
+
   // --- Render Logic ---
 
   if (isLoading) { // Show loader only on initial load
@@ -91,6 +112,10 @@ const WorkoutHistoryScreen: React.FC<WorkoutHistoryScreenProps> = ({ navigation 
 
   const renderSessionItem = ({ item }: { item: WorkoutSession }) => {
     const isExpanded = expandedSessions[item.id];
+    // Ensure borderColor is applied correctly
+    const cardBorderStyle = { borderBottomColor: theme.borderColor ?? '#eee', borderBottomWidth: StyleSheet.hairlineWidth };
+    const listBorderStyle = { borderTopColor: theme.borderColor ?? '#eee', borderTopWidth: StyleSheet.hairlineWidth };
+
     return (
         <Card style={styles.sessionCard}>
         <TouchableOpacity
@@ -118,31 +143,42 @@ const WorkoutHistoryScreen: React.FC<WorkoutHistoryScreenProps> = ({ navigation 
 
         {/* Expandable Exercise Details */}
         {isExpanded && (
-            <View style={styles.exerciseList}>
-            {item.exercises?.map((exercise, index) => (
-                <View key={exercise.id || index} style={styles.exerciseItem}>
-                    <Text style={[styles.exerciseName, { color: theme.text }]}>
-                        {exercise.name}
+            <View style={[styles.exerciseList, listBorderStyle]}>
+            {(item.exercises ?? [])
+                .filter((ex): ex is SessionExercise & {id: string; name: string} => !!ex && !!ex.id && !!ex.name) // Filter nulls
+                .map((exercise) => (
+                    <View key={exercise.id} style={styles.exerciseItem}>
+                        <Text style={[styles.exerciseName, { color: theme.text }]}>
+                            {exercise.name}
+                        </Text>
+                        {(exercise.performedSets ?? [])
+                            .filter((set): set is PerformedSet & {id: string} => !!set && !!set.id) // Filter nulls
+                            .map((set, setIndex) => (
+                                <Text key={set.id} style={[styles.exerciseDetails, { color: theme.secondaryText }]}>
+                                    • Set {setIndex + 1}: {set.weight || 'BW'} {set.weight ? 'lbs' : ''} x {set.reps || '?'} reps
+                                    {set.rpe !== undefined && set.rpe !== null ? ` @ RPE ${set.rpe}` : ''}
+                                    {set.notes ? ` (${set.notes})` : ''}
+                                </Text>
+                            ))
+                        }
+                        {!(exercise.performedSets?.length) && (
+                            <Text style={[styles.exerciseDetails, { color: theme.secondaryText, fontStyle: 'italic' }]}>
+                                No sets logged for this exercise.
+                            </Text>
+                        )}
+                        {/* Display top-level exercise note if present */}
+                        {exercise.note && (
+                            <Text style={[styles.exerciseNote, { color: theme.secondaryText }]}>
+                                Note: {exercise.note}
+                            </Text>
+                        )}
+                    </View>
+                ))}
+                {!(item.exercises?.length) && (
+                     <Text style={[styles.exerciseDetails, { color: theme.secondaryText, fontStyle: 'italic' }]}>
+                        No exercises logged for this session.
                     </Text>
-                    {/* Map through performed sets */}
-                    {exercise.performedSets && exercise.performedSets.length > 0 ? (
-                        exercise.performedSets.map((set, setIndex) => (
-                        <Text key={set.id} style={[styles.exerciseDetails, { color: theme.secondaryText }]}>
-                            • Set {setIndex + 1}: {set.weight || 'BW'} { 'lbs'/* Add unit */} x {set.reps || '?'} reps
-                        </Text>
-                        ))
-                    ) : (
-                        <Text style={[styles.exerciseDetails, { color: theme.secondaryText, fontStyle: 'italic' }]}>
-                            No detailed sets logged.
-                        </Text>
-                    )}
-                    {exercise.note && (
-                        <Text style={[styles.exerciseNote, { color: theme.secondaryText }]}>
-                        Note: {exercise.note}
-                        </Text>
-                    )}
-                </View>
-            ))}
+                )}
             </View>
         )}
         </Card>
@@ -150,47 +186,35 @@ const WorkoutHistoryScreen: React.FC<WorkoutHistoryScreenProps> = ({ navigation 
   };
 
   return (
-    <FlatList
-      style={[styles.container, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-      data={sessions} // Data comes from state, sorted by service
-      renderItem={renderSessionItem}
-      keyExtractor={(item) => item.id}
-      refreshControl={ // Use RefreshControl for pull-to-refresh
-        <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            tintColor={theme.primary} // iOS color
-            colors={[theme.primary]} // Android color
-        />
-       }
-      ListEmptyComponent={
-        !isLoading && !isRefreshing? ( // Show only if not loading and not refreshing
-          <View style={styles.centered}>
-            <Text style={{ color: theme.text, textAlign: 'center' }}>No workout history found yet! Complete a session to see it here.</Text>
-          </View>
-        ) : null
-      }
-    />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+        {isLoading && sessions.length === 0 ? (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" color={theme.primary} />
+            </View>
+        ) : null}
+        {!isLoading && sessions.length === 0 ? (
+            <View style={styles.centered}>
+                <Text style={[styles.noHistoryText, { color: theme.text }]}>No workout history found yet! Complete a session to see it here.</Text>
+            </View>
+        ) : (
+            <FlatList
+                style={styles.container}
+                contentContainerStyle={styles.content}
+                data={sessions}
+                renderItem={renderSessionItem}
+                keyExtractor={(item) => item.id}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={handleRefresh}
+                        tintColor={theme.primary}
+                        colors={[theme.primary]}
+                    />
+                }
+            />
+        )}
+    </SafeAreaView>
   );
 };
-
-// Styles adapted from your snippet
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, paddingBottom: 30, flexGrow: 1 }, // Ensure content can grow for empty state
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
-  sessionCard: { marginBottom: 16, padding: 0 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16 },
-  headerTextContainer: { flex: 1, marginRight: 10 },
-  sessionName: { fontSize: 17, fontWeight: '600', marginBottom: 5 },
-  sessionDate: { fontSize: 13, marginBottom: 4 },
-  sessionStats: { fontSize: 13 },
-  exerciseList: { marginTop: 8, borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 12, marginHorizontal: 16, paddingBottom: 16, borderTopColor: '#eee' /* use theme.borderColor */ },
-  exerciseItem: { marginBottom: 10 },
-  exerciseName: { fontSize: 15, fontWeight: '500', marginBottom: 4 },
-  exerciseDetails: { fontSize: 14, marginBottom: 2, marginLeft: 5 },
-  exerciseNote: { fontSize: 13, fontStyle: 'italic', marginLeft: 5, marginTop: 2, opacity: 0.8 },
-});
 
 export default WorkoutHistoryScreen;

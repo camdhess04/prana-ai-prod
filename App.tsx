@@ -18,6 +18,9 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { StatusBar } from 'expo-status-bar';
 
 import { Amplify } from 'aws-amplify';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback, useEffect } from 'react';
 
 // --- Paste the JSON content directly as a JS object ---
 const amplifyconfig = {
@@ -59,6 +62,45 @@ const amplifyconfig = {
 console.log('🔧 Using INLINE Amplify config object');
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    'SpaceGrotesk-Regular': require('./assets/fonts/SpaceGrotesk-Regular.ttf'),
+    'SpaceGrotesk-Medium': require('./assets/fonts/SpaceGrotesk-Medium.ttf'),
+    'SpaceGrotesk-Bold': require('./assets/fonts/SpaceGrotesk-Bold.ttf'),
+    'IBMPlexMono-Regular': require('./assets/fonts/IBMPlexMono-Regular.ttf'),
+    'IBMPlexMono-Medium': require('./assets/fonts/IBMPlexMono-Medium.ttf'),
+    'IBMPlexMono-Bold': require('./assets/fonts/IBMPlexMono-Bold.ttf'),
+  });
+
+  // Add detailed font loading logs
+  useEffect(() => {
+    console.log('[Font Loading] fontsLoaded:', fontsLoaded);
+    if (fontError) {
+      console.error('[Font Loading] fontError:', JSON.stringify(fontError, null, 2));
+    }
+  }, [fontsLoaded, fontError]);
+
+  // Keep splash screen visible until fonts are loaded or an error occurs
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await SplashScreen.preventAutoHideAsync();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null; // Still loading fonts
+  }
+
   // Configure Amplify inside the component
   try {
     if (!amplifyconfig || typeof amplifyconfig !== 'object') { // Basic check
@@ -72,7 +114,7 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider onLayout={onLayoutRootView}>
       <ThemeProvider>
         <AuthProvider>
           <RootNavigator />

@@ -2,82 +2,95 @@ import React from 'react';
 import { TextInput, View, Text, StyleSheet, StyleProp, ViewStyle, TextStyle, TextInputProps } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 
-interface InputProps extends Omit<TextInputProps, 'onChangeText' | 'value' | 'style'> {
-  value: string;
-  onChangeText: (text: string) => void;
+interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  labelStyle?: StyleProp<TextStyle>;
   inputStyle?: StyleProp<TextStyle>;
+  errorStyle?: StyleProp<TextStyle>;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 }
 
 const Input: React.FC<InputProps> = ({
-  value,
-  onChangeText,
-  placeholder,
   label,
   error,
-  secureTextEntry = false,
-  keyboardType = 'default',
-  autoCapitalize = 'none',
   containerStyle,
+  labelStyle,
   inputStyle,
-  multiline = false,
-  numberOfLines = 1,
-  ...rest
+  errorStyle,
+  icon,
+  iconPosition = 'left',
+  ...textInputProps
 }) => {
   const { theme } = useAppTheme();
 
+  const styles = StyleSheet.create({
+    container: {
+      marginBottom: 16,
+    },
+    label: {
+      fontSize: 14,
+      fontFamily: theme.fontFamilyRegular,
+      color: theme.secondaryText,
+      marginBottom: 8,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderRadius: 10,
+      backgroundColor: theme.inputBackground,
+      borderColor: error ? theme.error : theme.borderColor,
+    },
+    input: {
+      flex: 1,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      fontSize: 16,
+      fontFamily: theme.fontFamilyMonoRegular,
+      color: theme.text,
+    },
+    iconWrapper: {
+      paddingHorizontal: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorText: {
+      fontSize: 12,
+      fontFamily: theme.fontFamilyRegular,
+      color: theme.error,
+      marginTop: 6,
+    },
+  });
+
+  const inputSpecificStyle: StyleProp<TextStyle> = [styles.input, inputStyle];
+  if (icon && iconPosition === 'left') {
+    inputSpecificStyle.push({ paddingLeft: 0 });
+  } else if (icon && iconPosition === 'right') {
+    inputSpecificStyle.push({ paddingRight: 0 });
+  }
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && <Text style={[styles.label, { color: theme.text }]}>{label}</Text>}
-      <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: theme.cardBackground,
-            color: theme.text,
-            borderColor: error ? theme.error : theme.borderColor,
-          },
-          multiline && { height: (theme.text === '#FFFFFF' ? 20 : 16) * numberOfLines + 24, textAlignVertical: 'top' },
-          inputStyle,
-        ]}
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={theme.secondaryText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize={autoCapitalize}
-        multiline={multiline}
-        numberOfLines={numberOfLines}
-        {...rest}
-      />
-      {error && <Text style={[styles.error, { color: theme.error }]}>{error}</Text>}
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      <View style={styles.inputContainer}>
+        {icon && iconPosition === 'left' && (
+          <View style={styles.iconWrapper}>{icon}</View>
+        )}
+        <TextInput
+          style={inputSpecificStyle}
+          placeholderTextColor={theme.tertiaryText}
+          {...textInputProps}
+        />
+        {icon && iconPosition === 'right' && (
+          <View style={styles.iconWrapper}>{icon}</View>
+        )}
+      </View>
+      {error && <Text style={[styles.errorText, errorStyle]}>{error}</Text>}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    fontSize: 16,
-  },
-  error: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-});
 
 export default Input; 

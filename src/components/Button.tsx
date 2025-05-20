@@ -1,19 +1,19 @@
 // src/components/Button.tsx
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, StyleProp, ViewStyle, TextStyle, View } from 'react-native'; // Added View
+import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, View, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'small' | 'medium' | 'large';
   isLoading?: boolean;
   disabled?: boolean;
+  icon?: React.ReactNode; // Allow an icon to be passed
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
-  icon?: React.ReactElement; // <-- ADDED: Optional icon element prop
-  iconPosition?: 'left' | 'right'; // <-- ADDED: Control icon position
+  fullWidth?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -23,107 +23,160 @@ const Button: React.FC<ButtonProps> = ({
   size = 'medium',
   isLoading = false,
   disabled = false,
+  icon,
   style,
   textStyle,
-  icon, // <-- Destructure icon
-  iconPosition = 'left', // <-- Default icon position to left
+  fullWidth = true, // Default to true for consistency, can be overridden
 }) => {
-  const { theme, themeMode } = useAppTheme();
+  const { theme } = useAppTheme();
 
-  // --- Style calculation functions (getButtonStyle, getTextStyle, etc.) remain the same ---
-  const getButtonStyle = (): ViewStyle => { /* ... same as before ... */
-    switch (variant) {
-        case 'primary': return { backgroundColor: theme.buttonPrimaryBackground, borderColor: theme.buttonPrimaryBackground };
-        case 'secondary': return { backgroundColor: theme.buttonSecondaryBackground, borderColor: theme.buttonSecondaryBackground };
-        case 'outline': return { backgroundColor: 'transparent', borderColor: theme.primary, borderWidth: 1 };
-        case 'ghost': return { backgroundColor: 'transparent', borderColor: 'transparent', borderWidth: 1 }; // Ensure border for layout consistency maybe? Or keep transparent?
-        default: return { backgroundColor: theme.buttonPrimaryBackground, borderColor: theme.buttonPrimaryBackground };
-    }
-  };
-  const getTextStyle = (): TextStyle => { /* ... same as before ... */
-     switch (variant) {
-        case 'primary': return { color: theme.buttonPrimaryText };
-        case 'secondary': return { color: theme.buttonSecondaryText };
-        case 'outline': case 'ghost': return { color: theme.primary };
-        default: return { color: theme.buttonPrimaryText };
-     }
-  };
-  const getSizeStyle = (): ViewStyle => { /* ... same as before ... */
-     switch (size) {
-        case 'small': return { paddingVertical: 8, paddingHorizontal: 12, gap: 4 }; // Add gap for icon
-        case 'medium': return { paddingVertical: 12, paddingHorizontal: 16, gap: 6 }; // Add gap for icon
-        case 'large': return { paddingVertical: 16, paddingHorizontal: 24, gap: 8 }; // Add gap for icon
-        default: return { paddingVertical: 12, paddingHorizontal: 16, gap: 6 };
-    }
-  };
-  const getFontSize = (): TextStyle => { /* ... same as before ... */
-     switch (size) {
-         case 'small': return { fontSize: 14 };
-         case 'medium': return { fontSize: 16 };
-         case 'large': return { fontSize: 18 };
-         default: return { fontSize: 16 };
-     }
-  };
-  // --- ---
+  const styles = StyleSheet.create({
+    containerBase: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10, // Slightly more rounded
+      borderWidth: 1.5, // Consistent border width for outline/ghost
+      opacity: disabled ? 0.6 : 1,
+    },
+    textBase: {
+      fontWeight: '600', // Medium weight for button text
+      marginLeft: icon && title ? (size === 'small' ? 6 : 8) : 0, // Space if icon AND title exist
+      // marginRight: icon && title ? (size === 'small' ? 6 : 8) : 0, // Removed to allow icon-only buttons to not have extra margin if text is empty
+    },
+    // Sizes
+    smallContainer: { paddingVertical: 8, paddingHorizontal: 14 },
+    mediumContainer: { paddingVertical: 12, paddingHorizontal: 20 }, 
+    largeContainer: { paddingVertical: 16, paddingHorizontal: 28 },
+    smallText: { fontSize: 13, fontFamily: theme.fontFamilyMedium }, // Use theme font
+    mediumText: { fontSize: 15, fontFamily: theme.fontFamilyMedium }, // Use theme font
+    largeText: { fontSize: 17, fontFamily: theme.fontFamilyMedium }, // Use theme font
 
-  const buttonStyles: StyleProp<ViewStyle> = [
-    styles.button,
-    getButtonStyle(),
-    getSizeStyle(),
-    (isLoading || disabled) && styles.disabled,
-    style,
-    // Adjust flexDirection based on icon position
-    { flexDirection: iconPosition === 'right' ? 'row-reverse' : 'row' }
-  ];
+    // Variants - Light Theme Specifics handled by theme colors
+    primaryContainer: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    primaryText: {
+      color: theme.primaryButtonText,
+    },
+    secondaryContainer: {
+      backgroundColor: theme.secondary,
+      borderColor: theme.secondary,
+    },
+    secondaryText: {
+      color: theme.secondaryButtonText,
+    },
+    outlineContainer: {
+      backgroundColor: 'transparent',
+      borderColor: theme.primary, // Outline uses primary color for border
+    },
+    outlineText: {
+      color: theme.primary, // Outline uses primary color for text
+    },
+    ghostContainer: {
+      backgroundColor: 'transparent',
+      borderColor: 'transparent',
+    },
+    ghostText: {
+      color: theme.primary, // Ghost uses primary color for text
+    },
+    dangerContainer: {
+      backgroundColor: theme.error,
+      borderColor: theme.error,
+    },
+    dangerText: {
+      color: theme.primaryButtonText, // Assuming white text on danger buttons
+    },
+    fullWidth: {
+      width: '100%',
+    },
+    autoWidth: {
+      alignSelf: 'flex-start', // Or 'center', 'flex-end' as needed
+    },
+  });
 
-  const textStyles: StyleProp<TextStyle> = [
-    styles.text,
-    getTextStyle(),
-    getFontSize(),
-    textStyle,
-  ];
+  const containerStyles: StyleProp<ViewStyle>[] = [styles.containerBase];
+  const textStylesArray: StyleProp<TextStyle>[] = [styles.textBase]; // Renamed to avoid conflict with prop
 
-  const indicatorColor = variant === 'primary' ? theme.buttonPrimaryText : theme.primary;
+  // Apply size styles
+  switch (size) {
+    case 'small':
+      containerStyles.push(styles.smallContainer);
+      textStylesArray.push(styles.smallText);
+      break;
+    case 'large':
+      containerStyles.push(styles.largeContainer);
+      textStylesArray.push(styles.largeText);
+      break;
+    default: // medium
+      containerStyles.push(styles.mediumContainer);
+      textStylesArray.push(styles.mediumText);
+      break;
+  }
+
+  // Apply variant styles
+  switch (variant) {
+    case 'primary':
+      containerStyles.push(styles.primaryContainer);
+      textStylesArray.push(styles.primaryText);
+      break;
+    case 'secondary':
+      containerStyles.push(styles.secondaryContainer);
+      textStylesArray.push(styles.secondaryText);
+      break;
+    case 'outline':
+      containerStyles.push(styles.outlineContainer);
+      textStylesArray.push(styles.outlineText);
+      break;
+    case 'ghost':
+      containerStyles.push(styles.ghostContainer);
+      textStylesArray.push(styles.ghostText);
+      break;
+    case 'danger':
+      containerStyles.push(styles.dangerContainer);
+      textStylesArray.push(styles.dangerText);
+      break;
+  }
+  
+  if (fullWidth) {
+    containerStyles.push(styles.fullWidth);
+  } else {
+    containerStyles.push(styles.autoWidth);
+  }
+
+  // Apply external styles
+  if (style) containerStyles.push(style);
+  if (textStyle) textStylesArray.push(textStyle); // Apply to the array
+
+  // Determine color for ActivityIndicator based on button variant
+  let indicatorColor = theme.primary;
+  if (variant === 'primary' || variant === 'secondary' || variant === 'danger') {
+    indicatorColor = theme.primaryButtonText;
+  }
+  
+  // Add marginRight to icon if title also exists to ensure spacing
+  const iconWithMargin = icon && title && React.isValidElement(icon) ? 
+    React.cloneElement(icon as React.ReactElement<any>, { style: { marginRight: size === 'small' ? 6 : 8 } }) 
+    : icon;
 
   return (
     <TouchableOpacity
-      style={buttonStyles}
+      style={containerStyles}
       onPress={onPress}
-      disabled={isLoading || disabled}
-      activeOpacity={0.8}
+      disabled={disabled || isLoading}
+      activeOpacity={0.75} // Slightly adjusted active opacity
     >
       {isLoading ? (
-        <ActivityIndicator color={indicatorColor} />
+        <ActivityIndicator size={size === 'small' ? 'small' : 'small'} color={indicatorColor} />
       ) : (
         <>
-          {/* Render icon if provided */}
-          {icon}
-          {/* Render text title */}
-          <Text style={textStyles}>{title}</Text>
+          {iconWithMargin}
+          {title && <Text style={textStylesArray}>{title}</Text>} 
         </>
       )}
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    // Keep as row by default, let prop handle reverse
-    // flexDirection: 'row', // Set dynamically now
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1, // Base border width, color/style set by variants
-    // gap is set dynamically by size now
-  },
-  text: {
-    fontWeight: '600',
-    textAlign: 'center',
-    // Margin between icon/text handled by 'gap' style in getSizeStyle
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-});
 
 export default Button;

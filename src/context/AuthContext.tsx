@@ -13,13 +13,21 @@ import { signIn, signUp, signOut, getCurrentUser, confirmSignUp, resendSignUpCod
 import { Hub } from 'aws-amplify/utils';
 import type { AuthUser, SignInOutput, SignUpOutput, ConfirmSignUpOutput, ResendSignUpCodeOutput, FetchUserAttributesOutput } from 'aws-amplify/auth';
 import profileService from '../services/profileService';
+import type { UserProfile } from '../types/profile'; // Assuming UserProfile type includes nickname
 // --- --- --- --- --- --- --- ---
 
 // Define possible onboarding statuses
 type OnboardingStatus = 'checking' | 'needed' | 'complete';
 
+// Extend with profile data, including optional nickname
+interface UserProfileData {
+    nickname?: string | null;
+    // other profile fields can be added here if needed in context
+}
+
 interface AuthContextType {
     user: AuthUser | null;
+    userProfile: UserProfileData | null; // To hold nickname and other profile details
     isLoading: boolean;
     onboardingStatus: OnboardingStatus;
     signIn: (username: string, password: string) => Promise<void>;
@@ -30,6 +38,7 @@ interface AuthContextType {
     fetchCurrentSession: () => Promise<any>;
     fetchCurrentUserAttributes: () => Promise<FetchUserAttributesOutput>;
     markOnboardingComplete: () => void;
+    updateUserProfileData: (newData: Partial<UserProfileData>) => Promise<void>; // For updating nickname etc.
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -40,6 +49,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<AuthUser | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>('checking');
 
@@ -53,17 +63,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(authenticatedUser);
 
             console.log('AUTH_CONTEXT: Checking user profile...');
-            const profile = await profileService.getUserProfile(authenticatedUser.userId);
+            // Assuming profileService.getUserProfile returns a UserProfile compatible object
+            const profile: UserProfile | null = await profileService.getUserProfile(authenticatedUser.userId);
             if (profile) {
                 console.log('AUTH_CONTEXT: Profile found. Onboarding complete.');
+                setUserProfile({ nickname: profile.nickname }); // Extract nickname
                 setOnboardingStatus('complete');
             } else {
                 console.log('AUTH_CONTEXT: Profile NOT found. Onboarding needed.');
+                setUserProfile(null);
                 setOnboardingStatus('needed');
             }
         } catch (error) {
             console.log('AUTH_CONTEXT: No authenticated user found.');
             setUser(null);
+            setUserProfile(null);
             setOnboardingStatus('needed');
         } finally {
             // Only set loading to false on initial load
@@ -88,6 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     break;
                 case 'signedOut':
                     setUser(null);
+                    setUserProfile(null);
                     setOnboardingStatus('needed');
                     break;
             }
@@ -100,6 +115,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const markOnboardingComplete = () => {
         console.log("AUTH_CONTEXT: Marking onboarding as complete.");
         setOnboardingStatus('complete');
+        if(user) checkUserAndProfile(); // Re-check to load profile data including nickname
+    };
+
+    const handleUpdateUserProfileData = async (newData: Partial<UserProfileData>) => {
+        if (!user || !user.userId) {
+            console.error("AUTH_CONTEXT: No user to update profile for.");
+            throw new Error("User not authenticated.");
+        }
+        try {
+            console.log('AUTH_CONTEXT: Updating user profile data with:', newData);
+            // Stage B: Persist to backend via profileService
+            // For now, profileService.updateUserProfile might not exist or not handle all partial updates.
+            // We'll assume it takes the userId and the fields to update.
+            // e.g., await profileService.updateUserProfile(user.userId, { nickname: newData.nickname });
+            
+            // For Stage A, just update local state
+            setUserProfile(prevProfile => ({ ...prevProfile, ...newData }));
+            console.log('AUTH_CONTEXT: Local user profile data updated.');
+            
+            // Placeholder for actual backend update call - to be fully implemented in Stage B
+            if (newData.nickname !== undefined) { // Example: only call service if nickname changes
+                 // await profileService.updateUserProfile(user.userId, { nickname: newData.nickname });
+                 console.log("AUTH_CONTEXT: Backend update for nickname would be called here.");
+            }
+
+        } catch (error) {
+            console.error('AUTH_CONTEXT: Error updating user profile data:', error);
+            throw error; // Re-throw for the UI to handle
+        }
     };
 
     const handleSignIn = async (username: string, password: string): Promise<void> => {
@@ -219,6 +263,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const contextValue: AuthContextType = {
         user,
+        userProfile,
         isLoading,
         onboardingStatus,
         signIn: handleSignIn,
@@ -229,6 +274,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         fetchCurrentSession: handleFetchSession,
         fetchCurrentUserAttributes: handleFetchUserAttributes,
         markOnboardingComplete,
+        updateUserProfileData: handleUpdateUserProfileData,
     };
 
     return (
