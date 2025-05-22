@@ -17,6 +17,7 @@ export const createUserProfile = /* GraphQL */ `mutation CreateUserProfile(
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -53,6 +54,7 @@ export const updateUserProfile = /* GraphQL */ `mutation UpdateUserProfile(
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -89,6 +91,7 @@ export const deleteUserProfile = /* GraphQL */ `mutation DeleteUserProfile(
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -366,6 +369,9 @@ export const createWorkoutSession = /* GraphQL */ `mutation CreateWorkoutSession
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name
@@ -397,6 +403,9 @@ export const updateWorkoutSession = /* GraphQL */ `mutation UpdateWorkoutSession
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name
@@ -428,6 +437,9 @@ export const deleteWorkoutSession = /* GraphQL */ `mutation DeleteWorkoutSession
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name

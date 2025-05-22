@@ -55,19 +55,27 @@ export type Exercise = {
     updatedAt?: string;           // ISO date string
   };
   
-  // Represents a completed workout session logged by the user
+  // Represents a workout session logged by the user
+  // Updated for V1.6 Pause/Resume Feature
   export type WorkoutSession = {
     id: string;
     userId: string;
-    templateId?: string | null;         // ID of the WorkoutTemplate used, if any
-    scheduledWorkoutId?: string | null; // ID of the ScheduledWorkout item, if started from schedule
-    name: string;                     // Name of the workout (e.g., "AI Upper Body A" or "Morning Run")
-    exercises: SessionExercise[];     // Uses the SessionExercise type
-    duration?: number | null;          // Duration in seconds
-    completedAt: string;              // ISO date string when the session was completed/saved
+    templateId?: string | null;
+    scheduledWorkoutId?: string | null;
+    name: string;
+
+    status: WorkoutStatus; // REQUIRED: Tracks the session lifecycle
+    currentElapsedTime?: number | null; // Stores total active elapsed time (in seconds) when IN_PROGRESS or PAUSED
+    currentExercisesState?: string | null; // Stores the full 'logExercises' array (JSON string) for IN_PROGRESS/PAUSED state
+
+    exercises?: SessionExercise[] | null;    // OPTIONAL: Final exercise list for COMPLETED state
+    duration?: number | null;             // OPTIONAL: Total duration for COMPLETED state
+    completedAt?: string | null;          // OPTIONAL: Timestamp for COMPLETED state
+    
     owner?: string | null;
-    createdAt?: string;               // ISO date string
-    updatedAt?: string;               // ISO date string
+    createdAt?: string;              
+    updatedAt?: string;               
+    _version: number; // Added for consistency management
   };
   
   // Represents a user's profile information
@@ -105,3 +113,15 @@ export type Exercise = {
     isFinalData?: boolean; // Flag if this AI message contains the final profile JSON
     parsedData?: UserProfile | any | null; // To hold parsed profile or plan
   };
+
+// V1.6 Additions for Pause/Resume Feature
+export const WorkoutStatusValues = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  PAUSED: 'PAUSED',
+  COMPLETED: 'COMPLETED',
+} as const; // 'as const' makes it a true enum-like object
+
+export type WorkoutStatus = typeof WorkoutStatusValues[keyof typeof WorkoutStatusValues];
+
+// If you have a local WorkoutSession type, it would be updated here.
+// For now, we are only adding the WorkoutStatus type.

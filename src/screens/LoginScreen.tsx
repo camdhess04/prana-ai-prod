@@ -67,6 +67,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 onChangeText={setPassword}
                 placeholder="Enter your password"
                 secureTextEntry
+                autoCorrect={false}
+                spellCheck={false}
                 containerStyle={styles.inputContainer}
             />
 

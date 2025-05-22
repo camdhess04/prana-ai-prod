@@ -102,6 +102,7 @@ const saveUserProfile = async (
         username: username,       // Store Cognito username (email)
         ...(username.includes('@') ? { email: username } : {}), // Only include email if it looks like one
         name: profileData.name || null, // Use parsed name or null
+        nickname: profileData.nickname || null, // ADDED NICKNAME
         onboardingLevel: profileData.onboardingLevel || null,
         heightCm: profileData.heightCm, // Should be number | null
         weightKg: profileData.weightKg, // Should be number | null

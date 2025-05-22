@@ -158,6 +158,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         onChangeText={setConfirmationCode}
                         placeholder="Enter 6-digit code"
                         keyboardType="numeric"
+                        autoCorrect={false}
+                        spellCheck={false}
                         containerStyle={styles.inputContainer}
                     />
 
@@ -205,6 +207,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         onChangeText={setPassword}
                         placeholder="Create a password (min. 8 characters)"
                         secureTextEntry
+                        autoCorrect={false}
+                        spellCheck={false}
                         containerStyle={styles.inputContainer}
                     />
                     <Input
@@ -213,6 +217,8 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
                         onChangeText={setConfirmPassword}
                         placeholder="Enter your password again"
                         secureTextEntry
+                        autoCorrect={false}
+                        spellCheck={false}
                         containerStyle={styles.inputContainer}
                     />
 

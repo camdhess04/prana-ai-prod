@@ -18,6 +18,7 @@ export const getUserProfile = /* GraphQL */ `query GetUserProfile($id: ID!) {
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -56,6 +57,7 @@ export const listUserProfiles = /* GraphQL */ `query ListUserProfiles(
       username
       name
       email
+      nickname
       onboardingLevel
       heightCm
       weightKg
@@ -104,6 +106,7 @@ export const syncUserProfiles = /* GraphQL */ `query SyncUserProfiles(
       username
       name
       email
+      nickname
       onboardingLevel
       heightCm
       weightKg
@@ -407,6 +410,9 @@ export const getWorkoutSession = /* GraphQL */ `query GetWorkoutSession($id: ID!
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name
@@ -440,6 +446,9 @@ export const listWorkoutSessions = /* GraphQL */ `query ListWorkoutSessions(
       templateId
       scheduledWorkoutId
       name
+      status
+      currentElapsedTime
+      currentExercisesState
       duration
       completedAt
       owner
@@ -477,6 +486,9 @@ export const syncWorkoutSessions = /* GraphQL */ `query SyncWorkoutSessions(
       templateId
       scheduledWorkoutId
       name
+      status
+      currentElapsedTime
+      currentExercisesState
       duration
       completedAt
       owner
@@ -715,7 +727,7 @@ export const templatesByUserId = /* GraphQL */ `query TemplatesByUserId(
 >;
 export const sessionsByUserId = /* GraphQL */ `query SessionsByUserId(
   $userId: ID!
-  $completedAt: ModelStringKeyConditionInput
+  $updatedAt: ModelStringKeyConditionInput
   $sortDirection: ModelSortDirection
   $filter: ModelWorkoutSessionFilterInput
   $limit: Int
@@ -723,7 +735,7 @@ export const sessionsByUserId = /* GraphQL */ `query SessionsByUserId(
 ) {
   sessionsByUserId(
     userId: $userId
-    completedAt: $completedAt
+    updatedAt: $updatedAt
     sortDirection: $sortDirection
     filter: $filter
     limit: $limit
@@ -735,6 +747,9 @@ export const sessionsByUserId = /* GraphQL */ `query SessionsByUserId(
       templateId
       scheduledWorkoutId
       name
+      status
+      currentElapsedTime
+      currentExercisesState
       duration
       completedAt
       owner

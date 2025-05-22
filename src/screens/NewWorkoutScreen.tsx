@@ -1,6 +1,6 @@
 // src/screens/NewWorkoutScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -150,60 +150,65 @@ const NewWorkoutScreen: React.FC<NewWorkoutScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.screenTitle}>Create New Template</Text>
-        <Text style={styles.screenSubtitle}>Design your custom workout plan. Add exercises and set your targets.</Text>
-        
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Template Name</Text>
-          <Input value={workoutName} onChangeText={setWorkoutName} placeholder="e.g., Leg Day Annihilation" />
-        </View>
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Description (Optional)</Text>
-          <Input value={description} onChangeText={setDescription} placeholder="e.g., Quads, hams, glutes, and calves focus." multiline />
-        </View>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        style={{ flex: 1 }}
+        // keyboardVerticalOffset={Platform.OS === 'ios' ? YOUR_HEADER_HEIGHT : 0} // Adjust if there's a header
+      >
+        <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.screenTitle}>Create New Template</Text>
+          <Text style={styles.screenSubtitle}>Design your custom workout plan. Add exercises and set your targets.</Text>
+          
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Template Name</Text>
+            <Input value={workoutName} onChangeText={setWorkoutName} placeholder="e.g., Leg Day Annihilation" />
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Description (Optional)</Text>
+            <Input value={description} onChangeText={setDescription} placeholder="e.g., Quads, hams, glutes, and calves focus." multiline />
+          </View>
 
-        {exercises.map((exercise, index) => (
-          <Card key={exercise.id} style={styles.exerciseCard}>
-            <View style={styles.exerciseHeader}>
-              <Text style={styles.exerciseTitle}>Exercise {index + 1}</Text>
-              {exercises.length > 1 && (
-                <TouchableOpacity onPress={() => removeExercise(exercise.id)} hitSlop={{top:10, bottom:10, left:10, right:10}}>
-                    <Trash2 size={20} color={theme.error} />
-                </TouchableOpacity>
-              )}
-            </View>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Exercise Name</Text>
-              <Input value={exercise.name} onChangeText={(value) => updateExerciseField(exercise.id, 'name', value)} placeholder="e.g., Barbell Squats" />
-            </View>
-            <View style={styles.row}>
-              <View style={[styles.fieldGroup, styles.inputInRow]}>
-                <Text style={styles.label}>Sets</Text>
-                <Input value={String(exercise.sets ?? '')} onChangeText={(value) => updateExerciseField(exercise.id, 'sets', value)} placeholder="e.g., 3" keyboardType="numeric" />
+          {exercises.map((exercise, index) => (
+            <Card key={exercise.id} style={styles.exerciseCard}>
+              <View style={styles.exerciseHeader}>
+                <Text style={styles.exerciseTitle}>Exercise {index + 1}</Text>
+                {exercises.length > 1 && (
+                  <TouchableOpacity onPress={() => removeExercise(exercise.id)} hitSlop={{top:10, bottom:10, left:10, right:10}}>
+                      <Trash2 size={20} color={theme.error} />
+                  </TouchableOpacity>
+                )}
               </View>
-              <View style={[styles.fieldGroup, styles.inputInRow]}>
-                <Text style={styles.label}>Reps</Text>
-                <Input value={String(exercise.reps ?? '')} onChangeText={(value) => updateExerciseField(exercise.id, 'reps', value)} placeholder="e.g., 10" keyboardType="numeric" />
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Exercise Name</Text>
+                <Input value={exercise.name} onChangeText={(value) => updateExerciseField(exercise.id, 'name', value)} placeholder="e.g., Barbell Squats" />
               </View>
-            </View>
-            <View style={styles.row}>
-              <View style={[styles.fieldGroup, styles.inputInRow]}>
-                <Text style={styles.label}>Weight (kg/lb)</Text>
-                <Input value={String(exercise.weight || '')} onChangeText={(value) => updateExerciseField(exercise.id, 'weight', value)} placeholder="e.g., 100" keyboardType="numeric" />
+              <View style={styles.row}>
+                <View style={[styles.fieldGroup, styles.inputInRow]}>
+                  <Text style={styles.label}>Sets</Text>
+                  <Input value={String(exercise.sets ?? '')} onChangeText={(value) => updateExerciseField(exercise.id, 'sets', value)} placeholder="e.g., 3" keyboardType="numeric" autoCorrect={false} spellCheck={false} />
+                </View>
+                <View style={[styles.fieldGroup, styles.inputInRow]}>
+                  <Text style={styles.label}>Reps</Text>
+                  <Input value={String(exercise.reps ?? '')} onChangeText={(value) => updateExerciseField(exercise.id, 'reps', value)} placeholder="e.g., 10" keyboardType="numeric" autoCorrect={false} spellCheck={false} />
+                </View>
               </View>
-              <View style={[styles.fieldGroup, styles.inputInRow]}>
-                <Text style={styles.label}>Rest (sec)</Text>
-                <Input value={String(exercise.restPeriod || '')} onChangeText={(value) => updateExerciseField(exercise.id, 'restPeriod', value)} placeholder="e.g., 90" keyboardType="numeric" />
+              <View style={styles.row}>
+                <View style={[styles.fieldGroup, styles.inputInRow]}>
+                  <Text style={styles.label}>Weight (kg/lb)</Text>
+                  <Input value={String(exercise.weight || '')} onChangeText={(value) => updateExerciseField(exercise.id, 'weight', value)} placeholder="e.g., 100" keyboardType="numeric" autoCorrect={false} spellCheck={false} />
+                </View>
+                <View style={[styles.fieldGroup, styles.inputInRow]}>
+                  <Text style={styles.label}>Rest (sec)</Text>
+                  <Input value={String(exercise.restPeriod || '')} onChangeText={(value) => updateExerciseField(exercise.id, 'restPeriod', value)} placeholder="e.g., 90" keyboardType="numeric" autoCorrect={false} spellCheck={false} />
+                </View>
               </View>
-            </View>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Notes (Optional)</Text>
-              <Input value={exercise.note || ''} onChangeText={(value) => updateExerciseField(exercise.id, 'note', value)} placeholder="e.g., Focus on depth" multiline />
-            </View>
-          </Card>
-        ))}
-        <View style={styles.actionButtonRow}>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Notes (Optional)</Text>
+                <Input value={exercise.note || ''} onChangeText={(value) => updateExerciseField(exercise.id, 'note', value)} placeholder="e.g., Focus on depth" multiline />
+              </View>
+            </Card>
+          ))}
+          <View style={styles.actionButtonRow}>
             <Button 
                 title="Add Exercise" 
                 variant="outline" 
@@ -222,8 +227,9 @@ const NewWorkoutScreen: React.FC<NewWorkoutScreenProps> = ({ navigation }) => {
                 textStyle={styles.buttonText} 
                 fullWidth={false}
             />
-        </View>
-      </ScrollView>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

@@ -35,6 +35,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         multiline
         editable={!isLoading}
         selectionColor={theme.primary}
+        autoCorrect={true}
+        spellCheck={true}
       />
       <TouchableOpacity
         style={[styles.sendButton, { backgroundColor: isLoading || !value.trim() ? theme.secondaryText : theme.primary }]}

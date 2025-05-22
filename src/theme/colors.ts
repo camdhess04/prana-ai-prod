@@ -71,6 +71,59 @@ const blueTerminalPalette = {
   lightBorder: '#C0D8F0',
 };
 
+// --- NEW PALETTES ---
+const springPeachPalette = {
+  bg: '#FFF5EE', // Seashell
+  card: '#FFFFFF',
+  text: '#7D4F34', // Darker, warm brown
+  primaryAccent: '#FF8C69', // Coral Peach
+  secondaryAccent: '#FFA07A', // Light Salmon
+  buttonTextOnPrimary: '#FFFFFF',
+  borderColor: '#FFDAB9', // Peach Puff
+};
+
+const springPinkPalette = {
+  bg: '#FFF0F5', // Lavender Blush
+  card: '#FFFFFF',
+  text: '#5C374C', // Dark Plum for primary text
+  primaryAccent: '#FF69B4', // Hot Pink
+  secondaryAccent: '#DB7093', // Pale Violet Red
+  buttonTextOnPrimary: '#FFFFFF',
+  buttonTextOnSecondary: '#FFFFFF', // Assuming white text on Pale Violet Red
+  accentText: '#C71585', // Medium Violet Red for accents
+  borderColor: '#FFD9E5',
+};
+
+const springYellowPalette = {
+  bg: '#FFFFF0', // Ivory
+  card: '#FFFFFF',
+  text: '#8B4513', // Saddle Brown
+  primaryAccent: '#FFD700', // Gold
+  secondaryAccent: '#F0E68C', // Khaki
+  buttonTextOnPrimary: '#8B4513', // Saddle Brown text on Gold
+  buttonTextOnSecondary: '#8B4513', // Saddle Brown text on Khaki
+  borderColor: '#FFFACD', // Lemon Chiffon
+};
+
+const grayscalePalette = {
+  lightBg: '#F5F5F5',
+  lightCard: '#FFFFFF',
+  lightText: '#212121',
+  lightAccent: '#616161', // Medium grey (Primary buttons)
+  lightSecondaryAccent: '#9E9E9E', // Lighter medium grey (Secondary buttons)
+  lightButtonTextOnPrimary: '#FFFFFF',
+  lightButtonTextOnSecondary: '#212121',
+  lightBorder: '#E0E0E0',
+  darkBg: '#1C1C1C',
+  darkCard: '#2E2E2E',
+  darkText: '#EAEAEA',
+  darkAccent: '#757575', // Medium grey (Primary buttons)
+  darkSecondaryAccent: '#424242', // Darker Grey (Secondary buttons)
+  darkButtonTextOnPrimary: '#1C1C1C',
+  darkButtonTextOnSecondary: '#EAEAEA',
+  darkBorder: '#424242',
+};
+
 // --- Font Definitions (remains the same) ---
 export const fonts = {
   spaceGroteskRegular: FONT_FAMILY_REGULAR,
@@ -139,7 +192,7 @@ export const classyLightTheme = createThemeObject({
   secondaryText: classyPalette.lightTextSecondary,
   tertiaryText: classyPalette.lightTextSecondary + '99',
   primaryButtonText: classyPalette.pureWhite,
-  secondaryButtonText: classyPalette.accentPortRed, // Text color for secondary button on lightCard bg
+  secondaryButtonText: classyPalette.pureWhite,
   borderColor: classyPalette.lightBorder,
   disabled: classyPalette.lightTextSecondary + '77',
   error: classyPalette.errorRed,
@@ -178,16 +231,15 @@ export const greenLightTheme = createThemeObject({
   text: greenTerminalPalette.lightText,
   secondaryText: greenTerminalPalette.lightSecondaryText,
   tertiaryText: greenTerminalPalette.lightSecondaryText + '99',
-  primaryButtonText: classyPalette.pureWhite, // Keep white text on solid green buttons
-  secondaryButtonText: greenTerminalPalette.lightAccent, // Green text for secondary on lightCard
+  primaryButtonText: classyPalette.pureWhite,
+  secondaryButtonText: classyPalette.pureWhite,
   borderColor: greenTerminalPalette.lightBorder,
   disabled: greenTerminalPalette.lightSecondaryText + '77',
   error: classyPalette.errorRed,
-  success: classyPalette.successGreen, // Standard error/success for now
+  success: classyPalette.successGreen,
   warning: '#FFA000',
   statusBar: 'dark-content',
-  // Override chat bubble for terminal feel
-  chatBubbleAI: greenTerminalPalette.lightBorder + 'BF', // Slightly transparent lighter green
+  chatBubbleAI: greenTerminalPalette.lightBorder + 'BF',
   chatBubbleAIText: greenTerminalPalette.lightText,
 });
 
@@ -215,16 +267,16 @@ export const greenDarkTheme = createThemeObject({
 
 // --- Blue Terminal Theme Definitions ---
 export const blueLightTheme = createThemeObject({
-  primary: blueTerminalPalette.lightAccent,
-  secondary: blueTerminalPalette.lightSecondaryText,
+  primary: blueTerminalPalette.lightAccent,        // e.g., #1F6FEB (strong blue)
+  secondary: blueTerminalPalette.lightSecondaryText, // e.g., #2C5080 (darker/desaturated blue)
   background: blueTerminalPalette.lightBg,
-  cardBackground: blueTerminalPalette.lightCard,
+  cardBackground: blueTerminalPalette.lightCard,   // #FFFFFF (white)
   inputBackground: blueTerminalPalette.lightCard,
-  text: blueTerminalPalette.lightText,
+  text: blueTerminalPalette.lightText,             // #030A14 (dark blue/black)
   secondaryText: blueTerminalPalette.lightSecondaryText,
   tertiaryText: blueTerminalPalette.lightSecondaryText + '99',
   primaryButtonText: classyPalette.pureWhite,
-  secondaryButtonText: blueTerminalPalette.lightAccent,
+  secondaryButtonText: classyPalette.pureWhite,
   borderColor: blueTerminalPalette.lightBorder,
   disabled: blueTerminalPalette.lightSecondaryText + '77',
   error: classyPalette.errorRed,
@@ -244,7 +296,7 @@ export const blueDarkTheme = createThemeObject({
   text: blueTerminalPalette.darkText,
   secondaryText: blueTerminalPalette.darkSecondaryText,
   tertiaryText: blueTerminalPalette.darkSecondaryText + '99',
-  primaryButtonText: blueTerminalPalette.darkBg, // Dark text on bright blue buttons
+  primaryButtonText: blueTerminalPalette.darkBg,
   secondaryButtonText: blueTerminalPalette.darkText,
   borderColor: blueTerminalPalette.darkBorder,
   disabled: blueTerminalPalette.darkSecondaryText + '77',
@@ -254,6 +306,112 @@ export const blueDarkTheme = createThemeObject({
   statusBar: 'light-content',
   chatBubbleAI: blueTerminalPalette.darkCard,
   chatBubbleAIText: blueTerminalPalette.darkText,
+});
+
+// --- NEW THEME OBJECTS ---
+
+// Peach Themes
+export const peachLightTheme = createThemeObject({
+  primary: springPeachPalette.primaryAccent,
+  secondary: springPeachPalette.secondaryAccent,
+  accent: springPeachPalette.primaryAccent, // Can be same as primary or different
+  background: springPeachPalette.bg,
+  cardBackground: springPeachPalette.card,
+  inputBackground: springPeachPalette.card,
+  text: springPeachPalette.text,
+  secondaryText: springPeachPalette.text + 'AA',
+  tertiaryText: springPeachPalette.text + '88',
+  primaryButtonText: springPeachPalette.buttonTextOnPrimary,
+  secondaryButtonText: springPeachPalette.buttonTextOnPrimary, // Assuming primary color text on secondary accent buttons
+  borderColor: springPeachPalette.borderColor,
+  disabled: springPeachPalette.text + '55',
+  error: classyPalette.errorRed,
+  success: classyPalette.successGreen,
+  warning: '#FFA000',
+  statusBar: 'dark-content',
+});
+
+// Pink Themes
+export const pinkLightTheme = createThemeObject({
+  primary: springPinkPalette.primaryAccent,
+  secondary: springPinkPalette.secondaryAccent,
+  accent: springPinkPalette.accentText, 
+  background: springPinkPalette.bg,
+  cardBackground: springPinkPalette.card,
+  inputBackground: springPinkPalette.card,
+  text: springPinkPalette.text,
+  secondaryText: springPinkPalette.text + 'AA',
+  tertiaryText: springPinkPalette.text + '88',
+  primaryButtonText: springPinkPalette.buttonTextOnPrimary,
+  secondaryButtonText: springPinkPalette.buttonTextOnSecondary,
+  borderColor: springPinkPalette.borderColor,
+  disabled: springPinkPalette.text + '55',
+  error: classyPalette.errorRed,
+  success: classyPalette.successGreen,
+  warning: '#FFA000',
+  statusBar: 'dark-content',
+});
+
+// Yellow Themes
+export const yellowLightTheme = createThemeObject({
+  primary: springYellowPalette.primaryAccent,
+  secondary: springYellowPalette.secondaryAccent,
+  accent: springYellowPalette.primaryAccent,
+  background: springYellowPalette.bg,
+  cardBackground: springYellowPalette.card,
+  inputBackground: springYellowPalette.card,
+  text: springYellowPalette.text,
+  secondaryText: springYellowPalette.text + 'AA',
+  tertiaryText: springYellowPalette.text + '88',
+  primaryButtonText: springYellowPalette.buttonTextOnPrimary,
+  secondaryButtonText: springYellowPalette.buttonTextOnSecondary,
+  borderColor: springYellowPalette.borderColor,
+  disabled: springYellowPalette.text + '55',
+  error: classyPalette.errorRed,
+  success: classyPalette.successGreen,
+  warning: '#FFA000',
+  statusBar: 'dark-content',
+});
+
+// Grayscale Themes
+export const grayscaleLightTheme = createThemeObject({
+  primary: grayscalePalette.lightAccent,
+  secondary: grayscalePalette.lightSecondaryAccent,
+  accent: grayscalePalette.lightAccent, 
+  background: grayscalePalette.lightBg,
+  cardBackground: grayscalePalette.lightCard,
+  inputBackground: grayscalePalette.lightCard,
+  text: grayscalePalette.lightText,
+  secondaryText: grayscalePalette.lightSecondaryAccent,
+  tertiaryText: grayscalePalette.lightSecondaryAccent + '99',
+  primaryButtonText: grayscalePalette.lightButtonTextOnPrimary,
+  secondaryButtonText: grayscalePalette.lightButtonTextOnSecondary,
+  borderColor: grayscalePalette.lightBorder,
+  disabled: grayscalePalette.lightSecondaryAccent + '77',
+  error: classyPalette.errorRed,
+  success: classyPalette.successGreen,
+  warning: '#FFA000',
+  statusBar: 'dark-content',
+});
+
+export const grayscaleDarkTheme = createThemeObject({
+  primary: grayscalePalette.darkAccent,
+  secondary: grayscalePalette.darkSecondaryAccent,
+  accent: grayscalePalette.darkAccent, 
+  background: grayscalePalette.darkBg,
+  cardBackground: grayscalePalette.darkCard,
+  inputBackground: grayscalePalette.darkCard, // Or darkBorder for more contrast
+  text: grayscalePalette.darkText,
+  secondaryText: grayscalePalette.darkSecondaryAccent,
+  tertiaryText: grayscalePalette.darkSecondaryAccent + '99',
+  primaryButtonText: grayscalePalette.darkButtonTextOnPrimary,
+  secondaryButtonText: grayscalePalette.darkButtonTextOnSecondary,
+  borderColor: grayscalePalette.darkBorder,
+  disabled: grayscalePalette.darkSecondaryAccent + '77',
+  error: classyPalette.errorRed,
+  success: classyPalette.successGreen,
+  warning: '#FFC107',
+  statusBar: 'light-content',
 });
 
 // --- Common Theme Properties (remains the same) ---
@@ -274,4 +432,10 @@ export const themes = {
   greenDark: greenDarkTheme,
   blueLight: blueLightTheme,
   blueDark: blueDarkTheme,
+  // Adding new themes
+  peachLight: peachLightTheme,
+  pinkLight: pinkLightTheme,
+  yellowLight: yellowLightTheme,
+  grayscaleLight: grayscaleLightTheme,
+  grayscaleDark: grayscaleDarkTheme,
 }; 

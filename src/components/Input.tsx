@@ -11,6 +11,8 @@ interface InputProps extends TextInputProps {
   errorStyle?: StyleProp<TextStyle>;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+  autoCorrect?: boolean;
+  spellCheck?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -22,6 +24,8 @@ const Input: React.FC<InputProps> = ({
   errorStyle,
   icon,
   iconPosition = 'left',
+  autoCorrect = true,
+  spellCheck = true,
   ...textInputProps
 }) => {
   const { theme } = useAppTheme();
@@ -82,6 +86,8 @@ const Input: React.FC<InputProps> = ({
         <TextInput
           style={inputSpecificStyle}
           placeholderTextColor={theme.tertiaryText}
+          autoCorrect={autoCorrect}
+          spellCheck={spellCheck}
           {...textInputProps}
         />
         {icon && iconPosition === 'right' && (

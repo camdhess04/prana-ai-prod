@@ -123,12 +123,17 @@ const AISetupChatScreen: React.FC<AISetupChatScreenProps> = ({ navigation }) => 
 
                         // --- SAVE PROFILE ---
                         try {
-                            // We need profileData later, ensure it's correctly typed if possible
-                            const validatedProfileData = profileData as { availableDays?: string[], [key: string]: any };
+                            // Ensure validatedProfileData can include nickname if provided by AI
+                            const validatedProfileData = profileData as { 
+                                nickname?: string, // Ensure nickname is part of the type
+                                availableDays?: string[], 
+                                [key: string]: any 
+                            };
 
+                            // Pass validatedProfileData directly; saveUserProfile should handle its contents
                             await profileService.saveUserProfile(validatedProfileData, user.userId, user.username);
                             profileSaved = true; // Mark as saved
-                            console.log("Profile Saved!");
+                            console.log("Profile data passed to saveUserProfile. Nickname if present:", validatedProfileData.nickname);
                            // Don't Alert yet, do it after scheduling
 
                             // --- GENERATE PLAN & TEMPLATES ---

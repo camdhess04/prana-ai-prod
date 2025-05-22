@@ -1,12 +1,24 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import type { NavigatorScreenParams } from '@react-navigation/native';
 import { Home, Dumbbell, User } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import HomeScreen from '../screens/HomeScreen';
 import WorkoutNavigator from './WorkoutNavigator';
+import type { WorkoutStackParamList } from './WorkoutNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
 
-const Tab = createBottomTabNavigator();
+// Define ParamList for the MainTabNavigator
+export type MainTabParamList = {
+  Home: undefined;
+  Workout: NavigatorScreenParams<WorkoutStackParamList>;
+  Profile: undefined;
+  Explore: undefined;
+  Progress: undefined;
+  // Add other tab screen params here if any in the future
+};
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const MainTabNavigator = () => {
   const { theme } = useAppTheme();

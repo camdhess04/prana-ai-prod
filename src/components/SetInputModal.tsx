@@ -150,6 +150,8 @@ const SetInputModal: React.FC<SetInputModalProps> = ({
                   placeholder="e.g., 60"
                   placeholderTextColor={theme.secondaryText}
                   keyboardType="numeric"
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
               </View>
               <View style={styles.inputContainer}>
@@ -161,6 +163,8 @@ const SetInputModal: React.FC<SetInputModalProps> = ({
                   placeholder="e.g., 8"
                   placeholderTextColor={theme.secondaryText}
                   keyboardType="numeric"
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
               </View>
             </View>
@@ -178,6 +182,8 @@ const SetInputModal: React.FC<SetInputModalProps> = ({
               multiline
               numberOfLines={3}
               textAlignVertical="top"
+              autoCorrect={true}
+              spellCheck={true}
             />
 
             <View style={styles.buttonContainer}>

@@ -31,6 +31,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "nickname": {
+                    "name": "nickname",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "onboardingLevel": {
                     "name": "onboardingLevel",
                     "isArray": false,
@@ -555,6 +562,27 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "status": {
+                    "name": "status",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
+                },
+                "currentElapsedTime": {
+                    "name": "currentElapsedTime",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "currentExercisesState": {
+                    "name": "currentExercisesState",
+                    "isArray": false,
+                    "type": "AWSJSON",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "exercises": {
                     "name": "exercises",
                     "isArray": true,
@@ -563,7 +591,7 @@ export const schema = {
                     },
                     "isRequired": false,
                     "attributes": [],
-                    "isArrayNullable": false
+                    "isArrayNullable": true
                 },
                 "duration": {
                     "name": "duration",
@@ -576,7 +604,7 @@ export const schema = {
                     "name": "completedAt",
                     "isArray": false,
                     "type": "AWSDateTime",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "owner": {
@@ -611,11 +639,11 @@ export const schema = {
                 {
                     "type": "key",
                     "properties": {
-                        "name": "byUser",
+                        "name": "byUserSessions",
                         "queryField": "sessionsByUserId",
                         "fields": [
                             "userId",
-                            "completedAt"
+                            "updatedAt"
                         ]
                     }
                 },
@@ -853,5 +881,5 @@ export const schema = {
         }
     },
     "codegenVersion": "3.4.4",
-    "version": "a8aeace30c3b695a1271a413ef5efce6"
+    "version": "9bb7123f0a16cb2d93d1febc11b59337"
 };

@@ -17,6 +17,7 @@ export const onCreateUserProfile = /* GraphQL */ `subscription OnCreateUserProfi
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -53,6 +54,7 @@ export const onUpdateUserProfile = /* GraphQL */ `subscription OnUpdateUserProfi
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -89,6 +91,7 @@ export const onDeleteUserProfile = /* GraphQL */ `subscription OnDeleteUserProfi
     username
     name
     email
+    nickname
     onboardingLevel
     heightCm
     weightKg
@@ -366,6 +369,9 @@ export const onCreateWorkoutSession = /* GraphQL */ `subscription OnCreateWorkou
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name
@@ -397,6 +403,9 @@ export const onUpdateWorkoutSession = /* GraphQL */ `subscription OnUpdateWorkou
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name
@@ -428,6 +437,9 @@ export const onDeleteWorkoutSession = /* GraphQL */ `subscription OnDeleteWorkou
     templateId
     scheduledWorkoutId
     name
+    status
+    currentElapsedTime
+    currentExercisesState
     exercises {
       id
       name

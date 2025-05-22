@@ -152,7 +152,7 @@ const Button: React.FC<ButtonProps> = ({
   // Determine color for ActivityIndicator based on button variant
   let indicatorColor = theme.primary;
   if (variant === 'primary' || variant === 'secondary' || variant === 'danger') {
-    indicatorColor = theme.primaryButtonText;
+    indicatorColor = theme.primaryButtonText; // Or theme.secondaryButtonText for secondary if it differs
   }
   
   // Add marginRight to icon if title also exists to ensure spacing

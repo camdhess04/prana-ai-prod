@@ -16,6 +16,7 @@ type UserProfile @model @auth(rules: [
   username: String!      # REQUIRED: User's Cognito username (email)
   name: String           # Optional display name
   email: AWSEmail        # Optional email
+  nickname: String      #
 
   onboardingLevel: String # Optional: "chill", "intermediate", "nerd"
 
@@ -94,7 +95,7 @@ type PerformedSet {
   id: ID!
   reps: String
   weight: String
-  rpe: Int      # Optional: Rate of Perceived Exertion (1-10)
+  rpe: Int      # Optional: Rate of Performed Exertion (1-10)
   notes: String # Optional: User notes for this specific set
 }
 
@@ -107,17 +108,25 @@ type SessionExercise {
 
 type WorkoutSession @model @auth(rules: [ { allow: owner } ]) {
   id: ID!
-  userId: ID! @index(name: "byUser", queryField: "sessionsByUserId", sortKeyFields: ["completedAt"])
-  templateId: ID # Optional link to the template used
-  scheduledWorkoutId: ID # Optional link to the scheduled item fulfilled
+  userId: ID! @index(name: "byUserSessions", queryField: "sessionsByUserId", sortKeyFields: ["updatedAt"]) # Changed sortKey to updatedAt
+  templateId: ID
+  scheduledWorkoutId: ID
   name: String!
-  exercises: [SessionExercise]! # Embedded list, should be non-null
-  duration: Int # In seconds, perhaps?
-  completedAt: AWSDateTime! # Timestamp when session was saved
+
+  # --- New & Modified Fields for Pause/Resume ---
+  status: String!                 # REQUIRED: Tracks the session lifecycle: "IN_PROGRESS", "PAUSED", "COMPLETED"
+  currentElapsedTime: Int         # OPTIONAL: Stores total active elapsed time (in seconds) when IN_PROGRESS or PAUSED
+  currentExercisesState: AWSJSON  # OPTIONAL: Stores the full 'logExercises' array (JSON string) for IN_PROGRESS/PAUSED state
+
+  # --- Fields primarily for COMPLETED state (now optional until completion) ---
+  exercises: [SessionExercise]    # OPTIONAL: Stores the final, cleaned-up exercise list. Nullable until completed.
+  duration: Int                   # OPTIONAL: Total duration of the completed workout. Nullable until completed.
+  completedAt: AWSDateTime        # OPTIONAL: Timestamp when session status changes to "COMPLETED". Nullable until completed.
+
   owner: String
   createdAt: AWSDateTime!
-  updatedAt: AWSDateTime!
-  # _version, _deleted, _lastChangedAt managed automatically by @model
+  updatedAt: AWSDateTime!         # Useful for finding the most recent active session
+  # _version, _deleted, _lastChangedAt are managed by Amplify
 }
 
 

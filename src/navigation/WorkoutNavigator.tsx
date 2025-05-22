@@ -15,7 +15,11 @@ export type WorkoutStackParamList = {
   WorkoutRoot: undefined;
   NewWorkout: undefined;
   SelectTemplate: undefined;
-  LogSession: { session: any };
+  LogSession: { 
+    template?: any;
+    scheduledWorkoutId?: string;
+    session?: any;
+  };
   AIPlan: undefined;
   CoachNotebook: { plan: any };
   WorkoutHistory: undefined;

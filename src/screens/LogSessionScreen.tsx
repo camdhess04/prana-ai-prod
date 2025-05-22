@@ -9,11 +9,11 @@ import { useAppTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Card from '../components/Card';
-import { Exercise as LocalExercise, LogExercise, PerformedSet, WorkoutTemplate } from '../types/workout';
-import workoutService from '../services/workoutService';
+import { Exercise as LocalExercise, LogExercise, PerformedSet, WorkoutTemplate, WorkoutSession as LocalWorkoutSession, WorkoutStatus, WorkoutStatusValues } from '../types/workout';
+import workoutService, { SaveCompletedSessionData, StartWorkoutData, PauseWorkoutData, ResumeWorkoutData } from '../services/workoutService';
 import progressionService, { SuggestionMap } from '../services/progressionService';
 import SetInputModal from '../components/SetInputModal';
-import { Clock, Plus, Trash2, ChevronDown, ChevronUp, Zap, Edit3 } from 'lucide-react-native';
+import { Clock, Plus, Trash2, ChevronDown, ChevronUp, Zap, Edit3, Play, Pause } from 'lucide-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { WorkoutStackParamList } from '../navigation/WorkoutNavigator';
 import uuid from 'react-native-uuid';
@@ -46,6 +46,10 @@ const LogSessionScreen: React.FC<LogSessionScreenProps> = ({ route, navigation }
   const [elapsedTime, setElapsedTime] = useState(0);
   const [expandedExerciseId, setExpandedExerciseId] = useState<string | null>(null);
 
+  // --- New State for Active Session ---
+  const [activeSession, setActiveSession] = useState<LocalWorkoutSession | null>(null);
+  const [sessionStatus, setSessionStatus] = useState<WorkoutStatus | "LOADING" | "IDLE">("LOADING");
+
   // --- State for Set Input Modal ---
   const [isSetModalVisible, setIsSetModalVisible] = useState(false);
   const [currentEditingSetInfo, setCurrentEditingSetInfo] = useState<{
@@ -57,93 +61,221 @@ const LogSessionScreen: React.FC<LogSessionScreenProps> = ({ route, navigation }
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(Date.now());
+  const isMountedRef = useRef(true); // To track mount status for async operations
 
-  // --- Initialize Session (Keep existing logic) ---
+  // --- Lifecycle Management for isMountedRef ---
   useEffect(() => {
-    let isActive = true;
-    const initializeSession = async () => {
-        setIsLoading(true);
-        console.log('LogSessionScreen Mounted. Processing route.params:', JSON.stringify(route.params, null, 2));
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-        let initialName: string = 'New Session';
+  // Timer Effect
+  useEffect(() => {
+    if (sessionStatus === WorkoutStatusValues.IN_PROGRESS) {
+      // When status becomes IN_PROGRESS (either new workout or resumed):
+      // Adjust startTimeRef based on the current elapsedTime (which should be 0 for new, or loaded value for resumed)
+      startTimeRef.current = Date.now() - (elapsedTime * 1000);
+
+      if (timerRef.current) { // Clear any existing interval just in case
+          clearInterval(timerRef.current);
+      }
+
+      timerRef.current = setInterval(() => {
+          // Check isMountedRef before setting state if you want to be absolutely sure, 
+          // though React handles this for functional component state updates.
+          // if (isMountedRef.current) { 
+          setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+          // }
+      }, 1000);
+      console.log('LogSessionScreen: Timer STARTED/RESUMED. Current elapsedTime:', elapsedTime);
+
+      // Return the cleanup function
+      return () => {
+          if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+              console.log('LogSessionScreen: Timer STOPPED/PAUSED (interval cleared). Final elapsedTime for this period:', elapsedTime);
+          }
+      };
+    } else {
+      // If sessionStatus is not IN_PROGRESS, ensure timer is cleared if it was running.
+      if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+          console.log('LogSessionScreen: Timer ensured STOPPED as status is not IN_PROGRESS. Status:', sessionStatus);
+      }
+    }
+  }, [sessionStatus]); // Only re-run this effect when sessionStatus changes.
+                        // It's crucial that when sessionStatus becomes IN_PROGRESS, 'elapsedTime'
+                        // already holds the correct value to resume from (either 0 or loaded from paused state).
+
+  // --- Initialize Session (Refactored for Pause/Resume) ---
+  useFocusEffect(
+    useCallback(() => {
+      isMountedRef.current = true; // Ensure isMounted is true on focus
+      let isActive = true;
+      const initializeAndLoadSession = async () => {
+        if (!userId || !username) {
+          Alert.alert("Error", "User information not found. Please log in again.");
+          if (isActive) setIsLoading(false);
+          navigation.goBack();
+          return;
+        }
+        
+        setSessionStatus("LOADING");
+        setIsLoading(true);
+        console.log('LogSessionScreen Focused. Processing route.params:', JSON.stringify(route.params, null, 2));
+
+        try {
+          console.log("Checking for resumable session...");
+          const resumableSession = await workoutService.getResumableSession(userId);
+
+          if (resumableSession && isActive) {
+            console.log("Resumable session found:", resumableSession.id, resumableSession.status);
+            Alert.alert(
+              "Resume Workout?",
+              `You have an existing workout "${resumableSession.name}" that is ${resumableSession.status?.toLowerCase()}. Would you like to resume it?`,
+              [
+                {
+                  text: "Discard & Start New",
+                  style: "destructive",
+                  onPress: async () => {
+                    // Optional: Consider deleting the old session explicitly or marking as abandoned
+                    console.log("User chose to discard session:", resumableSession.id);
+                    await startNewWorkoutFromParams(userId, username);
+                  }
+                },
+                {
+                  text: "Resume",
+                  onPress: () => loadSessionData(resumableSession)
+                }
+              ]
+            );
+          } else if (isActive) {
+            console.log("No resumable session found or component became inactive. Starting new workout from params.");
+            await startNewWorkoutFromParams(userId, username);
+          }
+        } catch (error) {
+          console.error("Error during session initialization:", error);
+          if (isActive) {
+            Alert.alert("Error", "Could not initialize workout session. Please try again.", [{ text: "OK", onPress: () => navigation.goBack() }]);
+            setIsLoading(false);
+            setSessionStatus("IDLE");
+          }
+        }
+      };
+
+      const startNewWorkoutFromParams = async (currentUserId: string, currentUsername: string) => {
+        console.log("Proceeding to start a new workout based on route params.");
+        let initialName: string = 'New Session From Template';
         let initialTemplateId: string | undefined = undefined;
         let initialScheduleId: string | null = null;
         let templateExercises: LocalExercise[] = [];
         let templateForProgression: WorkoutTemplate | undefined = undefined;
 
         if (isScheduledNavParams(route.params)) {
-            console.log("Initializing from ScheduledNavParams (HomeScreen)");
-            const { template, scheduledWorkoutId: schedId } = route.params;
-            initialName = template.name || 'Workout Session';
-            initialTemplateId = template.id;
-            initialScheduleId = schedId;
-            templateExercises = template.exercises || [];
-            templateForProgression = template;
-
+          const { template, scheduledWorkoutId: schedId } = route.params;
+          initialName = template.name || 'Workout Session';
+          initialTemplateId = template.id;
+          initialScheduleId = schedId;
+          templateExercises = template.exercises || [];
+          templateForProgression = template;
         } else if (isManualNavParams(route.params)) {
-            console.log("Initializing from ManualNavParams (SelectTemplateScreen)");
-            const { session } = route.params;
-            initialName = session.name || 'Workout Session';
-            initialTemplateId = session.templateId;
-            initialScheduleId = null;
-            templateExercises = session.exercises || [];
-            console.log("Progression suggestions skipped for manually selected template in V1.5");
-
+          const { session } = route.params;
+          initialName = session.name || 'Workout Session';
+          initialTemplateId = session.templateId;
+          templateExercises = session.exercises || [];
         } else {
-            console.error("LogSessionScreen: Invalid or missing route params!", route.params);
-            Alert.alert("Error", "Could not load workout details.", [{ text: "OK", onPress: () => navigation.goBack() }]);
-            if (isActive) setIsLoading(false);
-            return;
+          console.error("LogSessionScreen: Invalid or missing route params for new workout!", route.params);
+          if (isActive) Alert.alert("Error", "Could not load workout details for new session.", [{ text: "OK", onPress: () => navigation.goBack() }]);
+          if (isActive) setIsLoading(false); setSessionStatus("IDLE");
+          return;
         }
 
         let suggestions: SuggestionMap = {};
-        if (templateForProgression && userId) {
-             try {
-                console.log("Fetching progression suggestions...");
-                suggestions = await progressionService.calculateSuggestions(userId, templateForProgression);
-                console.log("Received suggestions:", suggestions);
-            } catch (error) {
-                console.error("Failed to fetch progression suggestions:", error);
-            }
+        if (templateForProgression && currentUserId) {
+          try {
+            suggestions = await progressionService.calculateSuggestions(currentUserId, templateForProgression);
+          } catch (error) { console.error("Failed to fetch progression suggestions:", error); }
         }
 
         if (!isActive) return;
 
         const initialLogExercises: LogExercise[] = templateExercises.map((ex: LocalExercise): LogExercise => {
-             const exerciseSuggestions = suggestions[ex.id] ?? {};
-             return {
-                id: ex.id, name: ex.name,
-                targetSets: ex.sets ?? '',
-                targetReps: exerciseSuggestions.reps ?? ex.reps ?? '',
-                targetWeight: exerciseSuggestions.weight ?? ex.weight ?? '',
-                targetRest: ex.restPeriod, note: ex.note,
-                suggestionNote: exerciseSuggestions.note ?? null,
-                performedSets: [],
-             };
+          const exerciseSuggestions = suggestions[ex.id] ?? {};
+          return {
+            id: ex.id, name: ex.name,
+            targetSets: ex.sets ?? '', targetReps: exerciseSuggestions.reps ?? ex.reps ?? '',
+            targetWeight: exerciseSuggestions.weight ?? ex.weight ?? '',
+            targetRest: ex.restPeriod, note: ex.note,
+            suggestionNote: exerciseSuggestions.note ?? null, performedSets: [],
+          };
         });
 
-        setWorkoutName(initialName);
-        setTemplateId(initialTemplateId);
-        setScheduledWorkoutId(initialScheduleId);
-        setLogExercises(initialLogExercises);
-        console.log(`Initialized ${initialLogExercises.length} exercises for logging.`);
+        try {
+            const startData = {
+                userId: currentUserId,
+                owner: currentUsername,
+                name: initialName,
+                initialExercises: initialLogExercises, // These will be stringified by the service
+                templateId: initialTemplateId,
+                scheduledWorkoutId: initialScheduleId,
+            };
+            console.log("Calling startWorkout with:", JSON.stringify(startData, null, 2));
+            const newSession = await workoutService.startWorkout(startData);
+            if (isActive) loadSessionData(newSession, true);
+        } catch (startError) {
+            console.error("Error starting new workout session:", startError);
+            if (isActive) {
+                Alert.alert("Error", "Failed to start new workout session.");
+                setIsLoading(false); setSessionStatus("IDLE");
+            }
+        }
+      };
+
+      const loadSessionData = (session: LocalWorkoutSession, isNew: boolean = false) => {
+        if (!isMountedRef.current) return;
+        console.log("LogSessionScreen: Loading session data into state:", session.id, "Version:", session._version, "Status:", session.status);
+        setActiveSession(session);
+        setWorkoutName(session.name);
+        setTemplateId(session.templateId ?? undefined);
+        setScheduledWorkoutId(session.scheduledWorkoutId ?? null);
+        
+        let exercisesToLog: LogExercise[] = [];
+        if (session.currentExercisesState) {
+            try {
+                const parsed = JSON.parse(session.currentExercisesState);
+                if (Array.isArray(parsed)) { exercisesToLog = parsed; }
+                else { console.warn("LogSessionScreen: Parsed currentExercisesState is not an array:", parsed); }
+            } catch (e) { console.error("LogSessionScreen: Failed to parse currentExercisesState from session:", e); }
+        }
+        setLogExercises(exercisesToLog);
+        
+        // This will set elapsedTime, and the new timer useEffect will react to session.status
+        setElapsedTime(session.currentElapsedTime ?? 0); 
+        setSessionStatus(session.status as WorkoutStatus); // Set status from loaded session, timer effect will handle starting/stopping
+        
         setIsLoading(false);
-    };
+      };
 
-    initializeSession();
+      initializeAndLoadSession();
 
-    return () => { isActive = false };
-
-  }, [route.params, userId]);
-
-  // --- Timer Effect (Keep existing) ---
-  useEffect(() => {
-    startTimeRef.current = Date.now();
-    timerRef.current = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
+      // Cleanup for useFocusEffect
+      return () => {
+        isMountedRef.current = false;
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+          console.log('LogSessionScreen: Timer CLEANED UP on blur/unmount from useFocusEffect');
+        }
+        // Reset status on blur to ensure clean load on next focus, or manage active workout globally
+        // For now, let's assume session might persist if app is backgrounded and re-focused quickly
+        // setSessionStatus("IDLE"); 
+      };
+    }, [userId, username, route.params, navigation])
+  );
 
   const formatTime = (seconds: number): string => {
       const mins = Math.floor(seconds / 60); const secs = seconds % 60;
@@ -229,28 +361,47 @@ const LogSessionScreen: React.FC<LogSessionScreenProps> = ({ route, navigation }
        return true;
   };
   const completeWorkout = async () => {
-      if (!validateWorkout() || !userId || !username) {
-          if (!userId || !username) Alert.alert("Error", "User identity not found.");
-          return;
-      }
-      setIsSaving(true);
-      if (timerRef.current) clearInterval(timerRef.current);
+    if (!validateWorkout() || !userId || !username) {
+      if (!userId || !username) Alert.alert("Error", "User identity not found.");
+      return;
+    }
+    if (!activeSession || activeSession._version === undefined || activeSession._version === null) {
+      Alert.alert("Error", "Active session details (ID or version) are missing. Cannot complete workout.");
+      setIsSaving(false);
+      return;
+    }
 
-      try {
-        const sessionToSave = {
-          userId: userId, owner: username, templateId: templateId,
-          scheduledWorkoutId: scheduledWorkoutId,
-          name: workoutName, exercises: logExercises,
-          duration: elapsedTime, completedAt: new Date().toISOString(),
-        };
-        console.log("Attempting to save session with data:", JSON.stringify(sessionToSave, null, 2));
-        await workoutService.saveSession(sessionToSave);
-        Alert.alert('Workout Complete!', 'Session logged successfully.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
-      } catch (error: any) {
-        console.error('Error completing workout:', error);
-        Alert.alert('Error', `Failed to log workout session: ${error.message || 'Unknown error'}`);
-        setIsSaving(false);
+    setIsSaving(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    try {
+      const sessionToCompleteData: SaveCompletedSessionData = {
+        id: activeSession.id,
+        _version: activeSession._version,
+        userId: userId!,
+        owner: username!,
+        name: workoutName,
+        templateId: activeSession.templateId,
+        scheduledWorkoutId: activeSession.scheduledWorkoutId,
+        finalLoggedExercises: logExercises,
+        finalDuration: elapsedTime,
+        finalCompletedAt: new Date().toISOString(),
+      };
+      console.log("Attempting to complete session with data:", JSON.stringify(sessionToCompleteData, null, 2));
+      const completedSession = await workoutService.saveSession(sessionToCompleteData);
+      console.log("Session completed successfully:", completedSession.id);
+      Alert.alert('Workout Complete!', 'Session logged successfully.', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+      setActiveSession(null);
+      setSessionStatus("IDLE");
+    } catch (error: any) {
+      console.error('Error completing workout:', error);
+      Alert.alert('Error', `Could not complete workout: ${error.message || 'Unknown error'}`);
+      if (activeSession && activeSession.status === WorkoutStatusValues.IN_PROGRESS) { 
+          setSessionStatus(WorkoutStatusValues.IN_PROGRESS);
       }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // --- Rendering Helpers (Keep existing) ---
@@ -264,6 +415,78 @@ const LogSessionScreen: React.FC<LogSessionScreenProps> = ({ route, navigation }
      });
      const avgReps = loggedSetsCount > 0 ? Math.round(totalReps / loggedSetsCount * 10) / 10 : 0;
      return { setCount: loggedSetsCount, avgReps };
+  };
+
+  const handlePauseWorkout = async () => {
+    if (!activeSession || sessionStatus !== WorkoutStatusValues.IN_PROGRESS || !userId || !username) {
+        console.warn("Pause validation failed", { activeSession, sessionStatus, userId, username });
+        return;
+    }
+    console.log('LogSessionScreen: Pausing workout...', activeSession.id, 'Current elapsedTime:', elapsedTime);
+    const currentElapsedTimeAtPause = elapsedTime; // Capture current elapsed time
+
+    // Optimistic UI update - this will trigger the timer useEffect to stop the timer
+    setSessionStatus(WorkoutStatusValues.PAUSED); 
+
+    try {
+      const pauseData: PauseWorkoutData = {
+        sessionId: activeSession.id,
+        _version: activeSession._version,
+        userId: userId,
+        owner: username,
+        name: workoutName,
+        currentElapsedTime: currentElapsedTimeAtPause, // Use captured value
+        currentExercisesState: logExercises,
+      };
+      const pausedSession = await workoutService.pauseWorkout(pauseData);
+      if (isMountedRef.current) {
+        setActiveSession(pausedSession); // Update activeSession with new _version
+        console.log('LogSessionScreen: Workout paused successfully. New version:', pausedSession._version);
+      }
+    } catch (error) {
+      console.error('LogSessionScreen: Error pausing workout:', error);
+      if (isMountedRef.current) {
+        Alert.alert('Error', 'Could not pause workout. Please try again.');
+        // Revert optimistic update on error ONLY if the session was not changed by another process
+        // For simplicity, reverting to IN_PROGRESS. User can try pausing again.
+        setSessionStatus(WorkoutStatusValues.IN_PROGRESS); 
+      }
+    }
+  };
+
+  const handleResumeWorkout = async () => {
+    if (!activeSession || sessionStatus !== WorkoutStatusValues.PAUSED || !userId || !username) {
+        console.warn("Resume validation failed", { activeSession, sessionStatus, userId, username });
+        return;
+    }
+    console.log('LogSessionScreen: Resuming workout...', activeSession.id);
+
+    // Optimistic UI update - this will trigger the timer useEffect to start the timer
+    // elapsedTime is already correct from the paused state (it was set when session was paused)
+    setSessionStatus(WorkoutStatusValues.IN_PROGRESS); 
+
+    try {
+      const resumeData: ResumeWorkoutData = {
+        sessionId: activeSession.id,
+        _version: activeSession._version,
+        userId: userId,
+        owner: username,
+        name: workoutName,
+      };
+      // The resumeWorkout service function doesn't need currentElapsedTime or currentExercisesState
+      // as it assumes they are persisted on the backend from the PAUSE operation.
+      const resumedSession = await workoutService.resumeWorkout(resumeData);
+      if (isMountedRef.current) {
+        setActiveSession(resumedSession);
+        console.log('LogSessionScreen: Workout resumed successfully. New version:', resumedSession._version);
+      }
+    } catch (error) {
+      console.error('LogSessionScreen: Error resuming workout:', error);
+      if (isMountedRef.current) {
+        Alert.alert('Error', 'Could not resume workout. Please try again.');
+        setSessionStatus(WorkoutStatusValues.PAUSED); // Revert optimistic update
+      }
+    }
   };
 
   // Define styles inside the component or pass theme to a style factory function
@@ -464,7 +687,31 @@ const LogSessionScreen: React.FC<LogSessionScreenProps> = ({ route, navigation }
             </ScrollView>
 
             <View style={[styles.footer, { borderTopColor: theme.borderColor }]}>
-                <Button title="Complete Workout" onPress={completeWorkout} isLoading={isSaving} style={styles.completeButton} />
+                {sessionStatus === WorkoutStatusValues.IN_PROGRESS && (
+                    <Button
+                        title="Pause Workout"
+                        onPress={handlePauseWorkout}
+                        variant="outline"
+                        icon={<Pause size={18} color={theme.primary} />}
+                        style={{ marginBottom: 10 }} 
+                    />
+                )}
+                {sessionStatus === WorkoutStatusValues.PAUSED && (
+                    <Button
+                        title="Resume Workout"
+                        onPress={handleResumeWorkout}
+                        variant="secondary" 
+                        icon={<Play size={18} color={theme.secondaryButtonText} />}
+                        style={{ marginBottom: 10 }}
+                    />
+                )}
+                <Button
+                    title="Complete Workout"
+                    onPress={completeWorkout}
+                    isLoading={isSaving}
+                    style={styles.completeButton}
+                    disabled={isSaving || sessionStatus === WorkoutStatusValues.PAUSED || sessionStatus === "LOADING" || sessionStatus === "IDLE"}
+                />
             </View>
 
             {currentEditingSetInfo && (

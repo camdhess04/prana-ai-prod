@@ -50,6 +50,7 @@ type EagerUserProfile = {
   readonly username: string;
   readonly name?: string | null;
   readonly email?: string | null;
+  readonly nickname?: string | null;
   readonly onboardingLevel?: string | null;
   readonly heightCm?: number | null;
   readonly weightKg?: number | null;
@@ -77,6 +78,7 @@ type LazyUserProfile = {
   readonly username: string;
   readonly name?: string | null;
   readonly email?: string | null;
+  readonly nickname?: string | null;
   readonly onboardingLevel?: string | null;
   readonly heightCm?: number | null;
   readonly weightKg?: number | null;
@@ -219,9 +221,12 @@ type EagerWorkoutSession = {
   readonly templateId?: string | null;
   readonly scheduledWorkoutId?: string | null;
   readonly name: string;
-  readonly exercises: (SessionExercise | null)[];
+  readonly status: string;
+  readonly currentElapsedTime?: number | null;
+  readonly currentExercisesState?: string | null;
+  readonly exercises?: (SessionExercise | null)[] | null;
   readonly duration?: number | null;
-  readonly completedAt: string;
+  readonly completedAt?: string | null;
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;
@@ -236,9 +241,12 @@ type LazyWorkoutSession = {
   readonly templateId?: string | null;
   readonly scheduledWorkoutId?: string | null;
   readonly name: string;
-  readonly exercises: (SessionExercise | null)[];
+  readonly status: string;
+  readonly currentElapsedTime?: number | null;
+  readonly currentExercisesState?: string | null;
+  readonly exercises?: (SessionExercise | null)[] | null;
   readonly duration?: number | null;
-  readonly completedAt: string;
+  readonly completedAt?: string | null;
   readonly owner?: string | null;
   readonly createdAt: string;
   readonly updatedAt: string;

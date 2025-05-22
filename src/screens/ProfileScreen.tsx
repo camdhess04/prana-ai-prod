@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, ActivityIndicator, LayoutAnimation, UIManager, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { useAppTheme } from '../context/ThemeContext';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Input from '../components/Input';
-import { UserCircle, LogOut, ChevronRight, HelpCircle, Shield, Info, Mail, Edit3, Save, Check } from 'lucide-react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { ProfileStackParamList } from '../navigation/ProfileNavigator';
+import { UserCircle, LogOut, ChevronRight, HelpCircle, Shield, Info, Mail, Edit3, Save, Check, Palette, ChevronDown, ChevronUp } from 'lucide-react-native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { MainTabParamList } from '../navigation/MainTabNavigator';
 import type { FetchUserAttributesOutput } from 'aws-amplify/auth';
 import type { ThemeName } from '../context/ThemeContext';
 
-type ProfileScreenProps = NativeStackScreenProps<ProfileStackParamList, 'ProfileDetail'>;
+type ProfileScreenProps = BottomTabScreenProps<MainTabParamList, 'Profile'>;
 
 interface MenuNavigationItem {
     id: string;
@@ -49,6 +49,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const { theme, currentThemeName, setTheme, availableThemes, isLoadingTheme } = useAppTheme();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [nicknameInput, setNicknameInput] = useState(userProfile?.nickname || '');
+  const [isAppearanceExpanded, setIsAppearanceExpanded] = useState(false);
+
+  if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
 
   useEffect(() => {
     if (userProfile?.nickname !== nicknameInput && !isLoadingTheme) {
@@ -168,7 +173,37 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     buttonText: {
         fontFamily: theme.fontFamilyMedium,
     },
-    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center'}
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center'},
+    appearanceHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 16, 
+        paddingHorizontal: 16,
+    },
+    themeListContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 8,
+    },
+    themeSelectItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 14,
+    },
+    themeSelectText: {
+        fontSize: 16,
+        fontFamily: theme.fontFamilyRegular,
+        color: theme.text,
+    },
+    themeSelectedItem: {
+    },
+    themeSelectedText: {
+        fontFamily: theme.fontFamilyMedium,
+        color: theme.primary,
+    },
+    appearanceChevron: {
+        marginLeft: 'auto',
+    },
   });
 
   const menuSections: MenuSection[] = [
@@ -195,85 +230,127 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
-        <View style={styles.headerContainer}>
-          <View style={styles.userIconContainer}>
-            <UserCircle size={48} color={theme.primary} />
-          </View>
-          <View style={styles.userNameAndNicknameContainer}>
-            <Text style={styles.userName}>{userProfile?.nickname || user?.username || 'Prana User'}</Text>
-            {userProfile?.nickname && user?.username && <Text style={styles.userNicknameDisplay}>@{user.username}</Text>}
-          </View>
-          <View style={styles.userEmailContainer}>
-            <Mail size={14} color={theme.secondaryText} />
-            <Text style={styles.userEmail}>{userEmail || (user?.username && user.username.includes('@') ? user.username : 'No email found')}</Text>
-          </View>
-        </View>
-
-        <View style={styles.mainContentContainer}>
-            <View key="Appearance_section_display">
-                <Text style={styles.sectionTitle}>Appearance</Text>
-                <Card style={styles.sectionCard}>
-                    {(Object.keys(availableThemes) as ThemeName[]).map(themeNameKey => (
-                        <TouchableOpacity key={themeNameKey} onPress={() => setTheme(themeNameKey)} style={styles.menuItem}>
-                            <Text style={styles.menuItemText}>{getThemeDisplayName(themeNameKey)}</Text>
-                            {currentThemeName === themeNameKey && <Check size={22} color={theme.primary} />}
-                        </TouchableOpacity>
-                    ))}
-                </Card>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        style={{ flex: 1 }}
+        // keyboardVerticalOffset={Platform.OS === 'ios' ? YOUR_HEADER_HEIGHT : 0} // Adjust if there's a header
+      >
+        <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
+          <View style={styles.headerContainer}>
+            <View style={styles.userIconContainer}>
+              <UserCircle size={48} color={theme.primary} />
             </View>
+            <View style={styles.userNameAndNicknameContainer}>
+              <Text style={styles.userName}>{userProfile?.nickname || user?.username || 'Prana User'}</Text>
+              {userProfile?.nickname && user?.username && <Text style={styles.userNicknameDisplay}>@{user.username}</Text>}
+            </View>
+            <View style={styles.userEmailContainer}>
+              <Mail size={14} color={theme.secondaryText} />
+              <Text style={styles.userEmail}>{userEmail || (user?.username && user.username.includes('@') ? user.username : 'No email found')}</Text>
+            </View>
+          </View>
 
-            {menuSections.map(section => (
-              <View key={section.title + "_section_display"}>
-                <Text style={styles.sectionTitle}>{section.title}</Text>
-                {section.items.map((item, index) => {
-                    if ((item as MenuInputItem).isInput) {
-                        const inputItem = item as MenuInputItem;
-                        return (
-                            <Card key={inputItem.id} style={styles.inputMenuItemContainer}>
-                                <View style={styles.inputWithLabelContainer}>
-                                    <Text style={styles.inputLabel}>{inputItem.text}</Text>
-                                    <Input 
-                                        value={inputItem.value}
-                                        onChangeText={inputItem.onChangeText}
-                                        placeholder={inputItem.placeholder}
-                                        icon={inputItem.icon} 
-                                        iconPosition="left"
-                                    />
-                                </View>
-                                <View style={styles.saveButtonContainer}>
-                                    <Button title="Save Nickname" onPress={inputItem.onSave} size="small" icon={<Save size={16} color={theme.primaryButtonText}/>} />
-                                </View>
-                            </Card>
-                        );
-                    } else {
-                        const navItem = item as MenuNavigationItem;
-                        return (
-                            <Card style={styles.sectionCard} key={navItem.id}>
-                                <TouchableOpacity onPress={navItem.onPress} activeOpacity={0.6}>
-                                <View style={styles.menuItem}>
-                                    <View style={styles.menuItemIcon}>{navItem.icon}</View>
-                                    <Text style={styles.menuItemText}>{navItem.text}</Text>
-                                    <ChevronRight size={20} color={theme.secondaryText} style={styles.menuItemChevron} />
-                                </View>
-                                </TouchableOpacity>
-                            </Card>
-                        );
-                    }
-                })}
-              </View>
-            ))}
+          <View style={styles.mainContentContainer}>
+              <Text style={styles.sectionTitle}>Display</Text>
+              <Card style={styles.sectionCard}>
+                  <TouchableOpacity 
+                    style={styles.appearanceHeader} 
+                    onPress={() => {
+                      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                      setIsAppearanceExpanded(!isAppearanceExpanded);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.menuItemIcon}>
+                      <Palette color={theme.secondaryText} size={22} />
+                    </View>
+                    <Text style={styles.menuItemText}>Appearance</Text> 
+                    <View style={styles.appearanceChevron}>
+                      {isAppearanceExpanded ? (
+                          <ChevronUp color={theme.secondaryText} size={22} />
+                      ) : (
+                          <ChevronDown color={theme.secondaryText} size={22} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
 
-            <Button
-              title="Sign Out"
-              onPress={handleSignOut}
-              variant="danger"
-              style={styles.signOutButton}
-              textStyle={styles.buttonText}
-              icon={<LogOut size={18} color={theme.primaryButtonText} />}
-            />
-        </View>
-      </ScrollView>
+                  {isAppearanceExpanded && (
+                    <View style={styles.themeListContainer}>
+                      {(Object.keys(availableThemes) as ThemeName[]).map(themeNameKey => (
+                          <TouchableOpacity 
+                              key={themeNameKey} 
+                              onPress={() => setTheme(themeNameKey)} 
+                              style={[
+                                  styles.themeSelectItem,
+                                  currentThemeName === themeNameKey && styles.themeSelectedItem
+                              ]}
+                          >
+                              <Text style={[
+                                  styles.themeSelectText, 
+                                  currentThemeName === themeNameKey && styles.themeSelectedText
+                              ]}>
+                                  {getThemeDisplayName(themeNameKey)}
+                              </Text>
+                              {currentThemeName === themeNameKey && <Check size={20} color={theme.primary} />}
+                          </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+              </Card>
+
+              {menuSections.map(section => (
+                <View key={section.title + "_section_display"}>
+                  <Text style={styles.sectionTitle}>{section.title}</Text>
+                  {section.items.map((item, index) => {
+                      if ((item as MenuInputItem).isInput) {
+                          const inputItem = item as MenuInputItem;
+                          return (
+                              <Card key={inputItem.id} style={styles.inputMenuItemContainer}>
+                                  <View style={styles.inputWithLabelContainer}>
+                                      <Text style={styles.inputLabel}>{inputItem.text}</Text>
+                                      <Input 
+                                          value={inputItem.value}
+                                          onChangeText={inputItem.onChangeText}
+                                          placeholder={inputItem.placeholder}
+                                          icon={inputItem.icon} 
+                                          iconPosition="left"
+                                      />
+                                  </View>
+                                  <View style={styles.saveButtonContainer}>
+                                      <Button title="Save Nickname" onPress={inputItem.onSave} size="small" icon={<Save size={16} color={theme.primaryButtonText}/>} />
+                                  </View>
+                              </Card>
+                          );
+                      } else {
+                          const navItem = item as MenuNavigationItem;
+                          return (
+                              <Card style={styles.sectionCard} key={navItem.id}>
+                                  <TouchableOpacity onPress={navItem.onPress} activeOpacity={0.6}>
+                                  <View style={styles.menuItem}>
+                                      <View style={styles.menuItemIcon}>{navItem.icon}</View>
+                                      <Text style={styles.menuItemText}>{navItem.text}</Text>
+                                      <ChevronRight size={20} color={theme.secondaryText} style={styles.menuItemChevron} />
+                                  </View>
+                                  </TouchableOpacity>
+                              </Card>
+                          );
+                      }
+                  })}
+                </View>
+              ))}
+
+              <Button
+                title="Sign Out"
+                onPress={handleSignOut}
+                variant="danger"
+                style={styles.signOutButton}
+                icon={<LogOut size={18} color={theme.primaryButtonText}/>}
+                textStyle={styles.buttonText}
+                fullWidth={false}
+              />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
